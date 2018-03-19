@@ -25,4 +25,4 @@ ContributorsCheck/contributors-check/.settings/org.eclipse.core.resources.prefs
 ContributorsCheck/contributors-check/.settings/org.eclipse.jdt.core.prefs
 ContributorsCheck/contributors-check/.settings/org.eclipse.m2e.core.prefs
 ContributorsCheck/contributors-check/.project
-target/*
+ContributorsCheck/contributors-check/target/*
