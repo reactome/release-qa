@@ -1,7 +1,9 @@
 package org.reactome.qa.stableIdentifier;
+import java.io.FileInputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
@@ -18,9 +20,20 @@ public class StableIdentifierCheck
 		StringBuilder sb = new StringBuilder();
 		try
 		{
-			//TODO: Get real DB settings from a file - this is just for local testing.
-			MySQLAdaptor adaptor = new MySQLAdaptor("localhost", "test_reactome_64", "root", "root", 3306);
 			
+			
+			Properties props = new Properties();
+			props.load(new FileInputStream("src/main/resources/auth.properties") );
+			
+			String host = props.getProperty("host");
+			String database = props.getProperty("database");
+			String username = props.getProperty("username");
+			String password = props.getProperty("password");
+			int port = Integer.valueOf(props.getProperty("port"));
+			
+			MySQLAdaptor adaptor = new MySQLAdaptor(host, database, username, password, port);
+			
+			@SuppressWarnings("unchecked")
 			Collection<GKInstance> identifiers = adaptor.fetchInstanceByAttribute("DatabaseIdentifier", "identifier", "IS NULL", null);
 			
 			if (!identifiers.isEmpty())
@@ -54,7 +67,6 @@ public class StableIdentifierCheck
 		}
 		catch (SQLException e) 
 		{
-			
 			e.printStackTrace();
 		}
 		catch (Exception e)
