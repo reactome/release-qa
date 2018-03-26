@@ -31,12 +31,13 @@ public class StableIdentifierCheck
 			
 			MySQLAdaptor adaptor = new MySQLAdaptor(host, database, username, password, port);
 			
+			// Find DatabaseIdentifier objects with a "null" identifier.
 			@SuppressWarnings("unchecked")
 			Collection<GKInstance> identifiers = adaptor.fetchInstanceByAttribute("DatabaseIdentifier", "identifier", "IS NULL", null);
 			
 			if (!identifiers.isEmpty())
 			{
-				sb.append("The following DatabaseIdentifiers have NULL \"identifier\" values: ");
+				sb.append("The following DatabaseIdentifiers have NULL \"identifier\" values: \n");
 				for (GKInstance identifier : identifiers)
 				{
 					sb.append("DBID: ").append(identifier.getDBID()).append(" DisplayName: ").append(identifier.getDisplayName()).append("\n");
