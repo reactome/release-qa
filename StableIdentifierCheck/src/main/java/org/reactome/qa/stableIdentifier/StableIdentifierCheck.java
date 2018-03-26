@@ -15,15 +15,13 @@ import org.gk.persistence.MySQLAdaptor;
  */
 public class StableIdentifierCheck
 {
-	public static String executeStableIdentifierCheck()
+	public static String executeStableIdentifierCheck(String pathToResources)
 	{
 		StringBuilder sb = new StringBuilder();
 		try
 		{
-			
-			
 			Properties props = new Properties();
-			props.load(new FileInputStream("src/main/resources/auth.properties") );
+			props.load(new FileInputStream(pathToResources) );
 			
 			String host = props.getProperty("host");
 			String database = props.getProperty("database");
@@ -79,7 +77,13 @@ public class StableIdentifierCheck
 	
 	public static void main(String[] args)
 	{
-		String report = executeStableIdentifierCheck();
+		String pathToResources = "src/main/resources/auth.properties";
+		if (!args[0].equals(""))
+		{
+			pathToResources = args[0];
+		}
+
+		String report = executeStableIdentifierCheck(pathToResources);
 		System.out.println(report);
 	}
 }
