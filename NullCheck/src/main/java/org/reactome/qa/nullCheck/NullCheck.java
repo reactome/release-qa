@@ -17,16 +17,9 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.gk.schema.InvalidAttributeException;public class NullCheck
-{
+import org.gk.schema.InvalidAttributeException;
 
-	private  static GKInstance getSomeAttribute(GKInstance inst, String attrName) throws InvalidAttributeException, Exception
-	{
-		return ((GKInstance) inst.getAttributeValue(attrName));
-	}
-
-
-	
+public class NullCheck {
 	public static void main(String[] args) {
 		MySQLAdaptor currentDBA = null;
 		try {
@@ -37,8 +30,9 @@ import org.gk.schema.InvalidAttributeException;public class NullCheck
 			String password = prop.getProperty("password");
 			String host = prop.getProperty("host");
 			String database = prop.getProperty("database");
+			int port = Integer.parseInt(prop.getProperty("port", "3306"));
 		
-			currentDBA = new MySQLAdaptor(host, database, user, password, 3306);
+			currentDBA = new MySQLAdaptor(host, database, user, password, port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -129,9 +123,7 @@ import org.gk.schema.InvalidAttributeException;public class NullCheck
 			
 		for (GKInstance simpleEntity : simpleEntities) {
 			try {
-				//System.out.println(simpleEntity);
-				//System.out.println(getSomeAttribute(simpleEntity,"species"));
-				GKInstance speciesInstance = getSomeAttribute(simpleEntity, "species");
+				GKInstance speciesInstance = (GKInstance) simpleEntity.getAttributeValue("species");
 				if (speciesInstance == null) {
 					continue;
 				}
