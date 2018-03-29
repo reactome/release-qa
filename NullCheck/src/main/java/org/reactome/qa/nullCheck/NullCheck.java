@@ -152,18 +152,7 @@ public class NullCheck {
 	}
 	
 	private static void reportNullAttribute(List<GKInstance> instances, String attribute) {
-		List<String> reportLines = new ArrayList<String>();
-		
-		for (GKInstance instance : instances) {
-			try {
-				Object attributeValue = instance.getAttributeValue(attribute);
-				if (attributeValue == null) {
-					reportLines.add(getReportLine(instance, "Instance with null " + attribute));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		List<String> reportLines = getReportLines(instances, attribute);
 		
 		if (!reportLines.isEmpty()) {
 			System.out.println("There are " + reportLines.size() + " instances with a null " + attribute);
@@ -183,6 +172,23 @@ public class NullCheck {
 	
 		for (GKInstance instance : instances) {
 			reportLines.add(getReportLine(instance, schemaClass + " with null " + attribute));
+		}
+		
+		return reportLines;
+	}
+	
+	private static List<String> getReportLines(List<GKInstance> instances, String attribute) {
+		List<String> reportLines = new ArrayList<String>();
+		
+		for (GKInstance instance : instances) {
+			try {
+				Object attributeValue = instance.getAttributeValue(attribute);
+				if (attributeValue == null) {
+					reportLines.add(getReportLine(instance, "Instance with null " + attribute));
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return reportLines;
