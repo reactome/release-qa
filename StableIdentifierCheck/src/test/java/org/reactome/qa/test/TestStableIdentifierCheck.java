@@ -19,7 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.reactome.qa.stableIdentifier.StableIdentifierCheck;
 
 @RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
-@PrepareForTest({MySQLAdaptor.class, StableIdentifierCheck.class})
+@PrepareForTest({ StableIdentifierCheck.class })
 public class TestStableIdentifierCheck
 {
 
