@@ -34,3 +34,4 @@ ContributorsCheck/contributors-check/src/main/resources/auth.properties
 */target/*
 .recommenders
 NullCheck/src/main/resources/auth.properties
+auth.properties
