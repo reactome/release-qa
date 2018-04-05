@@ -14,12 +14,6 @@ import org.reactome.qa.report.Report;
  */
 public class StableIdentifierCheck 
 {
-//	private static String pathToResources;
-//	
-//	public static void setPathToResources(String path)
-//	{
-//		StableIdentifierCheck.pathToResources = path;
-//	}
 
 	private static Report checkNullIdentifiers(MySQLAdaptor adaptor) throws Exception
 	{

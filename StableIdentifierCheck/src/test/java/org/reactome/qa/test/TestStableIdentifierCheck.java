@@ -19,7 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.reactome.qa.stableIdentifier.StableIdentifierCheck;
 
 @RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
-@PrepareForTest({ StableIdentifierCheck.class })
+//@PrepareForTest({ StableIdentifierCheck.class })
 public class TestStableIdentifierCheck
 {
 
@@ -34,8 +34,6 @@ public class TestStableIdentifierCheck
 	@Test
 	public void testStableIdentifierCheck() throws SQLException
 	{
-		SchemaClass dummySchemaClass = new GKSchemaClass("1");
-		
 		GKInstance inst1 =  PowerMockito.mock(GKInstance.class);
 		PowerMockito.when(inst1.getDisplayName()).thenReturn("Inst 1");
 		PowerMockito.when(inst1.getDBID()).thenReturn(new Long(12345));
@@ -58,11 +56,10 @@ public class TestStableIdentifierCheck
 		}
 		catch (Exception e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		StableIdentifierCheck checker = new StableIdentifierCheck();
-		checker.executeStableIdentifierCheck("src/test/resources/auth.properties");
+		//StableIdentifierCheck checker = new StableIdentifierCheck();
+		StableIdentifierCheck.executeStableIdentifierCheck("src/test/resources/auth.properties");
 		assertTrue(true);
 	}
 
