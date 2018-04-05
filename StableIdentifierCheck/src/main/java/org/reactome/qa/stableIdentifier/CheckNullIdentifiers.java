@@ -23,7 +23,6 @@ public class CheckNullIdentifiers implements QACheck
 	@Override
 	public Report executeQACheck()
 	{
-		StringBuilder sb = new StringBuilder();
 		Report report = new DelimitedTextReport();
 		// Find DatabaseIdentifier objects with a "null" identifier.
 		Collection<GKInstance> identifiers;
@@ -32,19 +31,12 @@ public class CheckNullIdentifiers implements QACheck
 			identifiers = this.adaptor.fetchInstanceByAttribute("DatabaseIdentifier", "identifier", "IS NULL", null);
 			if (!identifiers.isEmpty())
 			{
-				sb.append("The following DatabaseIdentifiers have NULL \"identifier\" values: \n");
 				for (GKInstance identifier : identifiers)
 				{
 					report.addLine(Arrays.asList(identifier.getDBID().toString(), identifier.getDisplayName()));
 				}
 			}
-			else
-			{
-				sb.append("All DatabaseIdentifiers have a value for \"identifier\"! :)\n");
-			}
-			
 			report.setColumnHeaders(Arrays.asList("DBID", "Display Name"));
-
 		}
 		catch (Exception e)
 		{
