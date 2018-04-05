@@ -19,7 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.reactome.qa.stableIdentifier.StableIdentifierCheck;
 
 @RunWith(org.powermock.modules.junit4.PowerMockRunner.class)
-//@PrepareForTest({ StableIdentifierCheck.class })
+@PrepareForTest({ StableIdentifierCheck.class })
 public class TestStableIdentifierCheck
 {
 
@@ -60,6 +60,7 @@ public class TestStableIdentifierCheck
 		}
 		//StableIdentifierCheck checker = new StableIdentifierCheck();
 		StableIdentifierCheck.executeStableIdentifierCheck("src/test/resources/auth.properties");
+		StableIdentifierCheck.main(new String[] {"src/test/resources/auth.properties"});
 		assertTrue(true);
 	}
 
