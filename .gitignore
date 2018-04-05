@@ -27,3 +27,10 @@ ContributorsCheck/contributors-check/.settings/org.eclipse.m2e.core.prefs
 ContributorsCheck/contributors-check/.project
 ContributorsCheck/contributors-check/target/*
 ContributorsCheck/contributors-check/src/main/resources/auth.properties
+/.metadata/
+.classpath
+.project
+.settings
+*/target/*
+.recommenders
+auth.properties
