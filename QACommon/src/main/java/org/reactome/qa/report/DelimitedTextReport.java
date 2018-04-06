@@ -15,6 +15,11 @@ public class DelimitedTextReport extends Report
 	private OutputStream outStream ;
 	
 	
+	public void setPrintSeperatorLine(boolean printSep)
+	{
+		this.printSeparatorLine = printSep;
+	}
+	
 	/**
 	 * Prints the header, and an optional seperator line.
 	 */
