@@ -25,13 +25,11 @@ public class TestTextReport
 		testReport.addLine(Arrays.asList("value1", "value2", "value3"));
 		testReport.addLine(Arrays.asList("1234", "5.6778", "930495898983"));
 		
-		testReport.setOutput(System.out);
 		
-		testReport.printDelmitedReport(",");
+		testReport.print(",",System.out);
 		
 		OutputStream outStream = new ByteArrayOutputStream();
-		testReport.setOutput(outStream );
-		testReport.printDelmitedReport(",");
+		testReport.print(",", outStream);
 		String expectedOutput = "Header A,Header 2,Header_C\n" + 
 		"---------------------------\n" + 
 		"value1,value2,value3\n" + 
@@ -50,11 +48,10 @@ public class TestTextReport
 		testReport.addLine(Arrays.asList("value1", "value2", "value3"));
 		testReport.addLine(Arrays.asList("1234", "5.6778", "930495898983"));
 		
-		testReport.setOutput(System.out);
 		
 		try
 		{
-			testReport.print();
+			testReport.print(null, System.out);
 		}
 		catch (ReportException e)
 		{

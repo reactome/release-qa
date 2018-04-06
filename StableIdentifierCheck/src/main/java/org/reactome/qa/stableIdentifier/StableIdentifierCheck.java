@@ -51,10 +51,9 @@ public class StableIdentifierCheck
 			Report nullIdentifiersReport = checkNullIdentifiers(adaptor);
 
 			Report duplicateIdentifiersReport = checkDuplicatedIdentifiers(adaptor);
-			nullIdentifiersReport.setOutput(System.out);
-			duplicateIdentifiersReport.setOutput(System.out);
-			((DelimitedTextReport)nullIdentifiersReport).printDelmitedReport(",");
-			((DelimitedTextReport)duplicateIdentifiersReport).printDelmitedReport(",");
+
+			((DelimitedTextReport)nullIdentifiersReport).print(",", System.out);
+			((DelimitedTextReport)duplicateIdentifiersReport).print(",", System.out);
 		}
 		catch (SQLException e) 
 		{

@@ -1,8 +1,8 @@
 package org.reactome.qa.report;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.reactome.qa.report.exception.ReportException;
@@ -40,7 +40,24 @@ public abstract class Report
 		this.columnHeaders.add(header);
 	}
 	
+	/**
+	 * Gets an unmodifiable list of headers.
+	 * @return an unmodifiable list of headers.
+	 */
+	public List<String> getHeaders()
+	{
+		return Collections.unmodifiableList(this.columnHeaders);
+	}
+	
+	/**
+	 * Gets an unmodifiable list of report lines.
+	 * @return an unmodifiable list of report lines.
+	 */
+	public List<List<String>> getReportLines()
+	{
+		return Collections.unmodifiableList(this.reportLines);
+	}
+	
 	public abstract void print() throws IOException, ReportException;
 	protected abstract void printHeader();
-	public abstract void setOutput(OutputStream outStream);
 }

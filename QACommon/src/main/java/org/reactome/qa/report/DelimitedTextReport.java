@@ -9,23 +9,15 @@ import org.reactome.qa.report.exception.ReportException;
 
 public class DelimitedTextReport extends Report
 {
-
+	private boolean printSeparatorLine = false;
 	private String delimiter;
 	StringBuilder sb = new StringBuilder();
 	private OutputStream outStream ;
 	
+	
 	/**
-	 * Print the report as text, with values delimited by a specific character.
-	 * @param delim - the delimiter character.
-	 * @throws IOException 
-	 * @throws ReportException 
+	 * Prints the header, and an optional seperator line.
 	 */
-	public void printDelmitedReport(String delim) throws IOException, ReportException
-	{
-		this.delimiter = delim;
-		this.print();
-	}
-
 	@Override
 	protected void printHeader()
 	{
@@ -43,12 +35,32 @@ public class DelimitedTextReport extends Report
 		this.sb.append("\n");
 		
 		// Append a separator line as wide as the header. - later, this can be configurable.
-		char[] chars = new char[this.sb.toString().length() ];
-		Arrays.fill(chars, '-');
-		String text = new String(chars);
-		this.sb.append(text).append("\n");
+		if (printSeparatorLine)
+		{
+			char[] chars = new char[this.sb.toString().length() ];
+			Arrays.fill(chars, '-');
+			String text = new String(chars);
+			this.sb.append(text).append("\n");
+		}
 	}
 
+	/**
+	 * Prints a report to a specified output stream. Values will be separated with a delimiter character.
+	 * @param delim - The delimiter character.
+	 * @param outStream - The outputstream. Set this to System.out if you want to print to stdout.
+	 * @throws IOException
+	 * @throws ReportException
+	 */
+	public void print(String delim, OutputStream outStream) throws IOException, ReportException
+	{
+		this.delimiter = delim;
+		this.outStream = outStream;
+		this.print();
+	}
+	
+	/**
+	 * Print the report.
+	 */
 	@Override
 	public void print() throws IOException, ReportException
 	{
@@ -76,11 +88,4 @@ public class DelimitedTextReport extends Report
 		}
 		outStream.write(sb.toString().getBytes());
 	}
-
-	@Override
-	public void setOutput(OutputStream outStream)
-	{
-		this.outStream = outStream;
-	}
-
 }
