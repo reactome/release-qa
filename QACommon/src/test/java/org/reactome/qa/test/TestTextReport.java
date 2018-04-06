@@ -25,7 +25,7 @@ public class TestTextReport
 		testReport.addLine(Arrays.asList("value1", "value2", "value3"));
 		testReport.addLine(Arrays.asList("1234", "5.6778", "930495898983"));
 		
-		
+		testReport.setPrintSeperatorLine(true);
 		testReport.print(",",System.out);
 		
 		OutputStream outStream = new ByteArrayOutputStream();
@@ -36,6 +36,18 @@ public class TestTextReport
 		"1234,5.6778,930495898983\n";
 		
 		assertEquals(expectedOutput, outStream.toString());
+		
+		assertEquals(3, testReport.getHeaders().size());
+		
+		testReport.setPrintSeperatorLine(false);
+		outStream = new ByteArrayOutputStream();
+		testReport.print(",", outStream);
+		expectedOutput = "Header A,Header 2,Header_C\n" + 
+		"value1,value2,value3\n" + 
+		"1234,5.6778,930495898983\n";
+		assertEquals(expectedOutput, outStream.toString());
+		
+		assertEquals(2, testReport.getReportLines().size());
 	}
 
 	@Test
