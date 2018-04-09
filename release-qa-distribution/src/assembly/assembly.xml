@@ -1,0 +1,34 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+	<id>bin</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+ 	<!-- <dependencySets>
+		<dependencySet>		
+			<useTransitiveDependencies>true</useTransitiveDependencies>
+			<includes>
+				<include>org.reactome:StableIdentifierCheck</include>
+				<include>org.reactome:release-qa-common</include>
+			</includes>
+		</dependencySet>
+	</dependencySets> -->
+
+	<moduleSets>
+		<moduleSet>
+			<includeSubModules>true</includeSubModules>
+			<useAllReactorProjects>true</useAllReactorProjects>
+			<includes>
+				<include>org.reactome:StableIdentifierCheck</include>
+				<include>org.reactome:release-qa-common</include>
+			</includes>
+			<binaries>
+				<includeDependencies>true</includeDependencies>
+				<outputDirectory>modules/maven-assembly-plugin</outputDirectory>
+				<unpack>false</unpack>
+			</binaries>
+		</moduleSet>
+	</moduleSets>
+</assembly>
