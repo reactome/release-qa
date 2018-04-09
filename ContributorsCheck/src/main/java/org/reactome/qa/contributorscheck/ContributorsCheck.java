@@ -26,7 +26,7 @@ import org.reactome.qa.report.Report;
 import org.reactome.qa.report.exception.ReportException;
 
 /**
- * Hello world!
+ * Checks contributors.
  *
  */
 public class ContributorsCheck implements QACheck
@@ -53,6 +53,30 @@ public class ContributorsCheck implements QACheck
 		}
     }
     
+    /**
+     * Checks contributors.
+     * @param pathToResources - The path to the properties resource file, which should contain all information needed to connected to the databases. It should look like this:
+     * <pre>
+user=<USER>
+password=<PASSWORD>
+
+currentDBHost=<CURRENT RELEASE DATABASE HOST>
+oldDBHost=<PRIOR RELEASE DATABASE HOST>
+
+currentDatabase=<CURRENT RELEASE DATABASE>
+currentDatabasePort=<CURRENT RELEASE DATABASE PORT>
+
+oldDatabase=<PRIOR RELEASE DATABASE>
+oldDatabasePort=<PRIOR RELEASE DATABASE PORT>
+
+inputFile=path/to/contributors-check-input.txt
+     * </pre>
+     * @throws NumberFormatException
+     * @throws SQLException
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ReportException
+     */
     public static void checkContributors(String pathToResources) throws NumberFormatException, SQLException, FileNotFoundException, IOException, ReportException
     {
     	Report report = new DelimitedTextReport();
