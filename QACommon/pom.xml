@@ -3,7 +3,7 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.reactome</groupId>
+	<groupId>org.reactome.qa</groupId>
 	<artifactId>release-qa-common</artifactId>
 	<version>0.0.1</version>
 	<properties>
@@ -11,12 +11,6 @@
 	</properties>
 	<packaging>jar</packaging>
 	
-	<parent>
-		<groupId>org.reactome</groupId>
-		<artifactId>release-qa</artifactId>
-		<version>0.0.1</version>
-	</parent>
-
 	
 	<build>
 		<plugins>
@@ -51,7 +45,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- EBI SNAPSHOT repo -->
 		<repository>
 			<id>nexus-ebi-snapshot-repo</id>
 			<name>The EBI internal snapshot repository</name>

@@ -8,19 +8,15 @@
 	<packaging>pom</packaging>
 
 	<parent>
-		<groupId>org.reactome</groupId>
+		<groupId>org.reactome.qa</groupId>
 		<artifactId>release-qa</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../release-qa</relativePath>
 	</parent>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.reactome</groupId>
-			<artifactId>release-qa-common</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.reactome</groupId>
+			<groupId>org.reactome.qa</groupId>
 			<artifactId>StableIdentifierCheck</artifactId>
 			<version>0.0.1</version>
 		</dependency>

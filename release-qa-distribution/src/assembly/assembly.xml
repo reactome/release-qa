@@ -21,8 +21,8 @@
 			<includeSubModules>true</includeSubModules>
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
-				<include>org.reactome:StableIdentifierCheck</include>
-				<include>org.reactome:release-qa-common</include>
+				<include>org.reactome.qa:StableIdentifierCheck</include>
+				<!-- <include>org.reactome.qa:release-qa-common</include> -->
 			</includes>
 			<binaries>
 				<includeDependencies>true</includeDependencies>

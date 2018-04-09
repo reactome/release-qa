@@ -3,9 +3,8 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.reactome</groupId>
 	<artifactId>StableIdentifierCheck</artifactId>
-	<version>0.0.1</version>
+	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<powermock.version>1.7.1</powermock.version>
@@ -13,11 +12,11 @@
 	</properties>
 
 	<parent>
-		<groupId>org.reactome</groupId>
+		<groupId>org.reactome.qa</groupId>
 		<artifactId>release-qa</artifactId>
 		<version>0.0.1</version>
+		<relativePath>../release-qa</relativePath>
 	</parent>
-
 
 	<packaging>jar</packaging>
 	<build>
@@ -31,7 +30,7 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!-- <plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<archive>
@@ -45,14 +44,14 @@
 				</configuration>
 				<executions>
 					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- bind to the packaging phase -->
+						<id>make-assembly</id> 
+						<phase>package</phase> 
 						<goals>
 							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 
 		</plugins>
 	</build>
@@ -70,7 +69,7 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.reactome</groupId>
+			<groupId>org.reactome.qa</groupId>
 			<artifactId>release-qa-common</artifactId>
 			<version>0.0.1</version>
 		</dependency>
@@ -105,7 +104,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</repository>
-		<!-- EBI SNAPSHOT repo -->
 		<repository>
 			<id>nexus-ebi-snapshot-repo</id>
 			<name>The EBI internal snapshot repository</name>
