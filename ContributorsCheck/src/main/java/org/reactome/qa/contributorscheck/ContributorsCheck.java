@@ -87,6 +87,7 @@ public class ContributorsCheck
 					}
 				}
 			});
+			((DelimitedTextReport)report).print("\t",System.out);
 		} catch (FileNotFoundException e){
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -100,24 +101,26 @@ public class ContributorsCheck
     
     private static List<GKInstance> getChildEvents(GKInstance event) {
     	List<GKInstance> childEvents = new ArrayList<GKInstance>();
-    	try {
-			for (Object childEvent : event.getAttributeValuesList("hasEvent")) {
-				childEvents.add((GKInstance) childEvent);
-				if (((GKInstance) childEvent).getSchemClass().getName().equals("Reaction")) {
-					continue;
+    	if (event != null)
+    	{
+	    	try {
+				for (Object childEvent : event.getAttributeValuesList("hasEvent")) {
+					childEvents.add((GKInstance) childEvent);
+					if (((GKInstance) childEvent).getSchemClass().getName().equals("Reaction")) {
+						continue;
+					}
+					
+					List<GKInstance> grandChildren = getChildEvents((GKInstance) childEvent);
+					if (!grandChildren.isEmpty()) {
+						childEvents.addAll(grandChildren);
+					}
 				}
-				
-				List<GKInstance> grandChildren = getChildEvents((GKInstance) childEvent);
-				if (!grandChildren.isEmpty()) {
-					childEvents.addAll(grandChildren);
-				}
+			} catch (InvalidAttributeException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (InvalidAttributeException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    	
+    	}
     	return childEvents;
     }
     
