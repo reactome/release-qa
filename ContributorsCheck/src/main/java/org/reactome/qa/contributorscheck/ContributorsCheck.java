@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
+import org.gk.schema.GKSchemaAttribute;
 import org.gk.schema.InvalidAttributeException;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
@@ -36,7 +37,6 @@ public class ContributorsCheck
 		{
 			pathToResources = args[0];
 		}
-    	//ContributorsCheck.checkContributors("src/main/resources/update_doi.log", "test_slice_64", "reactomerelease.oicr.on.ca", "test_slice_63", "reactomerelease.oicr.on.ca");
 		ContributorsCheck.checkContributors(pathToResources);
     }
     
@@ -56,7 +56,6 @@ public class ContributorsCheck
 			MySQLAdaptor previousDBA = new MySQLAdaptor(oldDatabaseHost, oldDatabase, user, password, 3306);
 			Report report = new DelimitedTextReport();
 			report.setColumnHeaders(Arrays.asList("Pathway Name", "Pathway DB_Id", "HasEvent Name", "HasEvent DB_ID", "Contributors"));
-			// System.out.println(String.join("\t", Arrays.asList("Pathway Name", "Pathway DB_ID", "HasEvent Name", "HasEvent DB_ID", "Contributors")));
 			Files.readAllLines(Paths.get(inputFile)).forEach( line -> {
 				Pattern pattern = Pattern.compile("R-HSA-(\\d+)");
 				Matcher matcher = pattern.matcher(line);
@@ -79,11 +78,17 @@ public class ContributorsCheck
 							// No instance in old database to compare contributors so take all contributors as new
 							previousPathwayChild = null;
 						}
-						List<String> allAuthorNames = getAllAuthorNames(currentPathwayChild, previousPathwayChild);
-								
-						//String record = getRecord(currentPathway, currentPathwayChild, allAuthorNames);
-						//System.out.println(record);
-						report.addLine( Arrays.asList(currentPathway.toString() , currentPathwayChild.toString() ,String.join(",", allAuthorNames) )  );
+						
+						List<String> allAuthorNames = new ArrayList<String>();
+						try
+						{
+							allAuthorNames = getAllAuthorNames(currentPathwayChild, previousPathwayChild);	
+						}
+						catch (Exception e)
+						{
+							e.getStackTrace();
+						}
+						report.addLine( Arrays.asList(currentPathway.toString() , currentPathwayChild.toString() , "\""+String.join("; ", allAuthorNames)+"\"" )  );
 					}
 				}
 			});
@@ -124,45 +129,60 @@ public class ContributorsCheck
     	return childEvents;
     }
     
-    private static List<String> getAllAuthorNames(GKInstance currentEvent, GKInstance previousEvent) {
+    private static List<String> getAllAuthorNames(GKInstance currentEvent, GKInstance previousEvent) throws InvalidAttributeException, Exception {
 		List <String> allAuthorNames = new ArrayList<String>();
-    	try {
-			List<GKInstance> newAuthorInstances = getNewInstances("authored", currentEvent, previousEvent);
-			List<String> newAuthorNames = getAuthorNames(newAuthorInstances);
-			List<GKInstance> newReviewedInstances = getNewInstances("reviewed", currentEvent, previousEvent);
-			List<String> newReviewedAuthorNames = getAuthorNames(newReviewedInstances);
-			List<GKInstance> newRevisedInstances = getNewInstances("revised", currentEvent, previousEvent);
-			List<String> newRevisedAuthorNames = getAuthorNames(newRevisedInstances);
-		
-			allAuthorNames.addAll(newAuthorNames);
-			allAuthorNames.addAll(newReviewedAuthorNames);
-			allAuthorNames.addAll(newRevisedAuthorNames);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+		List<GKInstance> newAuthorInstances = getNewInstances("authored", currentEvent, previousEvent);
+		List<String> newAuthorNames = getAuthorNames(newAuthorInstances);
+
+		List<GKInstance> newReviewedInstances = getNewInstances("reviewed", currentEvent, previousEvent);
+		List<String> newReviewedAuthorNames = getAuthorNames(newReviewedInstances);
+
+		List<GKInstance> newRevisedInstances = getNewInstances("revised", currentEvent, previousEvent);
+		List<String> newRevisedAuthorNames = getAuthorNames(newRevisedInstances);
+	
+		allAuthorNames.addAll(newAuthorNames);
+		allAuthorNames.addAll(newReviewedAuthorNames);
+		allAuthorNames.addAll(newRevisedAuthorNames);
+
     	return allAuthorNames;
     }
     
-    private static List<GKInstance> getNewInstances(String attribute, GKInstance currentInstance, GKInstance previousInstance) throws InvalidAttributeException, Exception {
-    		@SuppressWarnings("unchecked")
-    		List<GKInstance> currentAttributeValues = currentInstance.getAttributeValuesList(attribute);
-    		if (previousInstance == null) {
+    private static List<GKInstance> getNewInstances(String attribute, GKInstance currentInstance, GKInstance previousInstance) throws InvalidAttributeException, Exception
+    {
+    	List<GKInstance> currentAttributeValues = new ArrayList<GKInstance>();
+		if (currentInstance.getSchemaAttributes().stream().filter(attr -> ((GKSchemaAttribute)attr).getName().equals(attribute) ).count() > 0)
+		{
+    		currentAttributeValues = (ArrayList<GKInstance>) (currentInstance.getAttributeValuesList(attribute));
+    		if (previousInstance == null)
+    		{
     			return currentAttributeValues;
     		}
-    	
-    		@SuppressWarnings("unchecked")
-    		List<GKInstance> previousAttributeValues = previousInstance.getAttributeValuesList(attribute);
-    		Map<Long, GKInstance> dbIdToPreviousAttributeValues = getDbIdsToInstance(previousAttributeValues);
-    		Map<Long, GKInstance> dbIdToCurrentAttributeValues = getDbIdsToInstance(currentAttributeValues);
-    	
-    		List<GKInstance> newInstances = new ArrayList<GKInstance>();
-    		for (Long dbId : dbIdToCurrentAttributeValues.keySet()) {
-    			if (!dbIdToPreviousAttributeValues.containsKey(dbId)) {
-    				GKInstance currentAttributeValue = dbIdToCurrentAttributeValues.get(dbId);
-    				newInstances.add(currentAttributeValue);
-    			}
-    		}
-    		return newInstances;
+		}
+		else
+		{
+			System.err.println(currentInstance.toString() + " Does not have " + attribute);
+		}
+		if (previousInstance.getSchemaAttributes().stream().filter(attr -> ((GKSchemaAttribute)attr).getName().equals(attribute) ).count() > 0)
+		{
+			List<GKInstance> previousAttributeValues = (ArrayList<GKInstance>) (previousInstance.getAttributeValuesList(attribute));
+			Map<Long, GKInstance> dbIdToPreviousAttributeValues = getDbIdsToInstance(previousAttributeValues);
+			Map<Long, GKInstance> dbIdToCurrentAttributeValues = getDbIdsToInstance(currentAttributeValues);
+		
+			List<GKInstance> newInstances = new ArrayList<GKInstance>();
+			for (Long dbId : dbIdToCurrentAttributeValues.keySet()) {
+				if (!dbIdToPreviousAttributeValues.containsKey(dbId)) {
+					GKInstance currentAttributeValue = dbIdToCurrentAttributeValues.get(dbId);
+					newInstances.add(currentAttributeValue);
+				}
+			}
+			return newInstances;
+		}
+		else
+		{
+			System.err.println(previousInstance.toString() + " Does not have " + attribute);
+		}
+		return new ArrayList<GKInstance>();
     }
     
     private static Map<Long, GKInstance> getDbIdsToInstance(List<GKInstance> instances) {
@@ -189,24 +209,4 @@ public class ContributorsCheck
     	}
     	return authorNames;
     }
-    
-//    private static String getRecord(GKInstance pathway, GKInstance hasEvent, List<String> authorNames) {
-//    	StringBuilder record = new StringBuilder();
-//    	final String DELIMITER = "\t";
-//    	
-//    	record.append(pathway.getDisplayName());
-//    	record.append(DELIMITER);
-//    	record.append(pathway.getDBID());
-//    	record.append(DELIMITER);
-//    	record.append(hasEvent.getDisplayName());
-//    	record.append(DELIMITER);
-//    	record.append(hasEvent.getDBID());
-//    	
-//    	for (String authorName: authorNames) {
-//    		record.append(DELIMITER);
-//    		record.append(authorName);
-//       	}
-//    	
-//    	return record.toString();
-//    }
 }
