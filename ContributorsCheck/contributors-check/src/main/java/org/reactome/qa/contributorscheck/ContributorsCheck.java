@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.schema.InvalidAttributeException;
+import org.reactome.qa.report.DelimitedTextReport;
+import org.reactome.qa.report.Report;
 
 /**
  * Hello world!
@@ -28,20 +30,33 @@ public class ContributorsCheck
 {
     public static void main( String[] args )
     {
-    	ContributorsCheck.checkContributors("src/main/resources/update_doi.log", "test_slice_64", "reactomerelease.oicr.on.ca", "test_slice_63", "reactomerelease.oicr.on.ca");
+		String pathToResources = "src/main/resources/auth.properties";
+		
+		if (args.length > 0 && !args[0].equals(""))
+		{
+			pathToResources = args[0];
+		}
+    	//ContributorsCheck.checkContributors("src/main/resources/update_doi.log", "test_slice_64", "reactomerelease.oicr.on.ca", "test_slice_63", "reactomerelease.oicr.on.ca");
+		ContributorsCheck.checkContributors(pathToResources);
     }
     
-    public static void checkContributors(String inputFile, String currentDatabase, String currentDatabaseHost, String oldDatabase, String oldDatabaseHost) {
+    public static void checkContributors(String pathToResources) {
 		try {
 			InputStream input = new FileInputStream("src/main/resources/auth.properties");
 			Properties prop = new Properties();
 			prop.load(input);
 			String user = prop.getProperty("user");
 			String password = prop.getProperty("password");
+			String currentDatabaseHost = prop.getProperty("currentDBHost");
+			String currentDatabase = prop.getProperty("currentDatabase");
+			String oldDatabaseHost = prop.getProperty("oldDBHost");
+			String oldDatabase = prop.getProperty("oldDatabase");
+			String inputFile = prop.getProperty("inputFile");
 			MySQLAdaptor currentDBA = new MySQLAdaptor(currentDatabaseHost, currentDatabase, user, password, 3306);
 			MySQLAdaptor previousDBA = new MySQLAdaptor(oldDatabaseHost, oldDatabase, user, password, 3306);
-			
-			System.out.println(String.join("\t", Arrays.asList("Pathway Name", "Pathway DB_ID", "HasEvent Name", "HasEvent DB_ID", "Contributors")));
+			Report report = new DelimitedTextReport();
+			report.setColumnHeaders(Arrays.asList("Pathway Name", "Pathway DB_Id", "HasEvent Name", "HasEvent DB_ID", "Contributors"));
+			// System.out.println(String.join("\t", Arrays.asList("Pathway Name", "Pathway DB_ID", "HasEvent Name", "HasEvent DB_ID", "Contributors")));
 			Files.readAllLines(Paths.get(inputFile)).forEach( line -> {
 				Pattern pattern = Pattern.compile("R-HSA-(\\d+)");
 				Matcher matcher = pattern.matcher(line);
@@ -66,8 +81,9 @@ public class ContributorsCheck
 						}
 						List<String> allAuthorNames = getAllAuthorNames(currentPathwayChild, previousPathwayChild);
 								
-						String record = getRecord(currentPathway, currentPathwayChild, allAuthorNames);
-						System.out.println(record);
+						//String record = getRecord(currentPathway, currentPathwayChild, allAuthorNames);
+						//System.out.println(record);
+						report.addLine( Arrays.asList(currentPathway.toString() , currentPathwayChild.toString() ,String.join(",", allAuthorNames) )  );
 					}
 				}
 			});
@@ -171,23 +187,23 @@ public class ContributorsCheck
     	return authorNames;
     }
     
-    private static String getRecord(GKInstance pathway, GKInstance hasEvent, List<String> authorNames) {
-    	StringBuilder record = new StringBuilder();
-    	final String DELIMITER = "\t";
-    	
-    	record.append(pathway.getDisplayName());
-    	record.append(DELIMITER);
-    	record.append(pathway.getDBID());
-    	record.append(DELIMITER);
-    	record.append(hasEvent.getDisplayName());
-    	record.append(DELIMITER);
-    	record.append(hasEvent.getDBID());
-    	
-    	for (String authorName: authorNames) {
-    		record.append(DELIMITER);
-    		record.append(authorName);
-       	}
-    	
-    	return record.toString();
-    }
+//    private static String getRecord(GKInstance pathway, GKInstance hasEvent, List<String> authorNames) {
+//    	StringBuilder record = new StringBuilder();
+//    	final String DELIMITER = "\t";
+//    	
+//    	record.append(pathway.getDisplayName());
+//    	record.append(DELIMITER);
+//    	record.append(pathway.getDBID());
+//    	record.append(DELIMITER);
+//    	record.append(hasEvent.getDisplayName());
+//    	record.append(DELIMITER);
+//    	record.append(hasEvent.getDBID());
+//    	
+//    	for (String authorName: authorNames) {
+//    		record.append(DELIMITER);
+//    		record.append(authorName);
+//       	}
+//    	
+//    	return record.toString();
+//    }
 }
