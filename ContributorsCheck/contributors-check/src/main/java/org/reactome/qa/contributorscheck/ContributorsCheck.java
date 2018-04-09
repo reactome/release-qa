@@ -1,4 +1,4 @@
-package org.reactome.contributors_check;
+package org.reactome.qa.contributorscheck;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
