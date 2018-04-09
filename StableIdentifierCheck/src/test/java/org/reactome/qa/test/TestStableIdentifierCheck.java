@@ -144,7 +144,7 @@ public class TestStableIdentifierCheck
 		
 		try
 		{
-			Report report = check.executeQACheck();
+			check.executeQACheck();
 		}
 		catch (Exception e)
 		{
