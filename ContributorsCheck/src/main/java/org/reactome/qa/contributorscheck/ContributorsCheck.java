@@ -77,7 +77,7 @@ inputFile=path/to/contributors-check-input.txt
      * @throws IOException
      * @throws ReportException
      */
-    public static void checkContributors(String pathToResources) throws NumberFormatException, SQLException, FileNotFoundException, IOException, ReportException
+    public static Report checkContributors(String pathToResources) throws NumberFormatException, SQLException, FileNotFoundException, IOException, ReportException
     {
     	Report report = new DelimitedTextReport();
     	report.setColumnHeaders(Arrays.asList("Pathway Name", "Pathway DB_Id", "HasEvent Name", "HasEvent DB_ID", "Contributors"));
@@ -98,7 +98,8 @@ inputFile=path/to/contributors-check-input.txt
 		checker.previousDBA = new MySQLAdaptor(oldDatabaseHost, oldDatabase, user, password, Integer.valueOf(oldDatabasePort));
 
     	report = checker.executeQACheck();
-    	((DelimitedTextReport)report).print("\t",System.out);
+    	//((DelimitedTextReport)report).print("\t",System.out);
+    	return report;
     }
     
     private static List<GKInstance> getChildEvents(GKInstance event)
