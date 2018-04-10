@@ -219,19 +219,19 @@ public class NullCheck {
 		}
 	}
 	
-	private static List<String> getReportLines(MySQLAdaptor currentDBA, String schemaClass, String attribute, String operator, List<Long> skipList) {
-		List<String> reportLines = new ArrayList<String>();
-		
-		List<GKInstance> instances = new ArrayList<GKInstance>();
-		instances.addAll(getInstances(currentDBA, schemaClass, attribute, operator, skipList));
-	
-		for (GKInstance instance : instances) {
-			reportLines.add(getReportLine(instance, schemaClass + " with null " + attribute));
-		}
-		
-		return reportLines;
-	}
-	
+//	private static List<String> getReportLines(MySQLAdaptor currentDBA, String schemaClass, String attribute, String operator, List<Long> skipList) {
+//		List<String> reportLines = new ArrayList<String>();
+//		
+//		List<GKInstance> instances = new ArrayList<GKInstance>();
+//		instances.addAll(getInstances(currentDBA, schemaClass, attribute, operator, skipList));
+//	
+//		for (GKInstance instance : instances) {
+//			reportLines.add(getReportLine(instance, schemaClass + " with null " + attribute));
+//		}
+//		
+//		return reportLines;
+//	}
+//	
 	private static List<String> getReportLines(List<GKInstance> instances, String attribute) {
 		List<String> reportLines = new ArrayList<String>();
 		
@@ -362,11 +362,11 @@ public class NullCheck {
 //	private static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) {
 //		return getInstances(dba, schemaClass, attribute, "IS NULL", skipList);
 //	}
-	
-	private static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)  {
-		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
-	}
-	
+//	
+//	private static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)  {
+//		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
+//	}
+//	
 //	private static boolean componentsHaveSpecies(GKInstance physicalEntity) throws Exception {
 //		Set<GKInstance> speciesSet = grepAllSpeciesInPE(physicalEntity, true);
 //		return !speciesSet.isEmpty();		

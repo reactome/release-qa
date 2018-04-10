@@ -31,6 +31,8 @@ public class NewEventChecker implements QACheck {
 			AttributeQueryRequest editedIsNullRequest = this.adaptor.new AttributeQueryRequest("ReactionlikeEvent", "edited", "IS NULL", null);
 			AttributeQueryRequest authoredIsNullRequest = this.adaptor.new AttributeQueryRequest("ReactionlikeEvent", "authored", "IS NULL", null);
 			AttributeQueryRequest reviewedIsNullRequest = this.adaptor.new AttributeQueryRequest("ReactionlikeEvent", "reviewed", "IS NULL", null);
+			AttributeQueryRequest summationIsNullRequest = this.adaptor.new AttributeQueryRequest("ReactionlikeEvent", "summation", "IS NULL", null);
+			AttributeQueryRequest speciesIsNullRequest = this.adaptor.new AttributeQueryRequest("ReactionlikeEvent", "species", "IS NULL", null);
 
 			QueryRequestList queryReqestListEdited = this.adaptor.new QueryRequestList();
 			queryReqestListEdited.add(stIdIsNotNullRequest);
@@ -43,6 +45,14 @@ public class NewEventChecker implements QACheck {
 			QueryRequestList queryReqestListReviewed = this.adaptor.new QueryRequestList();
 			queryReqestListReviewed.add(stIdIsNotNullRequest);
 			queryReqestListReviewed.add(reviewedIsNullRequest);
+			
+			QueryRequestList queryReqestListSummation = this.adaptor.new QueryRequestList();
+			queryReqestListSummation.add(stIdIsNotNullRequest);
+			queryReqestListSummation.add(summationIsNullRequest);
+			
+			QueryRequestList queryReqestListSpecies = this.adaptor.new QueryRequestList();
+			queryReqestListSpecies.add(stIdIsNotNullRequest);
+			queryReqestListSpecies.add(speciesIsNullRequest);
 			
 			dba.fetchInstance(queryReqestListEdited);
 			// Now, for each RLE, also need to check that the "released" on stableIdentifier is  attribute is NULL or false
