@@ -51,14 +51,14 @@ public class TestContributorsCheck
 		List<GKInstance> instEditList = new ArrayList<GKInstance>(Arrays.asList(mockIE));
 		GKInstance mockPerson = Mockito.mock(GKInstance.class);
 		Mockito.when(mockPerson.getDisplayName()).thenReturn("Mock Person");
-		Mockito.when(mockIE.getAttributeValue("author")).thenReturn(mockPerson);
+		Mockito.when(mockIE.getAttributeValuesList("author")).thenReturn(Arrays.asList(mockPerson));
 		
 		Mockito.when(child.getAttributeValuesList("authored")).thenReturn(instEditList);
 		Mockito.when(child.getAttributeValuesList("revised")).thenReturn(instEditList);
 		Mockito.when(child.getAttributeValuesList("reviewed")).thenReturn(instEditList);
 		
-		Mockito.when(child.toString()).thenCallRealMethod();
-		Mockito.when(mockInst1.toString()).thenCallRealMethod();
+		Mockito.when(child.toString()).thenReturn("Pathway - child");
+		Mockito.when(mockInst1.toString()).thenReturn("Pathway - parent");
 		
 		
 		List<GKInstance> children = new ArrayList<GKInstance>();
