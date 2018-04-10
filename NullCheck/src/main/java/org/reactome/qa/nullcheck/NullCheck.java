@@ -52,7 +52,6 @@ public class NullCheck {
 		}
 		catch (IOException | ReportException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 //		List<String> simpleEntityReportLines = getSimpleEntityReportLines(currentDBA);
@@ -125,20 +124,19 @@ public class NullCheck {
 		}
 		catch (IOException | ReportException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		List<String> normalReactionWithoutDiseaseReportLines = getNormalReactionWithoutDiseaseReportLines(currentDBA);
-		if (!normalReactionWithoutDiseaseReportLines.isEmpty()) {
-			System.out.println("There are "+normalReactionWithoutDiseaseReportLines.size()+" RLEs with a normal reaction but null disease");
-			for (String line : normalReactionWithoutDiseaseReportLines)
-			{
-				System.out.println(line);
-			}			
-		} else {	
-			System.out.println("RLEs with a normal reaction but null disease: there are none! :)");
-		}
+//		List<String> normalReactionWithoutDiseaseReportLines = getNormalReactionWithoutDiseaseReportLines(currentDBA);
+//		if (!normalReactionWithoutDiseaseReportLines.isEmpty()) {
+//			System.out.println("There are "+normalReactionWithoutDiseaseReportLines.size()+" RLEs with a normal reaction but null disease");
+//			for (String line : normalReactionWithoutDiseaseReportLines)
+//			{
+//				System.out.println(line);
+//			}			
+//		} else {	
+//			System.out.println("RLEs with a normal reaction but null disease: there are none! :)");
+//		}
 		report(currentDBA, "FailedReaction", "normalReaction", "IS NULL", null);
 		report(currentDBA, "FailedReaction", "output", "IS NOT NULL", null);
 		

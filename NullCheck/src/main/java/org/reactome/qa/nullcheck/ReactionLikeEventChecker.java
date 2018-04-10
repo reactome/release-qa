@@ -65,6 +65,7 @@ public class ReactionLikeEventChecker implements QACheck
 				GKInstance modificationInstance = modificationInstances.get(index);
 				GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
 				// Skip modification instance for Solomon, Joel, or Guanming
+				// TODO: These DBIDs should NOT be hard-coded. They should come from an author skip list/file.
 				if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString())) 
 				{
 					continue;
@@ -120,18 +121,7 @@ public class ReactionLikeEventChecker implements QACheck
 		{
 			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), instance.getSchemClass().getName() + " with NULL " + attribute, getLastModificationAuthor(instance)));
 		}
-//		List<String> reportLines = getReportLines(dba, schemaClass, attribute, operator, skipList);
-		
-//		if (!reportLines.isEmpty())
-//		{
-//			System.out.println("There are " + reportLines.size() + " " + schemaClass + " instances with a null " + attribute);
-//			for (String line : reportLines) {
-//				System.out.println(line);
-//			}
-//		} else {
-//			System.out.println(schemaClass + " instances with null " + attribute + ": there are none! :)");
-//		}
-		//r.setColumnHeaders(Arrays.asList("DBID","DisplayName", "SchemaClass", "Issue", "MostRecentAuthor"));
+
 		return r;
 	}
 	
@@ -147,7 +137,6 @@ public class ReactionLikeEventChecker implements QACheck
 			
 			if (skipList != null && !skipList.isEmpty())
 			{
-				//List<GKInstance> filteredList = instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
 				return instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
 			}
 			else
@@ -162,18 +151,47 @@ public class ReactionLikeEventChecker implements QACheck
 		return instances;
 	}
 	
-//	private List<String> getReportLines(MySQLAdaptor currentDBA, String schemaClass, String attribute, String operator, List<Long> skipList) {
-//		List<String> reportLines = new ArrayList<String>();
-//		
-//		List<GKInstance> instances = new ArrayList<GKInstance>();
-//		instances.addAll(getInstances(currentDBA, schemaClass, attribute, operator, skipList));
-//	
-//		for (GKInstance instance : instances) {
-//			reportLines.add(getReportLine(instance, schemaClass + " with null " + attribute));
-//		}
-//		
-//		return reportLines;
-//	}
+	private List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) 
+	{
+		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
+	}
+	
+	private Report getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA)
+	{
+		//List<String> normalReactionWithoutDiseaseReportLines = new ArrayList<String>();
+		Report normalReactionWithoutDiseaseReport = new DelimitedTextReport();
+		List<GKInstance> RLEsWithNormalReaction = new ArrayList<GKInstance>();
+		try
+		{
+			RLEsWithNormalReaction.addAll(getInstancesWithNonNullAttribute(currentDBA, "ReactionlikeEvent", "normalReaction", null));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		for (GKInstance RLEWithNormalReaction : RLEsWithNormalReaction)
+		{
+			try
+			{
+				GKInstance diseaseInstance = (GKInstance) RLEWithNormalReaction.getAttributeValue("disease");
+				if (diseaseInstance == null)
+				{
+					// normalReactionWithoutDiseaseReportLines.add(getReportLine(RLEWithNormalReaction, "RLE with normal reaction but disease is null"));
+					normalReactionWithoutDiseaseReport.addLine(Arrays.asList(RLEWithNormalReaction.getDBID().toString(), RLEWithNormalReaction.getDisplayName(), RLEWithNormalReaction.getSchemClass().getName(), "RLE with normal reaction but disease is null", getLastModificationAuthor(RLEWithNormalReaction) ));
+				}
+			}
+			catch (InvalidAttributeException e)
+			{
+				e.printStackTrace();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return normalReactionWithoutDiseaseReport;
+	}
 	
 	@Override
 	public Report executeQACheck()
@@ -212,6 +230,9 @@ public class ReactionLikeEventChecker implements QACheck
 			System.err.println("Unable to get RLE output skip list");
 			e.printStackTrace();
 		}
+		
+		reactionLikeEventReport.addLines(getNormalReactionWithoutDiseaseReportLines(this.dba).getReportLines());
+		
 		reactionLikeEventReport.setColumnHeaders(Arrays.asList("DBID","DisplayName", "SchemaClass", "Issue", "MostRecentAuthor"));
 		return reactionLikeEventReport;
 	}
