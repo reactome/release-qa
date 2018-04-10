@@ -137,8 +137,20 @@ public class NullCheck {
 //		} else {	
 //			System.out.println("RLEs with a normal reaction but null disease: there are none! :)");
 //		}
-		report(currentDBA, "FailedReaction", "normalReaction", "IS NULL", null);
-		report(currentDBA, "FailedReaction", "output", "IS NOT NULL", null);
+//		report(currentDBA, "FailedReaction", "normalReaction", "IS NULL", null);
+//		report(currentDBA, "FailedReaction", "output", "IS NOT NULL", null);
+
+		FailedReactionChecker failedReactionChecker = new FailedReactionChecker();
+		failedReactionChecker.setAdaptor(currentDBA);
+		DelimitedTextReport failedReactionReport = (DelimitedTextReport) failedReactionChecker.executeQACheck();
+		try
+		{
+			failedReactionReport.print("\t", System.out);
+		}
+		catch (IOException | ReportException e)
+		{
+			e.printStackTrace();
+		}
 		
 		List<GKInstance> newEvents = getNewEvents(currentDBA);
 		reportNullAttribute(newEvents, "edited");
