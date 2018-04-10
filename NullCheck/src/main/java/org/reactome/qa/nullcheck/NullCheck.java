@@ -1,4 +1,4 @@
-package org.reactome.qa.nullCheck;
+package org.reactome.qa.nullcheck;
 
 import java.io.FileInputStream;
 import java.io.IOException;
