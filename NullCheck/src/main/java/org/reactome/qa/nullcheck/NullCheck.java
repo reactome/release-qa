@@ -100,24 +100,38 @@ public class NullCheck {
 			e1.printStackTrace();
 		}
 		
-		try {
-			report(currentDBA, "ReactionlikeEvent", "compartment", "IS NULL", getRLECompartmentSkipList());
-		} catch (IOException e) {
-			System.err.println("Unable to get RLE compartment skip list");
+//		try {
+//			report(currentDBA, "ReactionlikeEvent", "compartment", "IS NULL", getRLECompartmentSkipList());
+//		} catch (IOException e) {
+//			System.err.println("Unable to get RLE compartment skip list");
+//			e.printStackTrace();
+//		}
+//		try {
+//			report(currentDBA, "ReactionlikeEvent", "input", "IS NULL", getRLEInputSkipList());
+//		} catch (IOException e) {
+//			System.err.println("Unable to get RLE input skip list");
+//			e.printStackTrace();
+//		}
+//		try {
+//			report(currentDBA, "ReactionlikeEvent", "output", "IS NULL", getRLEOutputSkipList());
+//		} catch (IOException e) {
+//			System.err.println("Unable to get RLE output skip list");
+//			e.printStackTrace();
+//		}
+		
+		ReactionLikeEventChecker rleChecker = new ReactionLikeEventChecker();
+		rleChecker.setAdaptor(currentDBA);
+		DelimitedTextReport rleReport = (DelimitedTextReport) rleChecker.executeQACheck();
+		try
+		{
+			rleReport.print("\t", System.out);
+		}
+		catch (IOException | ReportException e)
+		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		try {
-			report(currentDBA, "ReactionlikeEvent", "input", "IS NULL", getRLEInputSkipList());
-		} catch (IOException e) {
-			System.err.println("Unable to get RLE input skip list");
-			e.printStackTrace();
-		}
-		try {
-			report(currentDBA, "ReactionlikeEvent", "output", "IS NULL", getRLEOutputSkipList());
-		} catch (IOException e) {
-			System.err.println("Unable to get RLE output skip list");
-			e.printStackTrace();
-		}
+		
 		List<String> normalReactionWithoutDiseaseReportLines = getNormalReactionWithoutDiseaseReportLines(currentDBA);
 		if (!normalReactionWithoutDiseaseReportLines.isEmpty()) {
 			System.out.println("There are "+normalReactionWithoutDiseaseReportLines.size()+" RLEs with a normal reaction but null disease");

@@ -119,12 +119,12 @@ public class PhysicalEntityChecker implements QACheck
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
+	private List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
 	{
 		List<GKInstance> instances = new ArrayList<GKInstance>();
 		try
 		{
-			instances.addAll((List<GKInstance>)dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
+			instances.addAll(dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
 			
 			if (skipList != null && !skipList.isEmpty())
 			{
