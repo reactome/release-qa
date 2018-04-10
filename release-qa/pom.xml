@@ -11,6 +11,8 @@
 
 	<modules>
 		<module>../StableIdentifierCheck</module>
+		<module>../ContributorsCheck</module>
+		<module>../NullCheck</module>
 		<module>../release-qa-distribution</module>
 	</modules>
 	<properties>

@@ -22,6 +22,8 @@
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
 				<include>org.reactome.qa:StableIdentifierCheck</include>
+				<include>org.reactome.qa:NullCheck</include>
+				<include>org.reactome.qa:contributors-check</include>
 				<!-- <include>org.reactome.qa:release-qa-common</include> -->
 			</includes>
 			<binaries>
