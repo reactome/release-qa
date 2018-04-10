@@ -3,12 +3,9 @@ package org.reactome.qa.nullcheck;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -163,28 +160,28 @@ public class NullCheck {
 		reportNullAttribute(newEvents, "species");
 	}
 	
-	private static List<String> getSimpleEntityReportLines(MySQLAdaptor currentDBA) {
-		List<String> simpleEntityReportLines = new ArrayList<String>();
-		
-		List<GKInstance> simpleEntities = new ArrayList<GKInstance>();
-		simpleEntities.addAll(getInstancesWithNonNullAttribute(currentDBA, "SimpleEntity", "species", null));
-			
-		for (GKInstance simpleEntity : simpleEntities) {
-			try {
-				GKInstance speciesInstance = (GKInstance) simpleEntity.getAttributeValue("species");
-				if (speciesInstance == null) {
-					continue;
-				}
-				simpleEntityReportLines.add(getReportLine(simpleEntity, "Simple entity with non-null species"));
-			} catch (InvalidAttributeException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return simpleEntityReportLines;
-	}
+//	private static List<String> getSimpleEntityReportLines(MySQLAdaptor currentDBA) {
+//		List<String> simpleEntityReportLines = new ArrayList<String>();
+//		
+//		List<GKInstance> simpleEntities = new ArrayList<GKInstance>();
+//		simpleEntities.addAll(getInstancesWithNonNullAttribute(currentDBA, "SimpleEntity", "species", null));
+//			
+//		for (GKInstance simpleEntity : simpleEntities) {
+//			try {
+//				GKInstance speciesInstance = (GKInstance) simpleEntity.getAttributeValue("species");
+//				if (speciesInstance == null) {
+//					continue;
+//				}
+//				simpleEntityReportLines.add(getReportLine(simpleEntity, "Simple entity with non-null species"));
+//			} catch (InvalidAttributeException e) {
+//				e.printStackTrace();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		return simpleEntityReportLines;
+//	}
 	
 	private static void report(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList) {
 		List<String> reportLines = getReportLines(dba, schemaClass, attribute, operator, skipList);
@@ -242,22 +239,22 @@ public class NullCheck {
 		return reportLines;
 	}
 
-	private static List<String> getPhysicalEntitySpeciesReportLines(MySQLAdaptor currentDBA) throws Exception {
-		List<String> physicalEntitySpeciesReportLines = new ArrayList<String>();
-		
-		List<GKInstance> physicalEntities = new ArrayList<GKInstance>();
-		for (String schemaClass : Arrays.asList("Complex", "EntitySet", "Polymer")) {	
-			physicalEntities.addAll(CheckForNullAttribute.getInstancesWithNullAttribute(currentDBA, schemaClass, "species", null));
-		}
-		
-		for (GKInstance physicalEntity : physicalEntities) {
-			if(componentsHaveSpecies(physicalEntity)) {
-				physicalEntitySpeciesReportLines.add(getReportLine(physicalEntity, "Null species but components with species"));
-			}
-		}
-		
-		return physicalEntitySpeciesReportLines;
-	}
+//	private static List<String> getPhysicalEntitySpeciesReportLines(MySQLAdaptor currentDBA) throws Exception {
+//		List<String> physicalEntitySpeciesReportLines = new ArrayList<String>();
+//		
+//		List<GKInstance> physicalEntities = new ArrayList<GKInstance>();
+//		for (String schemaClass : Arrays.asList("Complex", "EntitySet", "Polymer")) {	
+//			physicalEntities.addAll(getInstancesWithNullAttribute(currentDBA, schemaClass, "species", null));
+//		}
+//		
+//		for (GKInstance physicalEntity : physicalEntities) {
+//			if(componentsHaveSpecies(physicalEntity)) {
+//				physicalEntitySpeciesReportLines.add(getReportLine(physicalEntity, "Null species but components with species"));
+//			}
+//		}
+//		
+//		return physicalEntitySpeciesReportLines;
+//	}
 	
 	private static List<String> getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA) {
 		List<String> normalReactionWithoutDiseaseReportLines = new ArrayList<String>();
@@ -360,10 +357,10 @@ public class NullCheck {
 		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
 	}
 	
-	private static boolean componentsHaveSpecies(GKInstance physicalEntity) throws Exception {
-		Set<GKInstance> speciesSet = grepAllSpeciesInPE(physicalEntity, true);
-		return !speciesSet.isEmpty();		
-	}
+//	private static boolean componentsHaveSpecies(GKInstance physicalEntity) throws Exception {
+//		Set<GKInstance> speciesSet = grepAllSpeciesInPE(physicalEntity, true);
+//		return !speciesSet.isEmpty();		
+//	}
 	
 	private static Set<GKInstance> grepAllSpeciesInPE(GKInstance pe, boolean needRecursion) throws Exception {
 		Set<GKInstance> speciesSet = new HashSet<>();
@@ -443,30 +440,30 @@ public class NullCheck {
 		));
 	}
 	
-	private static List<Long> getRLECompartmentSkipList() throws IOException {
-		final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
-		
-		return getSkipList(filePath);
-	}
-	
-	private static List<Long> getRLEInputSkipList() throws IOException {
-		final String filePath = "src/main/resources/reaction_like_event_input_skip_list.txt";
-		
-		return getSkipList(filePath);
-	}
-	
-	private static List<Long> getRLEOutputSkipList() throws IOException {
-		final String filePath = "src/main/resources/reaction_like_event_output_skip_list.txt";
-	
-		return getSkipList(filePath);
-	}
-	
-	private static List<Long> getSkipList(String filePath) throws IOException {
-		List<Long> skipList = new ArrayList<Long>();
-		Files.readAllLines(Paths.get(filePath)).forEach(line -> {
-			Long dbId = Long.parseLong(line.split("\t")[0]);
-			skipList.add(dbId);
-		});
-		return skipList;
-	}
+//	private static List<Long> getRLECompartmentSkipList() throws IOException {
+//		final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
+//		
+//		return getSkipList(filePath);
+//	}
+//	
+//	private static List<Long> getRLEInputSkipList() throws IOException {
+//		final String filePath = "src/main/resources/reaction_like_event_input_skip_list.txt";
+//		
+//		return getSkipList(filePath);
+//	}
+//	
+//	private static List<Long> getRLEOutputSkipList() throws IOException {
+//		final String filePath = "src/main/resources/reaction_like_event_output_skip_list.txt";
+//	
+//		return getSkipList(filePath);
+//	}
+//	
+//	private static List<Long> getSkipList(String filePath) throws IOException {
+//		List<Long> skipList = new ArrayList<Long>();
+//		Files.readAllLines(Paths.get(filePath)).forEach(line -> {
+//			Long dbId = Long.parseLong(line.split("\t")[0]);
+//			skipList.add(dbId);
+//		});
+//		return skipList;
+//	}
 }
