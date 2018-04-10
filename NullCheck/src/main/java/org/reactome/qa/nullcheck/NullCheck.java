@@ -12,13 +12,22 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.schema.InvalidAttributeException;
+import org.reactome.qa.report.DelimitedTextReport;
+import org.reactome.qa.report.exception.ReportException;
 
+/**
+ * This QA check mostly checks for entities with attributes that are NULL but should not be null.
+ * It also checks a few other issues that are related, but a bit more complicated.
+ * @author sshorser
+ *
+ */
 public class NullCheck {
 	public static void main(String[] args) {
 		MySQLAdaptor currentDBA = null;
@@ -37,17 +46,19 @@ public class NullCheck {
 			e.printStackTrace();
 		}
 		
-		List<String> simpleEntityReportLines = getSimpleEntityReportLines(currentDBA);
-		if (!simpleEntityReportLines.isEmpty()) {
-			//TODO: Switch to better logging framework than stdout.
-			System.out.println("There are "+simpleEntityReportLines.size()+" SimpleEntities with a non-null species. Details are:");
-			for (String line : simpleEntityReportLines)
-			{
-				System.out.println(line);
-			}			
-		} else {	
-			System.out.println("SimpleEntities with non-null species: there are none! :)");
+		SimpleEntityChecker simpleEntityChecker = new SimpleEntityChecker();
+		simpleEntityChecker.setAdaptor(currentDBA);
+		DelimitedTextReport simpleEntityReport = (DelimitedTextReport) simpleEntityChecker.executeQACheck();
+		try
+		{
+			simpleEntityReport.print("\t", System.out);
 		}
+		catch (IOException | ReportException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 
 		report(currentDBA, "PhysicalEntity", "compartment", "IS NULL", null);
 		
@@ -199,7 +210,7 @@ public class NullCheck {
 		
 		List<GKInstance> physicalEntities = new ArrayList<GKInstance>();
 		for (String schemaClass : Arrays.asList("Complex", "EntitySet", "Polymer")) {	
-			physicalEntities.addAll(getInstancesWithNullAttribute(currentDBA, schemaClass, "species", null));
+			physicalEntities.addAll(CheckForNullAttribute.getInstancesWithNullAttribute(currentDBA, schemaClass, "species", null));
 		}
 		
 		for (GKInstance physicalEntity : physicalEntities) {
@@ -277,26 +288,36 @@ public class NullCheck {
 		try {
 			instances.addAll(dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
 			
-			if (skipList != null && !skipList.isEmpty()) {
-				Iterator<GKInstance> instanceIterator = instances.iterator();
-				
-				while(instanceIterator.hasNext()) {
-					GKInstance instance = instanceIterator.next();
-					if (skipList.contains(instance.getDBID())) {
-						//instances.remove(instance);
-						instanceIterator.remove();
-					}
-				}
+			if (skipList != null && !skipList.isEmpty())
+			{
+				//List<GKInstance> filteredList = instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
+				return instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
 			}
+			else
+			{
+				return instances;
+			}
+			
+//			if (skipList != null && !skipList.isEmpty()) {
+//				Iterator<GKInstance> instanceIterator = instances.iterator();
+//				
+//				while(instanceIterator.hasNext()) {
+//					GKInstance instance = instanceIterator.next();
+//					if (skipList.contains(instance.getDBID())) {
+//						//instances.remove(instance);
+//						instanceIterator.remove();
+//					}
+//				}
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return instances;
 	}
 	
-	private static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) {
-		return getInstances(dba, schemaClass, attribute, "IS NULL", skipList);
-	}
+//	private static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) {
+//		return getInstances(dba, schemaClass, attribute, "IS NULL", skipList);
+//	}
 	
 	private static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)  {
 		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
