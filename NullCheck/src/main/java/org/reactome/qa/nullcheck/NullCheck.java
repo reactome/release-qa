@@ -192,20 +192,20 @@ public class NullCheck {
 //		
 //		return simpleEntityReportLines;
 //	}
-	
-	private static void report(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList) {
-		List<String> reportLines = getReportLines(dba, schemaClass, attribute, operator, skipList);
-		
-		if (!reportLines.isEmpty()) {
-			System.out.println("There are " + reportLines.size() + " " + schemaClass + " instances with a null " + attribute);
-			for (String line : reportLines) {
-				System.out.println(line);
-			}
-		} else {
-			System.out.println(schemaClass + " instances with null " + attribute + ": there are none! :)");
-		}
-	}
-	
+//	
+//	private static void report(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList) {
+//		List<String> reportLines = getReportLines(dba, schemaClass, attribute, operator, skipList);
+//		
+//		if (!reportLines.isEmpty()) {
+//			System.out.println("There are " + reportLines.size() + " " + schemaClass + " instances with a null " + attribute);
+//			for (String line : reportLines) {
+//				System.out.println(line);
+//			}
+//		} else {
+//			System.out.println(schemaClass + " instances with null " + attribute + ": there are none! :)");
+//		}
+//	}
+//	
 	private static void reportNullAttribute(List<GKInstance> instances, String attribute) {
 		List<String> reportLines = getReportLines(instances, attribute);
 		
@@ -265,32 +265,32 @@ public class NullCheck {
 //		
 //		return physicalEntitySpeciesReportLines;
 //	}
-	
-	private static List<String> getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA) {
-		List<String> normalReactionWithoutDiseaseReportLines = new ArrayList<String>();
-		List<GKInstance> RLEsWithNormalReaction = new ArrayList<GKInstance>();
-		try {
-			RLEsWithNormalReaction.addAll(getInstancesWithNonNullAttribute(currentDBA, "ReactionlikeEvent", "normalReaction", null));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		for (GKInstance RLEWithNormalReaction : RLEsWithNormalReaction) {
-			try {
-				GKInstance diseaseInstance = (GKInstance) RLEWithNormalReaction.getAttributeValue("disease");
-				if (diseaseInstance == null) {
-					normalReactionWithoutDiseaseReportLines.add(getReportLine(RLEWithNormalReaction, "RLE with normal reaction but disease is null"));
-				}
-			} catch (InvalidAttributeException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return normalReactionWithoutDiseaseReportLines;
-	}
-	
+//	
+//	private static List<String> getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA) {
+//		List<String> normalReactionWithoutDiseaseReportLines = new ArrayList<String>();
+//		List<GKInstance> RLEsWithNormalReaction = new ArrayList<GKInstance>();
+//		try {
+//			RLEsWithNormalReaction.addAll(getInstancesWithNonNullAttribute(currentDBA, "ReactionlikeEvent", "normalReaction", null));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		for (GKInstance RLEWithNormalReaction : RLEsWithNormalReaction) {
+//			try {
+//				GKInstance diseaseInstance = (GKInstance) RLEWithNormalReaction.getAttributeValue("disease");
+//				if (diseaseInstance == null) {
+//					normalReactionWithoutDiseaseReportLines.add(getReportLine(RLEWithNormalReaction, "RLE with normal reaction but disease is null"));
+//				}
+//			} catch (InvalidAttributeException e) {
+//				e.printStackTrace();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		return normalReactionWithoutDiseaseReportLines;
+//	}
+//	
 	private static List<GKInstance> getNewEvents(MySQLAdaptor currentDBA) {
 		List<GKInstance> newEvents = new ArrayList<GKInstance>();
 		try {
