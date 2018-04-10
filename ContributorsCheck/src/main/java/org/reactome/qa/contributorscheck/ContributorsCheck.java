@@ -29,11 +29,11 @@ import org.reactome.qa.report.exception.ReportException;
  * Checks contributors.
  *
  */
-public class ContributorsCheck implements QACheck
+public class ContributorsCheck // implements QACheck
 {
-	private MySQLAdaptor currentDBA;
-	private MySQLAdaptor previousDBA;
-	private String inputFile;
+	private static MySQLAdaptor currentDBA;
+	private static MySQLAdaptor previousDBA;
+	private static String inputFile;
 	
     public static void main( String[] args )
     {
@@ -43,41 +43,77 @@ public class ContributorsCheck implements QACheck
 		{
 			pathToResources = args[0];
 		}
+//		try
+//		{
+//			ContributorsCheck.checkContributors(pathToResources);
+//		}
+//		catch (NumberFormatException | SQLException | IOException | ReportException e)
+//		{
+//			e.printStackTrace();
+//		}
+//		
+		
 		try
 		{
-			ContributorsCheck.checkContributors(pathToResources);
+			Report r = checkNewContributors(pathToResources);
+			((DelimitedTextReport)r).print("\t",System.out);
 		}
-		catch (NumberFormatException | SQLException | IOException | ReportException e)
+		catch (IOException | ReportException | SQLException e)
 		{
 			e.printStackTrace();
 		}
+    }
+    
+    public static Report checkNewContributors(String pathToResources) throws IOException, SQLException
+    {
+    	CheckNewContributors checker = new CheckNewContributors();
+    	
+    	InputStream input = new FileInputStream("src/main/resources/auth.properties");
+		Properties prop = new Properties();
+		prop.load(input);
+		String user = prop.getProperty("user");
+		String password = prop.getProperty("password");
+		String currentDatabaseHost = prop.getProperty("currentDBHost");
+		String currentDatabase = prop.getProperty("currentDatabase");
+		String currentDatabasePort = prop.getProperty("currentDatabasePort");
+		String oldDatabaseHost = prop.getProperty("oldDBHost");
+		String oldDatabase = prop.getProperty("oldDatabase");
+		String oldDatabasePort = prop.getProperty("oldDatabasePort");
+		inputFile = prop.getProperty("inputFile");
+		currentDBA = new MySQLAdaptor(currentDatabaseHost, currentDatabase, user, password, Integer.valueOf(currentDatabasePort));
+		previousDBA = new MySQLAdaptor(oldDatabaseHost, oldDatabase, user, password, Integer.valueOf(oldDatabasePort));
+
+    	
+    	checker.setCurrentDBAdaptor(currentDBA);
+    	checker.setPreviousDBAdaptor(previousDBA);
+    	checker.setInputFilePath(inputFile);
+    	return checker.executeQACheck();
     }
     
     /**
      * Checks contributors.
      * @param pathToResources - The path to the properties resource file, which should contain all information needed to connected to the databases. It should look like this:
      * <pre>
-user=<USER>
-password=<PASSWORD>
+user=${USER}
+password=${PASSWORD}
 
-currentDBHost=<CURRENT RELEASE DATABASE HOST>
-oldDBHost=<PRIOR RELEASE DATABASE HOST>
+currentDBHost=${CURRENT RELEASE DATABASE HOST}
+oldDBHost=${PRIOR RELEASE DATABASE HOST}
 
-currentDatabase=<CURRENT RELEASE DATABASE>
-currentDatabasePort=<CURRENT RELEASE DATABASE PORT>
+currentDatabase=${CURRENT RELEASE DATABASE}
+currentDatabasePort=${CURRENT RELEASE DATABASE PORT}
 
-oldDatabase=<PRIOR RELEASE DATABASE>
-oldDatabasePort=<PRIOR RELEASE DATABASE PORT>
+oldDatabase=${PRIOR RELEASE DATABASE}
+oldDatabasePort=${PRIOR RELEASE DATABASE PORT}
 
 inputFile=path/to/contributors-check-input.txt
      * </pre>
-     * @throws NumberFormatException
      * @throws SQLException
      * @throws FileNotFoundException
      * @throws IOException
      * @throws ReportException
      */
-    public static Report checkContributors(String pathToResources) throws NumberFormatException, SQLException, FileNotFoundException, IOException, ReportException
+    private static Report checkContributors(String pathToResources) throws SQLException, FileNotFoundException, IOException, ReportException
     {
     	Report report = new DelimitedTextReport();
     	report.setColumnHeaders(Arrays.asList("Pathway Name", "Pathway DB_Id", "HasEvent Name", "HasEvent DB_ID", "Contributors"));
@@ -231,8 +267,8 @@ inputFile=path/to/contributors-check-input.txt
     	return authorNames;
     }
 
-	@Override
-	public Report executeQACheck()
+	//@Override
+	private Report executeQACheck()
 	{
 		Report report = new DelimitedTextReport();
 		report.setColumnHeaders(Arrays.asList("Pathway Name", "Pathway DB_Id", "HasEvent Name", "HasEvent DB_ID", "Contributors"));

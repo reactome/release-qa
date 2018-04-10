@@ -77,7 +77,8 @@ public class TestContributorsCheck
 		Mockito.when(child.getSchemaAttributes()).thenReturn(attribs);
 		
 		
-		Report report = ContributorsCheck.checkContributors("src/test/resources/contributors-check-input.txt");
+		Report report = ContributorsCheck.checkNewContributors("src/test/resources/contributors-check-input.txt");
+		
 		
 		assertNotNull(report);
 		
