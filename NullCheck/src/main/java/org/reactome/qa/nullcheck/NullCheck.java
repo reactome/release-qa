@@ -58,23 +58,46 @@ public class NullCheck {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+//		List<String> simpleEntityReportLines = getSimpleEntityReportLines(currentDBA);
+//		if (!simpleEntityReportLines.isEmpty()) {
+//			//TODO: Switch to better logging framework than stdout.
+//			System.out.println("There are "+simpleEntityReportLines.size()+" SimpleEntities with a non-null species. Details are:");
+//			for (String line : simpleEntityReportLines)
+//			{
+//				System.out.println(line);
+//			}			
+//		} else {	
+//			System.out.println("SimpleEntities with non-null species: there are none! :)");
+//		}
 
-
-		report(currentDBA, "PhysicalEntity", "compartment", "IS NULL", null);
 		
-		try {
-			List<String> physicalEntitySpeciesLines = getPhysicalEntitySpeciesReportLines(currentDBA);
-			if(!physicalEntitySpeciesLines.isEmpty()) {
-				System.out.println("There are " + physicalEntitySpeciesLines.size() + " PhysicalEntities with a null species but "
-						+ "having components with species");
-				for (String line : physicalEntitySpeciesLines) {
-					System.out.println(line);
-				}
-			} else {
-				System.out.println("PhysicalEntities with null species having components with species: there are none! :)");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+//		report(currentDBA, "PhysicalEntity", "compartment", "IS NULL", null);
+//		
+//		try {
+//			List<String> physicalEntitySpeciesLines = getPhysicalEntitySpeciesReportLines(currentDBA);
+//			if(!physicalEntitySpeciesLines.isEmpty()) {
+//				System.out.println("There are " + physicalEntitySpeciesLines.size() + " PhysicalEntities with a null species but "
+//						+ "having components with species");
+//				for (String line : physicalEntitySpeciesLines) {
+//					System.out.println(line);
+//				}
+//			} else {
+//				System.out.println("PhysicalEntities with null species having components with species: there are none! :)");
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
+		PhysicalEntityChecker physicalEntityChecker = new PhysicalEntityChecker();
+		physicalEntityChecker.setAdaptor(currentDBA);
+		DelimitedTextReport physicalEntityReport = (DelimitedTextReport) physicalEntityChecker.executeQACheck();
+		try
+		{
+			physicalEntityReport.print("\t", System.out);
+		}
+		catch (IOException | ReportException e1)
+		{
+			e1.printStackTrace();
 		}
 		
 		try {
