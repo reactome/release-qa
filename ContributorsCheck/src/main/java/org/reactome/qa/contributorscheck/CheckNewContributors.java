@@ -24,6 +24,16 @@ public class CheckNewContributors implements QACheck
 	private MySQLAdaptor previousDBA;
 	private String inputFile;
 	
+	public CheckNewContributors() {}
+	
+	
+	public CheckNewContributors(MySQLAdaptor currentDB, MySQLAdaptor prevDB, String pathToInputFile)
+	{
+		this.currentDBA = currentDB;
+		this.previousDBA = prevDB;
+		this.inputFile = pathToInputFile;
+	}
+	
 	public void setCurrentDBAdaptor(MySQLAdaptor dba)
 	{
 		this.currentDBA = dba;
