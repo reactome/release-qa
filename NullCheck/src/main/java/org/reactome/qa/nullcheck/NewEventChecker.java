@@ -16,8 +16,8 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
-public class NewEventChecker implements QACheck {
-
+public class NewEventChecker implements QACheck
+{
 	private static final String IS_NOT_NULL = "IS NOT NULL";
 	private static final String IS_NULL = "IS NULL";
 	private static final String REACTIONLIKE_EVENT = "ReactionlikeEvent";
@@ -28,6 +28,12 @@ public class NewEventChecker implements QACheck {
 		this.adaptor = dba;
 	}
 
+	/**
+	 * Gets new Events that have no value for "inferredFrom" and also have no value for "literatureReference" 
+	 * @param dba
+	 * @param skipList
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private List<GKInstance> getNewEventsWithNoInferredFromAndNoLitRef(MySQLAdaptor dba, List<Long> skipList)
 	{
@@ -43,25 +49,8 @@ public class NewEventChecker implements QACheck {
 			queryReqestList.add(noInferredFrom);
 			
 			Collection<GKInstance> newEvents = dba.fetchInstance(queryReqestList);
-			for (GKInstance inst : newEvents)
-			{
-				GKInstance stableIdentifier = (GKInstance) inst.getAttributeValue("stableIdentifier");
-				GKInstance released = (GKInstance) stableIdentifier.getAttributeValue("released");
-				if (released!=null)
-				{
-					instances.add(inst);
-				}
-				
-			}
-			// filter by skip list
-			if (skipList != null && !skipList.isEmpty())
-			{
-				return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
-			}
-			else
-			{
-				return instances;
-			}
+			getUnreleasedEvents(instances, newEvents);
+			return filterBySkipList(skipList, instances);
 		}
 		catch (InvalidClassException | InvalidAttributeException e)
 		{
@@ -75,7 +64,37 @@ public class NewEventChecker implements QACheck {
 		
 		return instances;
 	}
+
+	/**
+	 * Gets Events that are unreleased - They have a stableIdentifier and the stableIdentifier's "released" attribute is NULL/false
+	 * @param instances
+	 * @param newEvents
+	 * @throws InvalidAttributeException
+	 * @throws Exception
+	 */
+	private void getUnreleasedEvents(List<GKInstance> instances, Collection<GKInstance> newEvents) throws InvalidAttributeException, Exception
+	{
+		for (GKInstance inst : newEvents)
+		{
+			GKInstance stableIdentifier = (GKInstance) inst.getAttributeValue("stableIdentifier");
+			Boolean released = (Boolean) stableIdentifier.getAttributeValue("released");
+			if (released==null || released.booleanValue()==false)
+			{
+				instances.add(inst);
+			}
+			
+		}
+	}
 	
+	/**
+	 * Gets new Events, based on whether a certain attribute is null or not.
+	 * @param dba - the database adaptor.
+	 * @param schemaClass - the class that the events will be.
+	 * @param attribute - the attribute to check.
+	 * @param operator - should be "IS NULL" or "IS NOT NULL" //TODO: change this to an enum. 
+	 * @param skipList - a skiplist to filter out results, if you want.
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	private List<GKInstance> getNewEventInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
 	{
@@ -90,26 +109,9 @@ public class NewEventChecker implements QACheck {
 			queryReqestList.add(queryRequest);
 
 			Collection<GKInstance> newEvents = dba.fetchInstance(queryReqestList);
-			for (GKInstance inst : newEvents)
-			{
-				GKInstance stableIdentifier = (GKInstance) inst.getAttributeValue("stableIdentifier");
-				Boolean released = (Boolean) stableIdentifier.getAttributeValue("released");
-				// we're interested in instances that have a stable identifier whose "released" attribute is NULL/false
-				if (released==null || released.booleanValue()==false)
-				{
-					instances.add(inst);
-				}
-				
-			}
+			getUnreleasedEvents(instances, newEvents);
 			// filter by skip list
-			if (skipList != null && !skipList.isEmpty())
-			{
-				return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
-			}
-			else
-			{
-				return instances;
-			}
+			return filterBySkipList(skipList, instances);
 		}
 		catch (InvalidClassException | InvalidAttributeException e)
 		{
@@ -122,10 +124,27 @@ public class NewEventChecker implements QACheck {
 		}
 		return instances;
 	}
+
+	/**
+	 * Filter a list of GKInstance objects by the DB IDs in skipList.
+	 * @param skipList - the skipList.
+	 * @param instances - Objects from the database. Any object whose DB_ID is in skipList will *not* be in the output.
+	 * @return
+	 */
+	private List<GKInstance> filterBySkipList(List<Long> skipList, List<GKInstance> instances)
+	{
+		if (skipList != null && !skipList.isEmpty())
+		{
+			return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
+		}
+		else
+		{
+			return instances;
+		}
+	}
 	
 
-
-	private static String getLastModificationAuthor(GKInstance instance) {
+	private String getLastModificationAuthor(GKInstance instance) {
 		final String noAuthor = "No modification or creation author";
 		
 		GKInstance mostRecentMod = null;
