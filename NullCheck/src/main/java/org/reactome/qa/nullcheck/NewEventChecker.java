@@ -123,37 +123,7 @@ public class NewEventChecker implements QACheck {
 		return instances;
 	}
 	
-//	private List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)
-//	{
-//		return getNewEventInstances(dba, schemaClass, attribute, "IS NULL", skipList);
-//	}
-//	
-//	private List<GKInstance> getNewEvents(MySQLAdaptor currentDBA)
-//	{
-//		List<GKInstance> newEvents = new ArrayList<GKInstance>();
-//		try
-//		{
-//			List<GKInstance> reactionLikeEventsEditedIsNull = getNewEventInstances(currentDBA, "ReactionlikeEvent", "edited", "IS NULL", null);
-//			List<GKInstance> reactionLikeEventsAuthoredIsNull = getNewEventInstances(currentDBA, "ReactionlikeEvent", "authored", "IS NULL", null);
-//			List<GKInstance> reactionLikeEventsReviewedIsNull = getNewEventInstances(currentDBA, "ReactionlikeEvent", "reviewed", "IS NULL", null);
-//			List<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(currentDBA, "ReactionlikeEvent", "summation", "IS NULL", null);
-//			List<GKInstance> reactionLikeEventsSpeiesIsNull = getNewEventInstances(currentDBA, "ReactionlikeEvent", "species", "IS NULL", null);
-////			for (GKInstance reactionLikeEvent : reactionLikeEvents)
-////			{
-////				GKInstance RLEStableIdentifier = (GKInstance) reactionLikeEvent.getAttributeValue("stableIdentifier");
-////				Boolean releasedAttribute = (Boolean) RLEStableIdentifier.getAttributeValue("released");
-////				if (releasedAttribute == null || !releasedAttribute)
-////				{
-////					newEvents.add(reactionLikeEvent);
-////				}
-////			}
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//		}
-//		return newEvents;
-//	}
+
 
 	private static String getLastModificationAuthor(GKInstance instance) {
 		final String noAuthor = "No modification or creation author";
