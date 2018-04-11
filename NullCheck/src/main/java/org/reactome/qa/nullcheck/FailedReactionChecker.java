@@ -12,7 +12,7 @@ import org.reactome.qa.report.Report;
 
 public class FailedReactionChecker implements QACheck
 {
-
+	private static final String schemaClassName = "FailedReaction";
 	private MySQLAdaptor adaptor;
 	
 	public void setAdaptor (MySQLAdaptor dba)
@@ -39,8 +39,9 @@ public class FailedReactionChecker implements QACheck
 	public Report executeQACheck()
 	{
 		Report r;
-		r = report("FailedReaction", "normalReaction", "IS NULL", null);
-		r.addLines( report("FailedReaction", "output", "IS NOT NULL", null).getReportLines() );
+		
+		r = report(FailedReactionChecker.schemaClassName, "normalReaction", NullCheckHelper.IS_NULL, null);
+		r.addLines( report(FailedReactionChecker.schemaClassName, "output", NullCheckHelper.IS_NOT_NULL, null).getReportLines() );
 		r.setColumnHeaders(Arrays.asList("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor"));
 		return r;
 	}
