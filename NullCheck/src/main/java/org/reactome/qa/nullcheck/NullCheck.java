@@ -3,19 +3,9 @@ package org.reactome.qa.nullcheck;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.gk.model.GKInstance;
-import org.gk.model.InstanceUtilities;
-import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.gk.schema.InvalidAttributeException;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.exception.ReportException;
 
@@ -42,7 +32,7 @@ public class NullCheck {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		System.out.println("--------\nSimple Entity Report\n--------");
 		SimpleEntityChecker simpleEntityChecker = new SimpleEntityChecker();
 		simpleEntityChecker.setAdaptor(currentDBA);
 		DelimitedTextReport simpleEntityReport = (DelimitedTextReport) simpleEntityChecker.executeQACheck();
@@ -83,7 +73,7 @@ public class NullCheck {
 //		} catch (Exception e) {
 //			e.printStackTrace();
 //		}
-		
+		System.out.println("--------\nPhysical Entity Report\n--------");
 		PhysicalEntityChecker physicalEntityChecker = new PhysicalEntityChecker();
 		physicalEntityChecker.setAdaptor(currentDBA);
 		DelimitedTextReport physicalEntityReport = (DelimitedTextReport) physicalEntityChecker.executeQACheck();
@@ -114,7 +104,7 @@ public class NullCheck {
 //			System.err.println("Unable to get RLE output skip list");
 //			e.printStackTrace();
 //		}
-		
+		System.out.println("--------\nReaction-Like Event Report\n--------");
 		ReactionLikeEventChecker rleChecker = new ReactionLikeEventChecker();
 		rleChecker.setAdaptor(currentDBA);
 		DelimitedTextReport rleReport = (DelimitedTextReport) rleChecker.executeQACheck();
@@ -139,7 +129,7 @@ public class NullCheck {
 //		}
 //		report(currentDBA, "FailedReaction", "normalReaction", "IS NULL", null);
 //		report(currentDBA, "FailedReaction", "output", "IS NOT NULL", null);
-
+		System.out.println("--------\nFailed Reaction Report\n--------");
 		FailedReactionChecker failedReactionChecker = new FailedReactionChecker();
 		failedReactionChecker.setAdaptor(currentDBA);
 		DelimitedTextReport failedReactionReport = (DelimitedTextReport) failedReactionChecker.executeQACheck();
@@ -152,22 +142,36 @@ public class NullCheck {
 			e.printStackTrace();
 		}
 		
-		List<GKInstance> newEvents = getNewEvents(currentDBA);
-		reportNullAttribute(newEvents, "edited");
-		reportNullAttribute(newEvents, "authored");
-		reportNullAttribute(newEvents, "reviewed");
-		List<String> RLENotInferredAndNoLiteratureReferenceReportLines = getRLENotInferredAndNoLiteratureReferenceReportLines(newEvents);
-		if (!RLENotInferredAndNoLiteratureReferenceReportLines.isEmpty()) {
-			System.out.println("There are "+RLENotInferredAndNoLiteratureReferenceReportLines.size()+" non-inferred RLEs without a literature reference");
-			for (String line : RLENotInferredAndNoLiteratureReferenceReportLines)
-			{
-				System.out.println(line);
-			}			
-		} else {	
-			System.out.println("Non-inferred RLEs without a literature reference: there are none! :)");
-		}		
-		reportNullAttribute(newEvents, "summation");
-		reportNullAttribute(newEvents, "species");
+//		System.out.println("--------\nNew Reaction-Like Event Report\n--------");
+//		List<GKInstance> newEvents = getNewEvents(currentDBA);
+//		reportNullAttribute(newEvents, "edited");
+//		reportNullAttribute(newEvents, "authored");
+//		reportNullAttribute(newEvents, "reviewed");
+//		reportNullAttribute(newEvents, "summation");
+//		reportNullAttribute(newEvents, "species");
+//		List<String> RLENotInferredAndNoLiteratureReferenceReportLines = getRLENotInferredAndNoLiteratureReferenceReportLines(newEvents);
+//		if (!RLENotInferredAndNoLiteratureReferenceReportLines.isEmpty()) {
+//			System.out.println("There are "+RLENotInferredAndNoLiteratureReferenceReportLines.size()+" non-inferred RLEs without a literature reference");
+//			for (String line : RLENotInferredAndNoLiteratureReferenceReportLines)
+//			{
+//				System.out.println(line);
+//			}			
+//		} else {	
+//			System.out.println("Non-inferred RLEs without a literature reference: there are none! :)");
+//		}		
+
+		NewEventChecker newEventChecker = new NewEventChecker();
+		newEventChecker.setAdaptor(currentDBA);
+		DelimitedTextReport newEventReport = (DelimitedTextReport) newEventChecker.executeQACheck();
+		try
+		{
+			newEventReport.print("\t", System.out);
+		}
+		catch (IOException | ReportException e)
+		{
+			e.printStackTrace();
+		}
+		
 	}
 	
 //	private static List<String> getSimpleEntityReportLines(MySQLAdaptor currentDBA) {
@@ -206,19 +210,19 @@ public class NullCheck {
 //		}
 //	}
 //	
-	private static void reportNullAttribute(List<GKInstance> instances, String attribute) {
-		List<String> reportLines = getReportLines(instances, attribute);
-		
-		if (!reportLines.isEmpty()) {
-			System.out.println("There are " + reportLines.size() + " instances with a null " + attribute);
-			for (String line : reportLines) {
-				System.out.println(line);
-			}
-		} else {
-			System.out.println("Instances with null " + attribute + ": there are none! :)");
-		}
-	}
-	
+//	private static void reportNullAttribute(List<GKInstance> instances, String attribute) {
+//		List<String> reportLines = getReportLines(instances, attribute);
+//		
+//		if (!reportLines.isEmpty()) {
+//			System.out.println("There are " + reportLines.size() + " instances with a null " + attribute);
+//			for (String line : reportLines) {
+//				System.out.println(line);
+//			}
+//		} else {
+//			System.out.println("Instances with null " + attribute + ": there are none! :)");
+//		}
+//	}
+//	
 //	private static List<String> getReportLines(MySQLAdaptor currentDBA, String schemaClass, String attribute, String operator, List<Long> skipList) {
 //		List<String> reportLines = new ArrayList<String>();
 //		
@@ -232,22 +236,22 @@ public class NullCheck {
 //		return reportLines;
 //	}
 //	
-	private static List<String> getReportLines(List<GKInstance> instances, String attribute) {
-		List<String> reportLines = new ArrayList<String>();
-		
-		for (GKInstance instance : instances) {
-			try {
-				Object attributeValue = instance.getAttributeValue(attribute);
-				if (attributeValue == null) {
-					reportLines.add(getReportLine(instance, "Instance with null " + attribute));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return reportLines;
-	}
+//	private static List<String> getReportLines(List<GKInstance> instances, String attribute) {
+//		List<String> reportLines = new ArrayList<String>();
+//		
+//		for (GKInstance instance : instances) {
+//			try {
+//				Object attributeValue = instance.getAttributeValue(attribute);
+//				if (attributeValue == null) {
+//					reportLines.add(getReportLine(instance, "Instance with null " + attribute));
+//				}
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		return reportLines;
+//	}
 
 //	private static List<String> getPhysicalEntitySpeciesReportLines(MySQLAdaptor currentDBA) throws Exception {
 //		List<String> physicalEntitySpeciesReportLines = new ArrayList<String>();
@@ -291,73 +295,73 @@ public class NullCheck {
 //		return normalReactionWithoutDiseaseReportLines;
 //	}
 //	
-	private static List<GKInstance> getNewEvents(MySQLAdaptor currentDBA) {
-		List<GKInstance> newEvents = new ArrayList<GKInstance>();
-		try {
-			List<GKInstance> reactionLikeEvents = getInstances(currentDBA, "ReactionlikeEvent", "stableIdentifier", "IS NOT NULL", null);
-			for (GKInstance reactionLikeEvent : reactionLikeEvents) {
-				GKInstance RLEStableIdentifier = (GKInstance) reactionLikeEvent.getAttributeValue("stableIdentifier");
-				Boolean releasedAttribute = (Boolean) RLEStableIdentifier.getAttributeValue("released");
-				if (releasedAttribute == null || !releasedAttribute) {
-					newEvents.add(reactionLikeEvent);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return newEvents;
-	}
-	
-	private static List<String> getRLENotInferredAndNoLiteratureReferenceReportLines(List<GKInstance> RLEs) {
-		List<String> RLENotInferredAndNoLiteratureReferenceReportLines = new ArrayList<String>();
-		
-		for (GKInstance RLE : RLEs) {
-			try {
-				GKInstance inferredFrom = (GKInstance) RLE.getAttributeValue("inferredFrom");
-				GKInstance literatureReference = (GKInstance) RLE.getAttributeValue("literatureReference");
-				
-				if (inferredFrom == null && literatureReference == null) {
-					RLENotInferredAndNoLiteratureReferenceReportLines.add(getReportLine(RLE, "RLE not inferred and no literature reference"));
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return RLENotInferredAndNoLiteratureReferenceReportLines;
-	}
-	
-	private static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList) {
-		List<GKInstance> instances = new ArrayList<GKInstance>();
-		try {
-			instances.addAll(dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
-			
-			if (skipList != null && !skipList.isEmpty())
-			{
-				//List<GKInstance> filteredList = instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
-				return instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
-			}
-			else
-			{
-				return instances;
-			}
-			
-//			if (skipList != null && !skipList.isEmpty()) {
-//				Iterator<GKInstance> instanceIterator = instances.iterator();
-//				
-//				while(instanceIterator.hasNext()) {
-//					GKInstance instance = instanceIterator.next();
-//					if (skipList.contains(instance.getDBID())) {
-//						//instances.remove(instance);
-//						instanceIterator.remove();
-//					}
+//	private static List<GKInstance> getNewEvents(MySQLAdaptor currentDBA) {
+//		List<GKInstance> newEvents = new ArrayList<GKInstance>();
+//		try {
+//			List<GKInstance> reactionLikeEvents = getInstances(currentDBA, "ReactionlikeEvent", "stableIdentifier", "IS NOT NULL", null);
+//			for (GKInstance reactionLikeEvent : reactionLikeEvents) {
+//				GKInstance RLEStableIdentifier = (GKInstance) reactionLikeEvent.getAttributeValue("stableIdentifier");
+//				Boolean releasedAttribute = (Boolean) RLEStableIdentifier.getAttributeValue("released");
+//				if (releasedAttribute == null || !releasedAttribute) {
+//					newEvents.add(reactionLikeEvent);
 //				}
 //			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return instances;
-	}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return newEvents;
+//	}
+//	
+//	private static List<String> getRLENotInferredAndNoLiteratureReferenceReportLines(List<GKInstance> RLEs) {
+//		List<String> RLENotInferredAndNoLiteratureReferenceReportLines = new ArrayList<String>();
+//		
+//		for (GKInstance RLE : RLEs) {
+//			try {
+//				GKInstance inferredFrom = (GKInstance) RLE.getAttributeValue("inferredFrom");
+//				GKInstance literatureReference = (GKInstance) RLE.getAttributeValue("literatureReference");
+//				
+//				if (inferredFrom == null && literatureReference == null) {
+//					RLENotInferredAndNoLiteratureReferenceReportLines.add(getReportLine(RLE, "RLE not inferred and no literature reference"));
+//				}
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		
+//		return RLENotInferredAndNoLiteratureReferenceReportLines;
+//	}
+	
+//	private static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList) {
+//		List<GKInstance> instances = new ArrayList<GKInstance>();
+//		try {
+//			instances.addAll(dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
+//			
+//			if (skipList != null && !skipList.isEmpty())
+//			{
+//				//List<GKInstance> filteredList = instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
+//				return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
+//			}
+//			else
+//			{
+//				return instances;
+//			}
+//			
+////			if (skipList != null && !skipList.isEmpty()) {
+////				Iterator<GKInstance> instanceIterator = instances.iterator();
+////				
+////				while(instanceIterator.hasNext()) {
+////					GKInstance instance = instanceIterator.next();
+////					if (skipList.contains(instance.getDBID())) {
+////						//instances.remove(instance);
+////						instanceIterator.remove();
+////					}
+////				}
+////			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return instances;
+//	}
 	
 //	private static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) {
 //		return getInstances(dba, schemaClass, attribute, "IS NULL", skipList);
@@ -371,84 +375,84 @@ public class NullCheck {
 //		Set<GKInstance> speciesSet = grepAllSpeciesInPE(physicalEntity, true);
 //		return !speciesSet.isEmpty();		
 //	}
-	
-	private static Set<GKInstance> grepAllSpeciesInPE(GKInstance pe, boolean needRecursion) throws Exception {
-		Set<GKInstance> speciesSet = new HashSet<>();
-		if (pe.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
-			List<GKInstance> speciesList = pe.getAttributeValuesList(ReactomeJavaConstants.species);
-			if (speciesList != null && speciesList.size() > 0) {
-				speciesSet.addAll(speciesList);
-			}
-		}
-		if (speciesSet.size() == 0 && needRecursion) {
-			grepAllSpeciesInPE(pe, speciesSet);
-		}
-		return speciesSet;
-	}
-
-	private static void grepAllSpeciesInPE(GKInstance pe, Set<GKInstance> speciesSet) throws Exception {
-		Set<GKInstance> wrappedPEs = InstanceUtilities.getContainedInstances(pe,
-				ReactomeJavaConstants.hasComponent,
-				ReactomeJavaConstants.hasCandidate,
-				ReactomeJavaConstants.hasMember,
-				ReactomeJavaConstants.repeatedUnit);
-		for (GKInstance wrappedPE : wrappedPEs) {
-			Set<GKInstance> wrappedSpecies = grepAllSpeciesInPE(wrappedPE, true);
-			speciesSet.addAll(wrappedSpecies);
-		}
-	}
-	
-	private static String getLastModificationAuthor(GKInstance instance) {
-		final String noAuthor = "No modification or creation author";
-		
-		GKInstance mostRecentMod = null;
-		try {
-			List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
-			for (int index = modificationInstances.size() - 1; index > 0; index--) {
-				GKInstance modificationInstance = modificationInstances.get(index);
-				GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
-				// Skip modification instance for Solomon, Joel, or Guanming
-				if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString())) {
-					continue;
-				}
-				mostRecentMod = modificationInstance;
-				break;
-			}
-		} catch (InvalidAttributeException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		if (mostRecentMod == null) {
-			GKInstance created = null;
-			try {
-				created = (GKInstance) instance.getAttributeValue("created");
-			} catch (InvalidAttributeException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			if (created != null) { 
-				return created.getDisplayName();
-			} else {
-				return noAuthor;
-			}
-		}
-		
-		return mostRecentMod.getDisplayName();	
-	}
-	
-	private static String getReportLine(GKInstance instance, String instanceIssue) {
-		return String.join("\t", Arrays.asList(
-			instance.getDBID().toString(),
-			instance.getDisplayName(),
-			instance.getSchemClass().getName(),
-			instanceIssue,
-			getLastModificationAuthor(instance)
-		));
-	}
+//	
+//	private static Set<GKInstance> grepAllSpeciesInPE(GKInstance pe, boolean needRecursion) throws Exception {
+//		Set<GKInstance> speciesSet = new HashSet<>();
+//		if (pe.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
+//			List<GKInstance> speciesList = pe.getAttributeValuesList(ReactomeJavaConstants.species);
+//			if (speciesList != null && speciesList.size() > 0) {
+//				speciesSet.addAll(speciesList);
+//			}
+//		}
+//		if (speciesSet.size() == 0 && needRecursion) {
+//			grepAllSpeciesInPE(pe, speciesSet);
+//		}
+//		return speciesSet;
+//	}
+//
+//	private static void grepAllSpeciesInPE(GKInstance pe, Set<GKInstance> speciesSet) throws Exception {
+//		Set<GKInstance> wrappedPEs = InstanceUtilities.getContainedInstances(pe,
+//				ReactomeJavaConstants.hasComponent,
+//				ReactomeJavaConstants.hasCandidate,
+//				ReactomeJavaConstants.hasMember,
+//				ReactomeJavaConstants.repeatedUnit);
+//		for (GKInstance wrappedPE : wrappedPEs) {
+//			Set<GKInstance> wrappedSpecies = grepAllSpeciesInPE(wrappedPE, true);
+//			speciesSet.addAll(wrappedSpecies);
+//		}
+//	}
+//	
+//	private static String getLastModificationAuthor(GKInstance instance) {
+//		final String noAuthor = "No modification or creation author";
+//		
+//		GKInstance mostRecentMod = null;
+//		try {
+//			List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
+//			for (int index = modificationInstances.size() - 1; index > 0; index--) {
+//				GKInstance modificationInstance = modificationInstances.get(index);
+//				GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
+//				// Skip modification instance for Solomon, Joel, or Guanming
+//				if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString())) {
+//					continue;
+//				}
+//				mostRecentMod = modificationInstance;
+//				break;
+//			}
+//		} catch (InvalidAttributeException e) {
+//			e.printStackTrace();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		
+//		if (mostRecentMod == null) {
+//			GKInstance created = null;
+//			try {
+//				created = (GKInstance) instance.getAttributeValue("created");
+//			} catch (InvalidAttributeException e) {
+//				e.printStackTrace();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//			
+//			if (created != null) { 
+//				return created.getDisplayName();
+//			} else {
+//				return noAuthor;
+//			}
+//		}
+//		
+//		return mostRecentMod.getDisplayName();	
+//	}
+//	
+//	private static String getReportLine(GKInstance instance, String instanceIssue) {
+//		return String.join("\t", Arrays.asList(
+//			instance.getDBID().toString(),
+//			instance.getDisplayName(),
+//			instance.getSchemClass().getName(),
+//			instanceIssue,
+//			getLastModificationAuthor(instance)
+//		));
+//	}
 	
 //	private static List<Long> getRLECompartmentSkipList() throws IOException {
 //		final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
