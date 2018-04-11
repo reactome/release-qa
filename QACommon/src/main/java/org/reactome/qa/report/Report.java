@@ -23,6 +23,18 @@ public abstract class Report
 	}
 	
 	/**
+	 * Add lines in bulk.
+	 * @param lines
+	 */
+	public void addLines(List<List<String>> lines)
+	{
+		for (List<String> line : lines)
+		{
+			this.addLine(line);
+		}
+	}
+	
+	/**
 	 * Sets the headers for the report.
 	 * @param headers - a list of headers.
 	 */

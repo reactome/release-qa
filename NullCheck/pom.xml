@@ -2,12 +2,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.reactome</groupId>
 	<artifactId>NullCheck</artifactId>
-	<version>0.0.1</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<parent>
+		<groupId>org.reactome.qa</groupId>
+		<artifactId>release-qa</artifactId>
+		<version>0.0.1</version>
+		<relativePath>../release-qa</relativePath>
+	</parent>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -25,13 +30,31 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.reactome.server</groupId>
 			<artifactId>reactome-core</artifactId>
-			<version>1.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.reactome.qa</groupId>
+			<artifactId>release-qa-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<repositories>
