@@ -58,17 +58,20 @@ class NullCheckHelper
 		{
 			@SuppressWarnings("unchecked")
 			List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
-			for (int index = modificationInstances.size() - 1; index > 0; index--)
+			if (modificationInstances.size() > 0)
 			{
-				GKInstance modificationInstance = modificationInstances.get(index);
-				GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
-				// Skip modification instance for Solomon, Joel, or Guanming
-				if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString()))
+				for (int index = modificationInstances.size() - 1; index >= 0; index--)
 				{
-					continue;
+					GKInstance modificationInstance = modificationInstances.get(index);
+					GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
+					// Skip modification instance for Solomon, Joel, or Guanming
+					if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString()))
+					{
+						continue;
+					}
+					mostRecentMod = modificationInstance;
+					break;
 				}
-				mostRecentMod = modificationInstance;
-				break;
 			}
 		}
 		catch (InvalidAttributeException e)
