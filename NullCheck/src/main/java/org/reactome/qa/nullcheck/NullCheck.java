@@ -15,13 +15,20 @@ import org.reactome.qa.report.exception.ReportException;
  * @author sshorser
  *
  */
-public class NullCheck {
+public class NullCheck
+{
 	public static void main(String[] args)
 	{
+		String pathToResources = "src/main/resources/auth.properties";
+		if (args !=null && args.length > 0)
+		{
+			pathToResources = args[0];
+		}
+		
 		MySQLAdaptor currentDBA = null;
 		try
 		{
-			InputStream input = new FileInputStream("src/main/resources/auth.properties");
+			InputStream input = new FileInputStream(pathToResources);
 			Properties prop = new Properties();
 			prop.load(input);
 			String user = prop.getProperty("user");

@@ -17,8 +17,7 @@ import org.reactome.qa.report.Report;
 
 public class NewEventChecker implements QACheck
 {
-	private static final String IS_NOT_NULL = "IS NOT NULL";
-	private static final String IS_NULL = "IS NULL";
+
 	private static final String REACTIONLIKE_EVENT = "ReactionlikeEvent";
 	private MySQLAdaptor adaptor;
 	
@@ -39,9 +38,9 @@ public class NewEventChecker implements QACheck
 		List<GKInstance> instances = new ArrayList<GKInstance>();
 		try
 		{
-			AttributeQueryRequest stIdIsNotNullRequest = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "stableIdentifier", IS_NOT_NULL, null);
-			AttributeQueryRequest noInferredFrom = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "inferredFrom", IS_NULL, null);
-			AttributeQueryRequest noLitRef = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "literatureReference", IS_NULL, null);
+			AttributeQueryRequest stIdIsNotNullRequest = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "stableIdentifier", NullCheckHelper.IS_NOT_NULL, null);
+			AttributeQueryRequest noInferredFrom = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "inferredFrom", NullCheckHelper.IS_NULL, null);
+			AttributeQueryRequest noLitRef = this.adaptor.new AttributeQueryRequest(REACTIONLIKE_EVENT, "literatureReference", NullCheckHelper.IS_NULL, null);
 			QueryRequestList queryReqestList = this.adaptor.new QueryRequestList();
 			queryReqestList.add(stIdIsNotNullRequest);
 			queryReqestList.add(noLitRef);
@@ -100,7 +99,7 @@ public class NewEventChecker implements QACheck
 		List<GKInstance> instances = new ArrayList<GKInstance>();
 		try
 		{
-			AttributeQueryRequest stIdIsNotNullRequest = this.adaptor.new AttributeQueryRequest(schemaClass, "stableIdentifier", IS_NOT_NULL, null);
+			AttributeQueryRequest stIdIsNotNullRequest = this.adaptor.new AttributeQueryRequest(schemaClass, "stableIdentifier", NullCheckHelper.IS_NOT_NULL, null);
 			AttributeQueryRequest queryRequest = this.adaptor.new AttributeQueryRequest(schemaClass, attribute, operator, null);
 
 			QueryRequestList queryReqestList = this.adaptor.new QueryRequestList();
@@ -129,31 +128,31 @@ public class NewEventChecker implements QACheck
 	{
 		Report newEventReport = new DelimitedTextReport();
 
-		List<GKInstance> reactionLikeEventsEditedIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "edited", IS_NULL, null);
+		List<GKInstance> reactionLikeEventsEditedIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "edited", NullCheckHelper.IS_NULL, null);
 		for (GKInstance instance : reactionLikeEventsEditedIsNull)
 		{
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), "Attribute \"edited\" is NULL", NullCheckHelper.getLastModificationAuthor(instance) ));
 		}
 		
-		List<GKInstance> reactionLikeEventsAuthoredIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "authored", IS_NULL, null);
+		List<GKInstance> reactionLikeEventsAuthoredIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "authored", NullCheckHelper.IS_NULL, null);
 		for (GKInstance instance : reactionLikeEventsAuthoredIsNull)
 		{
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), "Attribute \"authored\" is NULL", NullCheckHelper.getLastModificationAuthor(instance) ));
 		}
 
-		List<GKInstance> reactionLikeEventsReviewedIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "reviewed", IS_NULL, null);
+		List<GKInstance> reactionLikeEventsReviewedIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "reviewed", NullCheckHelper.IS_NULL, null);
 		for (GKInstance instance : reactionLikeEventsReviewedIsNull)
 		{
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), "Attribute \"reviewed\" is NULL", NullCheckHelper.getLastModificationAuthor(instance) ));
 		}
 
-		List<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "summation", IS_NULL, null);
+		List<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "summation", NullCheckHelper.IS_NULL, null);
 		for (GKInstance instance : reactionLikeEventsSummationIsNull)
 		{
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), "Attribute \"summation\" is NULL", NullCheckHelper.getLastModificationAuthor(instance) ));
 		}
 
-		List<GKInstance> reactionLikeEventsSpeiesIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "species", IS_NULL, null);
+		List<GKInstance> reactionLikeEventsSpeiesIsNull = getNewEventInstances(this.adaptor, REACTIONLIKE_EVENT, "species", NullCheckHelper.IS_NULL, null);
 		for (GKInstance instance : reactionLikeEventsSpeiesIsNull)
 		{
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), "Attribute \"species\" is NULL", NullCheckHelper.getLastModificationAuthor(instance) ));

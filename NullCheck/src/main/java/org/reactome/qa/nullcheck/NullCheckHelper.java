@@ -1,5 +1,8 @@
 package org.reactome.qa.nullcheck;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -15,6 +18,9 @@ import org.gk.schema.InvalidAttributeException;
 
 class NullCheckHelper
 {
+	static final String IS_NOT_NULL = "IS NOT NULL";
+	static final String IS_NULL = "IS NULL";
+	
 	/**
 	 * Filter a list of GKInstance objects by the DB IDs in skipList.
 	 * @param skipList - the skipList.
@@ -33,6 +39,15 @@ class NullCheckHelper
 		}
 	}
 	
+	static List<Long> getSkipList(String filePath) throws IOException
+	{
+		List<Long> skipList = new ArrayList<Long>();
+		Files.readAllLines(Paths.get(filePath)).forEach(line -> {
+			Long dbId = Long.parseLong(line.split("\t")[0]);
+			skipList.add(dbId);
+		});
+		return skipList;
+	}
 	
 	static String getLastModificationAuthor(GKInstance instance)
 	{
@@ -41,6 +56,7 @@ class NullCheckHelper
 		GKInstance mostRecentMod = null;
 		try
 		{
+			@SuppressWarnings("unchecked")
 			List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
 			for (int index = modificationInstances.size() - 1; index > 0; index--)
 			{
@@ -135,14 +151,15 @@ class NullCheckHelper
 	
 	static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)
 	{
-		return getInstances(dba, schemaClass, attribute, "IS NULL", skipList);
+		return getInstances(dba, schemaClass, attribute, IS_NULL, skipList);
 	}
 	
 	static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) 
 	{
-		return getInstances(dba, schemaClass, attribute, "IS NOT NULL", skipList);
+		return getInstances(dba, schemaClass, attribute, IS_NOT_NULL, skipList);
 	}
 	
+	@SuppressWarnings("unchecked")
 	static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
 	{
 		List<GKInstance> instances = new ArrayList<GKInstance>();
