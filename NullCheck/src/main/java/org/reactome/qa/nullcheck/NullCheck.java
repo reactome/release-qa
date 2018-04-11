@@ -17,7 +17,7 @@ import org.reactome.qa.report.exception.ReportException;
  */
 public class NullCheck
 {
-	public static void main(String[] args)
+	public final static void main(String[] args)
 	{
 		String pathToResources = "src/main/resources/auth.properties";
 		if (args !=null && args.length > 0)

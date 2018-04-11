@@ -35,7 +35,7 @@ public class ContributorsCheck // implements QACheck
 	private static MySQLAdaptor previousDBA;
 	private static String inputFile;
 	
-    public static void main( String[] args )
+    public static final void main( String[] args )
     {
 		String pathToResources = "src/main/resources/auth.properties";
 		
