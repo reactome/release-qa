@@ -31,7 +31,7 @@ public class SimpleEntityChecker implements QACheck
 			if (skipList != null && !skipList.isEmpty())
 			{
 				//List<GKInstance> filteredList = instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
-				return instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
+				return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
 			}
 			else
 			{

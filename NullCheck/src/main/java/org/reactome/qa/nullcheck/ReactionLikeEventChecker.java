@@ -137,7 +137,7 @@ public class ReactionLikeEventChecker implements QACheck
 			
 			if (skipList != null && !skipList.isEmpty())
 			{
-				return instances.parallelStream().filter(inst -> skipList.contains(inst.getDBID())).collect(Collectors.toList());
+				return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
 			}
 			else
 			{
