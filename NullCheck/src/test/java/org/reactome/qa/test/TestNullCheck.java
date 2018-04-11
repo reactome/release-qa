@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.reactome.qa.nullcheck.FailedReactionChecker;
 import org.reactome.qa.nullcheck.PhysicalEntityChecker;
 import org.reactome.qa.nullcheck.SimpleEntityChecker;
 import org.reactome.qa.report.DelimitedTextReport;
@@ -120,6 +121,49 @@ public class TestNullCheck
 		Mockito.when(mockAdaptor.fetchInstanceByAttribute(anyString(), anyString(), anyString(), any())).thenReturn(instances);
 		
 		PhysicalEntityChecker checker = new PhysicalEntityChecker();
+		checker.setAdaptor(mockAdaptor);
+		Report r = checker.executeQACheck();
+		
+		((DelimitedTextReport)r).print("\t", System.out);
+	}
+
+	@Test
+	public void testFailedReactionChecker() throws Exception
+	{
+		GKInstance species = Mockito.mock(GKInstance.class);
+		Mockito.when(species.toString()).thenReturn("Test_Species");
+		
+		GKInstance author = Mockito.mock(GKInstance.class);
+		Mockito.when(author.getDBID()).thenReturn(new Long(123456));
+		Mockito.when(author.getDisplayName()).thenReturn("Author1").thenReturn("Author #2");
+
+		GKInstance instEdit = Mockito.mock(GKInstance.class);
+		Mockito.when(instEdit.getAttributeValue("author")).thenReturn(author);
+		Mockito.when(instEdit.getDisplayName()).thenReturn("Modified by Author1").thenReturn("Modified by Author #2");
+		
+		SchemaClass mockSchemaClass = Mockito.mock(SchemaClass.class);
+		Mockito.when(mockSchemaClass.getName()).thenReturn("Some class").thenReturn("Some Other class");
+		
+		GKInstance mockInst1 = Mockito.mock(GKInstance.class);
+		Mockito.when(mockInst1.getDBID()).thenReturn(new Long(12345));
+		Mockito.when(mockInst1.getDisplayName()).thenReturn("Mock Instance 1");
+		Mockito.when(mockInst1.getSchemClass()).thenReturn(mockSchemaClass);
+		Mockito.when(mockInst1.getAttributeValuesList("created")).thenReturn(Arrays.asList(instEdit));
+		Mockito.when(mockInst1.getAttributeValue("species")).thenReturn(species);
+		
+		GKInstance mockInst2 = Mockito.mock(GKInstance.class);
+		Mockito.when(mockInst2.getDBID()).thenReturn(new Long(12345));
+		Mockito.when(mockInst2.getDisplayName()).thenReturn("Mock Instance Two");
+		Mockito.when(mockInst2.getSchemClass()).thenReturn(mockSchemaClass);
+
+		Mockito.when(mockInst2.getAttributeValuesList("modified")).thenReturn(Arrays.asList(instEdit));
+		Mockito.when(mockInst2.getAttributeValue("species")).thenReturn(species);
+		
+		List<GKInstance> instances = new ArrayList<GKInstance>(Arrays.asList(mockInst1, mockInst2));
+		
+		Mockito.when(mockAdaptor.fetchInstanceByAttribute(anyString(), anyString(), anyString(), any())).thenReturn(instances);
+		
+		FailedReactionChecker checker = new FailedReactionChecker();
 		checker.setAdaptor(mockAdaptor);
 		Report r = checker.executeQACheck();
 		
