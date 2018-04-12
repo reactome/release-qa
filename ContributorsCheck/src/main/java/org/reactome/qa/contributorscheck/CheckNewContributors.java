@@ -50,23 +50,24 @@ public class CheckNewContributors implements QACheck
 	}
 	
 	private List<GKInstance> getNewInstances(String attribute, GKInstance currentInstance, GKInstance previousInstance) throws InvalidAttributeException, Exception
-    {
-    	List<GKInstance> currentAttributeValues = new ArrayList<GKInstance>();
-    	// Check that the attribute is valid for the GKInstance.
-		if (currentInstance.getSchemaAttributes().stream().filter(attr -> ((GKSchemaAttribute)attr).getName().equals(attribute) ).findFirst().isPresent())
+	{
+		List<GKInstance> currentAttributeValues = new ArrayList<GKInstance>();
+		//Check that the attribute is valid for the GKInstance.
+		if (currentInstance.getSchemClass().isValidAttribute(attribute))
 		{
-    		currentAttributeValues = (ArrayList<GKInstance>) (currentInstance.getAttributeValuesList(attribute));
-    		if (previousInstance == null)
-    		{
-    			return currentAttributeValues;
-    		}
+			currentAttributeValues = (ArrayList<GKInstance>) (currentInstance.getAttributeValuesList(attribute));
+			if (previousInstance == null)
+			{
+				return currentAttributeValues;
+			}
 		}
 		else
 		{
 			System.err.println("DEBUG currentInstance: "+currentInstance.toString() + " Does not have " + attribute);
 		}
-		if (previousInstance.getSchemaAttributes().stream().filter(attr -> ((GKSchemaAttribute)attr).getName().equals(attribute) ).findFirst().isPresent() )
+		if (previousInstance.getSchemClass().isValidAttribute(attribute))
 		{
+			@SuppressWarnings("unchecked")
 			List<GKInstance> previousAttributeValues = (ArrayList<GKInstance>) (previousInstance.getAttributeValuesList(attribute));
 			Map<Long, GKInstance> dbIdToPreviousAttributeValues = getDbIdsToInstance(previousAttributeValues);
 			Map<Long, GKInstance> dbIdToCurrentAttributeValues = getDbIdsToInstance(currentAttributeValues);
@@ -87,79 +88,81 @@ public class CheckNewContributors implements QACheck
 			System.err.println("DEBUG prevInstance: "+previousInstance.toString() + " Does not have " + attribute);
 		}
 		return new ArrayList<GKInstance>();
-    }
-    
-    private static Map<Long, GKInstance> getDbIdsToInstance(List<GKInstance> instances)
-    {
-    	Map<Long, GKInstance> dbIdToInstance = new HashMap<Long, GKInstance>();
-    	for (GKInstance instance : instances)
-    	{
-    		dbIdToInstance.put(instance.getDBID(), instance);
-    	}    	
-    	return dbIdToInstance;
-    }
-    
-    private List<String> getAuthorNames(List<GKInstance> instanceEdits)
-    {
-    	List<String> authorNames = new ArrayList<String>();
-    	for (GKInstance instanceEdit : instanceEdits)
-    	{
-    		try
-    		{
+	}
+
+	private static Map<Long, GKInstance> getDbIdsToInstance(List<GKInstance> instances)
+	{
+		Map<Long, GKInstance> dbIdToInstance = new HashMap<Long, GKInstance>();
+		for (GKInstance instance : instances)
+		{
+			dbIdToInstance.put(instance.getDBID(), instance);
+		}
+		return dbIdToInstance;
+	}
+
+	private List<String> getAuthorNames(List<GKInstance> instanceEdits)
+	{
+		List<String> authorNames = new ArrayList<String>();
+		for (GKInstance instanceEdit : instanceEdits)
+		{
+			try
+			{
 				for (Object person : instanceEdit.getAttributeValuesList("author"))
 				{
 					String personName = ((GKInstance) person).getDisplayName();
 					authorNames.add(personName);
 				}
 			}
-    		catch (InvalidAttributeException e)
-    		{
+			catch (InvalidAttributeException e)
+			{
 				e.printStackTrace();
 			}
-    		catch (Exception e)
-    		{
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
-    	}
-    	return authorNames;
-    }
-    
-    private  List<GKInstance> getChildEvents(GKInstance event)
-    {
-    	List<GKInstance> childEvents = new ArrayList<GKInstance>();
-    	if (event != null)
-    	{
-	    	try
-	    	{
+		}
+		return authorNames;
+	}
+
+	private List<GKInstance> getChildEvents(GKInstance event)
+	{
+		List<GKInstance> childEvents = new ArrayList<GKInstance>();
+		if (event != null)
+		{
+			try
+			{
 				for (Object childEvent : event.getAttributeValuesList("hasEvent"))
 				{
 					childEvents.add((GKInstance) childEvent);
-					if (((GKInstance) childEvent).getSchemClass().getName().equals("Reaction"))
+					//if (((GKInstance) childEvent).getSchemClass().getName().equals("Reaction"))
+					if (((GKInstance) childEvent).getSchemClass().isa("Reaction"))
 					{
 						continue;
 					}
 					
 					List<GKInstance> grandChildren = getChildEvents((GKInstance) childEvent);
-					if (!grandChildren.isEmpty()) {
+					if (!grandChildren.isEmpty())
+					{
 						childEvents.addAll(grandChildren);
 					}
 				}
 			}
-	    	catch (InvalidAttributeException e)
-	    	{
+			catch (InvalidAttributeException e)
+			{
 				System.err.println("That was an invalid attribute!");
 				e.printStackTrace();
 			}
-	    	catch (Exception e)
-	    	{
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
-    	}
-    	return childEvents;
-    }
-    
-    private  List<String> getAllAuthorNames(GKInstance currentEvent, GKInstance previousEvent) throws InvalidAttributeException, Exception
-    {
+		}
+		return childEvents;
+	}
+
+	private List<String> getAllAuthorNames(GKInstance currentEvent, GKInstance previousEvent) throws InvalidAttributeException, Exception
+	{
 		List <String> allAuthorNames = new ArrayList<String>();
 
 		List<GKInstance> newAuthorInstances = this.getNewInstances("authored", currentEvent, previousEvent);
@@ -175,9 +178,9 @@ public class CheckNewContributors implements QACheck
 		allAuthorNames.addAll(newReviewedAuthorNames);
 		allAuthorNames.addAll(newRevisedAuthorNames);
 
-    	return allAuthorNames;
-    }
-    
+		return allAuthorNames;
+	}
+
 	@Override
 	public Report executeQACheck()
 	{
@@ -235,6 +238,4 @@ public class CheckNewContributors implements QACheck
 		}
 		return report;
 	}
-
-
 }
