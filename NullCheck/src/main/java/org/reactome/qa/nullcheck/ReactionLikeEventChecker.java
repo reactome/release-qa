@@ -1,8 +1,6 @@
 package org.reactome.qa.nullcheck;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,19 +60,16 @@ public class ReactionLikeEventChecker implements QACheck
 
 	private List<Long> getRLECompartmentSkipList(String filePath) throws IOException
 	{
-		//final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	
 	private List<Long> getRLEInputSkipList(String filePath) throws IOException
 	{
-		//final String filePath = "src/main/resources/reaction_like_event_input_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	
 	private List<Long> getRLEOutputSkipList(String filePath) throws IOException
 	{
-		//final String filePath = "src/main/resources/reaction_like_event_output_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	

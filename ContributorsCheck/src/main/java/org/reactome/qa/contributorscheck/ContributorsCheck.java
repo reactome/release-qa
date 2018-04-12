@@ -1,26 +1,12 @@
 package org.reactome.qa.contributorscheck;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
-import org.gk.schema.GKSchemaAttribute;
-import org.gk.schema.InvalidAttributeException;
-import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 import org.reactome.qa.report.exception.ReportException;
@@ -35,8 +21,8 @@ public class ContributorsCheck // implements QACheck
 	private static MySQLAdaptor previousDBA;
 	private static String inputFile;
 	
-    public static final void main( String[] args )
-    {
+	public static final void main( String[] args )
+	{
 		String pathToResources = "src/main/resources/auth.properties";
 		
 		if (args.length > 0 && !args[0].equals(""))
@@ -76,11 +62,11 @@ inputFile=path/to/contributors-check-input.txt
      * @throws SQLException
      * @throws IOException
      */
-    public static Report checkNewContributors(String pathToResources) throws IOException, SQLException
-    {
-    	CheckNewContributors checker = new CheckNewContributors();
-    	
-    	InputStream input = new FileInputStream("src/main/resources/auth.properties");
+	public static Report checkNewContributors(String pathToResources) throws IOException, SQLException
+	{
+		CheckNewContributors checker = new CheckNewContributors();
+
+		InputStream input = new FileInputStream("src/main/resources/auth.properties");
 		Properties prop = new Properties();
 		prop.load(input);
 		String user = prop.getProperty("user");
@@ -95,11 +81,9 @@ inputFile=path/to/contributors-check-input.txt
 		currentDBA = new MySQLAdaptor(currentDatabaseHost, currentDatabase, user, password, Integer.valueOf(currentDatabasePort));
 		previousDBA = new MySQLAdaptor(oldDatabaseHost, oldDatabase, user, password, Integer.valueOf(oldDatabasePort));
 
-    	
-    	checker.setCurrentDBAdaptor(currentDBA);
-    	checker.setPreviousDBAdaptor(previousDBA);
-    	checker.setInputFilePath(inputFile);
-    	return checker.executeQACheck();
-    }
-    
+		checker.setCurrentDBAdaptor(currentDBA);
+		checker.setPreviousDBAdaptor(previousDBA);
+		checker.setInputFilePath(inputFile);
+		return checker.executeQACheck();
+	}
 }

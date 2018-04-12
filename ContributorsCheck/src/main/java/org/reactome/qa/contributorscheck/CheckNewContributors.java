@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
-import org.gk.schema.GKSchemaAttribute;
 import org.gk.schema.InvalidAttributeException;
 import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
