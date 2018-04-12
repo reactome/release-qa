@@ -19,26 +19,62 @@ public class ReactionLikeEventChecker implements QACheck
 
 	MySQLAdaptor dba;
 	
+	private String rleCompartmentSkipList;
+	private String rleInputSkipList;
+	private String rleOutputSkipList;
+	
+	
+	public String getRleCompartmentSkipList()
+	{
+		return rleCompartmentSkipList;
+	}
+
+	public void setRleCompartmentSkipList(String rleCompartmentSkipList)
+	{
+		this.rleCompartmentSkipList = rleCompartmentSkipList;
+	}
+
+	public String getRleInputSkipList()
+	{
+		return rleInputSkipList;
+	}
+
+	public void setRleInputSkipList(String rleInputSkipList)
+	{
+		this.rleInputSkipList = rleInputSkipList;
+	}
+
+	public String getRleOutputSkipList()
+	{
+		return rleOutputSkipList;
+	}
+
+	public void setRleOutputSkipList(String rleOutputSkipList)
+	{
+		this.rleOutputSkipList = rleOutputSkipList;
+	}
+
+
 	public void setAdaptor(MySQLAdaptor dba)
 	{
 		this.dba = dba;
 	}
 
-	private List<Long> getRLECompartmentSkipList() throws IOException
+	private List<Long> getRLECompartmentSkipList(String filePath) throws IOException
 	{
-		final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
+		//final String filePath = "src/main/resources/reaction_like_event_compartment_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	
-	private List<Long> getRLEInputSkipList() throws IOException
+	private List<Long> getRLEInputSkipList(String filePath) throws IOException
 	{
-		final String filePath = "src/main/resources/reaction_like_event_input_skip_list.txt";
+		//final String filePath = "src/main/resources/reaction_like_event_input_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	
-	private List<Long> getRLEOutputSkipList() throws IOException
+	private List<Long> getRLEOutputSkipList(String filePath) throws IOException
 	{
-		final String filePath = "src/main/resources/reaction_like_event_output_skip_list.txt";
+		//final String filePath = "src/main/resources/reaction_like_event_output_skip_list.txt";
 		return NullCheckHelper.getSkipList(filePath);
 	}
 	
@@ -99,7 +135,7 @@ public class ReactionLikeEventChecker implements QACheck
 		
 		try
 		{
-			Report r = report(this.dba, "ReactionlikeEvent", "compartment", "IS NULL", getRLECompartmentSkipList());
+			Report r = report(this.dba, "ReactionlikeEvent", "compartment", "IS NULL", getRLECompartmentSkipList(this.rleCompartmentSkipList));
 			reactionLikeEventReport.addLines(r.getReportLines());
 		}
 		catch (IOException e)
@@ -110,7 +146,7 @@ public class ReactionLikeEventChecker implements QACheck
 		
 		try
 		{
-			Report r = report(this.dba, "ReactionlikeEvent", "input", "IS NULL", getRLEInputSkipList());
+			Report r = report(this.dba, "ReactionlikeEvent", "input", "IS NULL", getRLEInputSkipList(this.rleInputSkipList));
 			reactionLikeEventReport.addLines(r.getReportLines());
 		}
 		catch (IOException e)
@@ -121,7 +157,7 @@ public class ReactionLikeEventChecker implements QACheck
 		
 		try
 		{
-			Report r = report(this.dba, "ReactionlikeEvent", "output", "IS NULL", getRLEOutputSkipList());
+			Report r = report(this.dba, "ReactionlikeEvent", "output", "IS NULL", getRLEOutputSkipList(this.rleOutputSkipList));
 			reactionLikeEventReport.addLines(r.getReportLines());
 		}
 		catch (IOException e)

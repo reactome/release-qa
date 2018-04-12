@@ -17,6 +17,10 @@ import org.reactome.qa.report.exception.ReportException;
  */
 public class NullCheck
 {
+	private static String rleCompartmentSkipList;
+	private static String rleInputSkipList;
+	private static String rleOutputSkipList;
+
 	public final static void main(String[] args)
 	{
 		String pathToResources = "src/main/resources/auth.properties";
@@ -35,6 +39,9 @@ public class NullCheck
 			String password = prop.getProperty("password");
 			String host = prop.getProperty("host");
 			String database = prop.getProperty("database");
+			NullCheck.rleCompartmentSkipList = prop.getProperty("rleCompartmentSkipList");
+			NullCheck.rleInputSkipList = prop.getProperty("rleInputSkipList");
+			NullCheck.rleOutputSkipList = prop.getProperty("rleOutputSkipList");
 			int port = Integer.parseInt(prop.getProperty("port", "3306"));
 		
 			currentDBA = new MySQLAdaptor(host, database, user, password, port);
@@ -73,6 +80,9 @@ public class NullCheck
 		System.out.println("--------\nReaction-Like Event Report\n--------");
 		ReactionLikeEventChecker rleChecker = new ReactionLikeEventChecker();
 		rleChecker.setAdaptor(currentDBA);
+		rleChecker.setRleCompartmentSkipList(NullCheck.rleCompartmentSkipList);
+		rleChecker.setRleInputSkipList(NullCheck.rleInputSkipList);
+		rleChecker.setRleOutputSkipList(NullCheck.rleOutputSkipList);
 		DelimitedTextReport rleReport = (DelimitedTextReport) rleChecker.executeQACheck();
 		try
 		{
