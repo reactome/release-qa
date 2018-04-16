@@ -9,6 +9,10 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * Not sure what this check is for.
+ *
+ */
 public class SimpleEntityChecker implements QACheck
 {
 	private MySQLAdaptor dba;

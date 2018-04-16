@@ -9,6 +9,11 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * identifier is a mandatory slot. The error should be caught during
+ * the mandatory check. 
+ *
+ */
 public class CheckNullIdentifiers implements QACheck
 {
 

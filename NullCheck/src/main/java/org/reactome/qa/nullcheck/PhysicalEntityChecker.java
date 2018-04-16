@@ -10,6 +10,13 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * This is a check for a case like this: A contained PE (e.g. Complex, EntitySet, and Polymer)
+ * doesn't have a species value, but its contained PEs have. The reason why this should be checked
+ * is because species in these calsses is a required slot, not mandatory. Should we make sure it is
+ * mandatory? Probably we cannot, since the use of species in SimpleEntity is optional.
+ *
+ */
 public class PhysicalEntityChecker implements QACheck
 {
 	private MySQLAdaptor dba;

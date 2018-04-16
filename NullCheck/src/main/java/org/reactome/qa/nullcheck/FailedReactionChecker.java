@@ -10,6 +10,13 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * 
+ * This class is to check two things for FailedReaction: 1). A FailedReaction must have
+ * a nornalReaction (Mandatory); 2). A FaiedReaction cannot have output (Note: We may have
+ * to change the data model to enforce this!)
+ *
+ */
 public class FailedReactionChecker implements QACheck
 {
 	private static final String schemaClassName = "FailedReaction";

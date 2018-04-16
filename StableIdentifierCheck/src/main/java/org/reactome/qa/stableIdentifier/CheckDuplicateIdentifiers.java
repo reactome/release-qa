@@ -10,6 +10,11 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * Need to consider a database level enforcement.
+ * @author wug
+ *
+ */
 public class CheckDuplicateIdentifiers implements QACheck
 {
 

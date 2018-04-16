@@ -15,6 +15,13 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/** 
+ * 
+ * A set of QAs related to new ReactionLikeEvents, which are collected
+ * based on inferredFrom = null and stableIdentifier is not null and its released
+ * is null or false.
+ *
+ */
 public class NewEventChecker implements QACheck
 {
 

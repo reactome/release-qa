@@ -12,6 +12,10 @@ import org.reactome.qa.QACheck;
 import org.reactome.qa.report.DelimitedTextReport;
 import org.reactome.qa.report.Report;
 
+/**
+ * Consider to add some new attributes to avoid skip lists: e.g. allowInputNull etc. 
+ *
+ */
 public class ReactionLikeEventChecker implements QACheck
 {
 
@@ -88,6 +92,10 @@ public class ReactionLikeEventChecker implements QACheck
 		return r;
 	}
 	
+	/**
+	 * A RLE having non-null normalReaction should have disease value not null. Can we enfore this
+	 * type of check in the data model?
+	 */
 	private Report getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA)
 	{
 		Report normalReactionWithoutDiseaseReport = new DelimitedTextReport();
