@@ -1,4 +1,4 @@
-package org.reactome.release.qa;
+package org.reactome.release.qa.check;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,6 +42,8 @@ class NullCheckHelper
 	static List<Long> getSkipList(String filePath) throws IOException
 	{
 		List<Long> skipList = new ArrayList<Long>();
+		if (filePath == null)
+		    return skipList;
 		Files.readAllLines(Paths.get(filePath)).forEach(line -> {
 			Long dbId = Long.parseLong(line.split("\t")[0]);
 			skipList.add(dbId);
