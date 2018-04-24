@@ -1,5 +1,6 @@
 package org.reactome.release.qa.check;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,16 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 	private String rleOutputSkipList;
 	
 	public ReactionLikeEventChecker() {
+	    // Automatically load skip lists if they are in the resources folder
+	    File file = new File("resources/rleCompartmentSkipList.txt");
+	    if (file.exists())
+	        setRleCompartmentSkipList(file.getAbsolutePath());
+	    file = new File("resources/rleInputSkipList.txt");
+	    if (file.exists())
+	        setRleInputSkipList(file.getAbsolutePath());
+	    file = new File("resources/rleOutputSkipList.txt");
+	    if (file.exists())
+	        setRleOutputSkipList(file.getAbsolutePath());
 	}
 	
 	public String getRleCompartmentSkipList()

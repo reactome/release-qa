@@ -26,3 +26,8 @@ java -Xmx8G -jar release-qa-0.1.0-jar-with-dependencies.jar
 ```
 
 This will run a set of QAs for release. Before running the above, make sure you have edited resources/auth.properties to provide required database connection information. All outputs will be generated in the output folder.
+
+To use skip lists for ReactionlikeEvent checks, place skip lists in the resources folder. The file names are expected as following:
+* rleCompartmentSkipList.txt
+* rleInputSkipList.txt
+* rleOutputSkipList.txt
