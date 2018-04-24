@@ -54,12 +54,12 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 	
 	private List<Long> getRLEInputSkipList(String filePath) throws IOException
 	{
-		return NullCheckHelper.getSkipList(filePath);
+		return QACheckerHelper.getSkipList(filePath);
 	}
 	
 	private List<Long> getRLEOutputSkipList(String filePath) throws IOException
 	{
-		return NullCheckHelper.getSkipList(filePath);
+		return QACheckerHelper.getSkipList(filePath);
 	}
 	
 	private QAReport report(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
@@ -67,11 +67,11 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 		QAReport r = new QAReport();
 		
 		List<GKInstance> instances = new ArrayList<GKInstance>();
-		instances.addAll(NullCheckHelper.getInstances(this.dba, schemaClass, attribute, operator, skipList));
+		instances.addAll(QACheckerHelper.getInstances(this.dba, schemaClass, attribute, operator, skipList));
 
 		for (GKInstance instance : instances)
 		{
-			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), instance.getSchemClass().getName() + " with NULL " + attribute, NullCheckHelper.getLastModificationAuthor(instance)));
+			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), instance.getSchemClass().getName() + " with NULL " + attribute, QACheckerHelper.getLastModificationAuthor(instance)));
 		}
 
 		return r;
@@ -84,13 +84,13 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 	private QAReport getNormalReactionWithoutDiseaseReportLines(MySQLAdaptor currentDBA) throws Exception {
 	    QAReport normalReactionWithoutDiseaseReport = new QAReport();
 	    List<GKInstance> rlesWithNormalReaction = new ArrayList<GKInstance>();
-	    rlesWithNormalReaction.addAll(NullCheckHelper.getInstancesWithNonNullAttribute(currentDBA, "ReactionlikeEvent", "normalReaction", null));
+	    rlesWithNormalReaction.addAll(QACheckerHelper.getInstancesWithNonNullAttribute(currentDBA, "ReactionlikeEvent", "normalReaction", null));
 	    for (GKInstance RLEWithNormalReaction : rlesWithNormalReaction)
 	    {
 	        GKInstance diseaseInstance = (GKInstance) RLEWithNormalReaction.getAttributeValue("disease");
 	        if (diseaseInstance == null)
 	        {
-	            normalReactionWithoutDiseaseReport.addLine(Arrays.asList(RLEWithNormalReaction.getDBID().toString(), RLEWithNormalReaction.getDisplayName(), RLEWithNormalReaction.getSchemClass().getName(), "RLE with normal reaction but disease is null", NullCheckHelper.getLastModificationAuthor(RLEWithNormalReaction) ));
+	            normalReactionWithoutDiseaseReport.addLine(Arrays.asList(RLEWithNormalReaction.getDBID().toString(), RLEWithNormalReaction.getDisplayName(), RLEWithNormalReaction.getSchemClass().getName(), "RLE with normal reaction but disease is null", QACheckerHelper.getLastModificationAuthor(RLEWithNormalReaction) ));
 	        }
 	    }
 	    return normalReactionWithoutDiseaseReport;

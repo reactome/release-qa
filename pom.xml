@@ -58,6 +58,7 @@
 				<version>2.7.1</version>
 				<configuration>
 					<redirectTestOutputToFile>true</redirectTestOutputToFile>
+					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
 			<plugin>

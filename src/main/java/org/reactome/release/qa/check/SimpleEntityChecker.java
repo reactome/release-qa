@@ -26,7 +26,7 @@ public class SimpleEntityChecker extends AbstractQACheck {
 	                                     simpleEntity.getDisplayName(), 
 	                                     simpleEntity.getSchemClass().getName(), 
 	                                     "Simple entity with non-null species: " + speciesInstance.toString(), 
-	                                     NullCheckHelper.getLastModificationAuthor(simpleEntity)));
+	                                     QACheckerHelper.getLastModificationAuthor(simpleEntity)));
 	    }
 	    report.setColumnHeaders(Arrays.asList("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor"));
 	    return report;

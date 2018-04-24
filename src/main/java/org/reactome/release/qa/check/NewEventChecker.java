@@ -25,7 +25,7 @@ public class NewEventChecker extends AbstractQACheck {
     
 	@Override
     public String getDisplayName() {
-        return "Event_Event_QA";
+        return "New_Event_QA";
     }
 
     /**
@@ -37,15 +37,15 @@ public class NewEventChecker extends AbstractQACheck {
 	private List<GKInstance> getNewEventsWithNoInferredFromAndNoLitRef(MySQLAdaptor dba, List<Long> skipList) throws Exception {
 	    AttributeQueryRequest stIdIsNotNullRequest = dba.new AttributeQueryRequest(ReactomeJavaConstants.ReactionlikeEvent,
 	            "stableIdentifier",
-	            NullCheckHelper.IS_NOT_NULL,
+	            QACheckerHelper.IS_NOT_NULL,
 	            null);
 	    AttributeQueryRequest noInferredFrom = this.dba.new AttributeQueryRequest(ReactomeJavaConstants.ReactionlikeEvent,
 	            "inferredFrom",
-	            NullCheckHelper.IS_NULL,
+	            QACheckerHelper.IS_NULL,
 	            null);
 	    AttributeQueryRequest noLitRef = this.dba.new AttributeQueryRequest(ReactomeJavaConstants.ReactionlikeEvent, 
 	            "literatureReference",
-	            NullCheckHelper.IS_NULL,
+	            QACheckerHelper.IS_NULL,
 	            null);
 	    QueryRequestList queryReqestList = this.dba.new QueryRequestList();
 	    queryReqestList.add(stIdIsNotNullRequest);
@@ -55,7 +55,7 @@ public class NewEventChecker extends AbstractQACheck {
 	    Collection<GKInstance> newEvents = dba.fetchInstance(queryReqestList);
 	    List<GKInstance> instances = new ArrayList<GKInstance>();
 	    filterToUnreleasedEvents(instances, newEvents);
-	    return NullCheckHelper.filterBySkipList(skipList, instances);
+	    return QACheckerHelper.filterBySkipList(skipList, instances);
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class NewEventChecker extends AbstractQACheck {
 	                                              String attribute, 
 	                                              String operator, 
 	                                              List<Long> skipList) throws Exception {
-	    AttributeQueryRequest stIdIsNotNullRequest = dba.new AttributeQueryRequest(schemaClass, ReactomeJavaConstants.stableIdentifier, NullCheckHelper.IS_NOT_NULL, null);
+	    AttributeQueryRequest stIdIsNotNullRequest = dba.new AttributeQueryRequest(schemaClass, ReactomeJavaConstants.stableIdentifier, QACheckerHelper.IS_NOT_NULL, null);
 	    AttributeQueryRequest queryRequest = dba.new AttributeQueryRequest(schemaClass, attribute, operator, null);
 
 	    QueryRequestList queryReqestList = dba.new QueryRequestList();
@@ -104,7 +104,7 @@ public class NewEventChecker extends AbstractQACheck {
 	    List<GKInstance> instances = new ArrayList<>();
 	    filterToUnreleasedEvents(instances, newEvents);
 	    // filter by skip list
-	    return NullCheckHelper.filterBySkipList(skipList, instances);
+	    return QACheckerHelper.filterBySkipList(skipList, instances);
 	}
 
 	@Override
@@ -114,14 +114,14 @@ public class NewEventChecker extends AbstractQACheck {
 		List<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(dba,
 		                                                                          ReactomeJavaConstants.ReactionlikeEvent, 
 		                                                                          ReactomeJavaConstants.summation, 
-		                                                                          NullCheckHelper.IS_NULL, 
+		                                                                          QACheckerHelper.IS_NULL, 
 		                                                                          null);
 		for (GKInstance instance : reactionLikeEventsSummationIsNull) {
 		    newEventReport.addLine(Arrays.asList(instance.getDBID().toString(), 
 		                                         instance.getDisplayName(), 
 		                                         instance.getSchemClass().getName(), 
 		                                         "Attribute \"summation\" is NULL", 
-		                                         NullCheckHelper.getLastModificationAuthor(instance)));
+		                                         QACheckerHelper.getLastModificationAuthor(instance)));
 		}
 
 		List<GKInstance> noInferredFromAndNoLitRef = this.getNewEventsWithNoInferredFromAndNoLitRef(dba, null);
@@ -130,7 +130,7 @@ public class NewEventChecker extends AbstractQACheck {
 			        instance.getDisplayName(), 
 			        instance.getSchemClass().getName(), 
 			        "Attributes \"inferredFrom\" and \"literatureReferences\" are NULL", 
-			        NullCheckHelper.getLastModificationAuthor(instance)));
+			        QACheckerHelper.getLastModificationAuthor(instance)));
 		}
 		
 		newEventReport.setColumnHeaders(Arrays.asList("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor"));

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,8 +17,8 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.schema.InvalidAttributeException;
 
-class NullCheckHelper
-{
+public class QACheckerHelper {
+    
 	static final String IS_NOT_NULL = "IS NOT NULL";
 	static final String IS_NULL = "IS NULL";
 	
@@ -37,6 +38,27 @@ class NullCheckHelper
 		{
 			return instances;
 		}
+	}
+	
+    public static boolean isChimeric(GKInstance rle) throws Exception {
+        if (!rle.getSchemClass().isValidAttribute(ReactomeJavaConstants.isChimeric))
+            return false;
+        Boolean value = (Boolean) rle.getAttributeValue(ReactomeJavaConstants.isChimeric);
+        if (value == null || !value)
+            return false;
+        return true;
+    }
+	
+	@SuppressWarnings("unchecked")
+	public static GKInstance getHuman(MySQLAdaptor dba) throws Exception {
+	    Collection<GKInstance> c = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Species,
+	            ReactomeJavaConstants._displayName,
+	            "=", 
+	            "Homo sapiens");
+	    if (c == null || c.size() == 0)
+	        throw new IllegalStateException("Cannot find species Homo sapiens in the database, " + 
+	                                        dba.getDBName() + "@" + dba.getDBHost());
+	    return c.iterator().next();
 	}
 	
 	static List<Long> getSkipList(String filePath) throws IOException
@@ -116,7 +138,7 @@ class NullCheckHelper
 	
 	static int componentsHaveSpecies(GKInstance physicalEntity) throws Exception
 	{
-		Set<GKInstance> speciesSet = NullCheckHelper.grepAllSpeciesInPE(physicalEntity, true);
+		Set<GKInstance> speciesSet = QACheckerHelper.grepAllSpeciesInPE(physicalEntity, true);
 		//return !speciesSet.isEmpty();
 		return !speciesSet.isEmpty() ? speciesSet.size() : 0;
 	}
@@ -135,7 +157,7 @@ class NullCheckHelper
 		}
 		if (speciesSet.size() == 0 && needRecursion)
 		{
-			NullCheckHelper.grepAllSpeciesInPE(pe, speciesSet);
+			QACheckerHelper.grepAllSpeciesInPE(pe, speciesSet);
 		}
 		return speciesSet;
 	}
@@ -149,7 +171,7 @@ class NullCheckHelper
 				ReactomeJavaConstants.repeatedUnit);
 		for (GKInstance wrappedPE : wrappedPEs)
 		{
-			Set<GKInstance> wrappedSpecies = NullCheckHelper.grepAllSpeciesInPE(wrappedPE, true);
+			Set<GKInstance> wrappedSpecies = QACheckerHelper.grepAllSpeciesInPE(wrappedPE, true);
 			speciesSet.addAll(wrappedSpecies);
 		}
 	}
@@ -171,7 +193,7 @@ class NullCheckHelper
 		try
 		{
 			instances.addAll(dba.fetchInstanceByAttribute(schemaClass, attribute, operator, null));
-			return NullCheckHelper.filterBySkipList(skipList, instances);
+			return QACheckerHelper.filterBySkipList(skipList, instances);
 		}
 		catch (Exception e)
 		{

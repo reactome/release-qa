@@ -30,11 +30,11 @@ public class FailedReactionChecker extends AbstractQACheck {
 		QAReport r = new QAReport();
 		
 		List<GKInstance> instances = new ArrayList<GKInstance>();
-		instances.addAll(NullCheckHelper.getInstances(dba, schemaClass, attribute, operator, skipList));
+		instances.addAll(QACheckerHelper.getInstances(dba, schemaClass, attribute, operator, skipList));
 
 		for (GKInstance instance : instances)
 		{
-			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), attribute + " " + operator  , NullCheckHelper.getLastModificationAuthor(instance)));
+			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), attribute + " " + operator  , QACheckerHelper.getLastModificationAuthor(instance)));
 		}
 		return r;
 	}
@@ -43,8 +43,8 @@ public class FailedReactionChecker extends AbstractQACheck {
 	public QAReport executeQACheck() {
 		QAReport r;
 		
-		r = report(FailedReactionChecker.schemaClassName, "normalReaction", NullCheckHelper.IS_NULL, null);
-		r.addLines(report(FailedReactionChecker.schemaClassName, "output", NullCheckHelper.IS_NOT_NULL, null).getReportLines() );
+		r = report(FailedReactionChecker.schemaClassName, "normalReaction", QACheckerHelper.IS_NULL, null);
+		r.addLines(report(FailedReactionChecker.schemaClassName, "output", QACheckerHelper.IS_NOT_NULL, null).getReportLines() );
 		r.setColumnHeaders(Arrays.asList("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor"));
 		return r;
 	}

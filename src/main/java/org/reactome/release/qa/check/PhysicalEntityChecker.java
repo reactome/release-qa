@@ -26,18 +26,18 @@ public class PhysicalEntityChecker extends AbstractQACheck {
 		QAReport report = new QAReport();
 		List<GKInstance> physicalEntities = new ArrayList<GKInstance>();
 		for (String schemaClass : Arrays.asList("Complex", "EntitySet", "Polymer")) {	
-			physicalEntities.addAll(NullCheckHelper.getInstancesWithNullAttribute(this.dba, schemaClass, "species", null));
+			physicalEntities.addAll(QACheckerHelper.getInstancesWithNullAttribute(this.dba, schemaClass, "species", null));
 		}
 		
 		for (GKInstance physicalEntity : physicalEntities) {
-			int numComponents = NullCheckHelper.componentsHaveSpecies(physicalEntity);
+			int numComponents = QACheckerHelper.componentsHaveSpecies(physicalEntity);
 			if(numComponents > 0) {
 				report.addLine(Arrays.asList());
 				report.addLine(Arrays.asList(physicalEntity.getDBID().toString(), 
 				        physicalEntity.getDisplayName(), 
 				        physicalEntity.getSchemClass().getName(), 
 				        "NULL species but " + numComponents + " components have species",  
-				        NullCheckHelper.getLastModificationAuthor(physicalEntity)));
+				        QACheckerHelper.getLastModificationAuthor(physicalEntity)));
 			}
 		}
 		report.setColumnHeaders(Arrays.asList("DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor"));

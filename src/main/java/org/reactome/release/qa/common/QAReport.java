@@ -3,6 +3,7 @@ package org.reactome.release.qa.common;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,6 +38,10 @@ public class QAReport {
 		this.reportLines.add(line);
 	}
 	
+	public void addLine(String... line) {
+	    reportLines.add(Arrays.asList(line));
+	}
+	
 	/**
 	 * Add lines in bulk.
 	 * @param lines
@@ -54,6 +59,10 @@ public class QAReport {
 	 */
 	public void setColumnHeaders(List<String> headers) {
 		this.columnHeaders = headers;
+	}
+	
+	public void setColumnHeaders(String... headers) {
+	    this.columnHeaders = Arrays.asList(headers);
 	}
 	
 	/**
@@ -87,10 +96,26 @@ public class QAReport {
     	FileUtilities fu = new FileUtilities();
     	fu.setOutput(outputDir + File.separator + fileName);
     	fu.printLine(String.join(delimiter, columnHeaders));
-    	fu.printLine("");
     	for (List<String> line : reportLines) {
     	    fu.printLine(String.join(delimiter, line));
     	}
     	fu.close();
+    }
+    
+    /**
+     * This method is for debugging purpose.
+     * @param builder
+     */
+    public void output(int maximumRow) {
+        List<String> headers = getHeaders();
+        System.out.println(String.join("\t", headers));
+        int row = 0;
+        List<List<String>> lines = getReportLines();
+        for (int i = 0; i < lines.size(); i++) {
+            row ++;
+            System.out.println(String.join("\t", lines.get(i)));
+            if (row > maximumRow)
+                break;
+        }
     }
 }

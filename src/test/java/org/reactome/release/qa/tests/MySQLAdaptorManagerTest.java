@@ -1,7 +1,8 @@
-package org.reactome.release.qa.common;
+package org.reactome.release.qa.tests;
 
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
+import org.reactome.release.qa.common.MySQLAdaptorManager;
 
 public class MySQLAdaptorManagerTest {
 
