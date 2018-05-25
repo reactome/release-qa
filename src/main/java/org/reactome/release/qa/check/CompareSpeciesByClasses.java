@@ -12,24 +12,60 @@ import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
-
-public class CompareSpeciesByClasses 
+import org.reactome.release.qa.common.QAReport;
+/**
+ * This will compare the number of instances for each species between two databases.
+ * The counts are broken down by instance class.
+ * @author sshorser
+ *
+ */
+public class CompareSpeciesByClasses extends AbstractQACheck
 {
-	public static void main(String[] args) throws SQLException
+//	private int current, prior;
+	
+	private MySQLAdaptor priorAdaptor;
+	
+//	public void setCurrentDatabaseReleaseVersion(int i)
+//	{
+//		this.current = i;
+//	}
+//	
+//	public void setPriorDatabaseReleaseVersion(int i)
+//	{
+//		this.prior = i;
+//	}
+	
+	public void setPriorDBAdaptor(MySQLAdaptor adaptor)
 	{
+		this.priorAdaptor = adaptor;
+	}
+	
+	@Override
+    public String getDisplayName()
+	{
+        return "CompareSpeciesByClasses";
+    }
+	
+	@Override
+	public QAReport executeQACheck() throws SQLException
+	{
+		QAReport report = new QAReport();
 		// TODO: parameterize the database release number.
-		int current = 65;
-		int prior = current - 1;
+		//int current = 65;
+		//int prior = current - 1;
 		
 		// TODO: Paramaterize db connection info.
-		MySQLAdaptor priorAdaptor = new MySQLAdaptor("", "", "", "");
-		MySQLAdaptor currentAdaptor = new MySQLAdaptor("", "", "", "");
+		// QACheck interface has a method to set ONE MySQLAdaptor, but 
+		// since this check is looking at two databases, we'll need to
+		// find a way to work around this.
+//		MySQLAdaptor priorAdaptor = new MySQLAdaptor("", "", "", "");
+//		MySQLAdaptor currentAdaptor = new MySQLAdaptor("", "", "", "");
 		
 		try
 		{
 			// start with a list of all species in the current database.
 			@SuppressWarnings("unchecked")
-			Collection<GKInstance> currentSpecies = currentAdaptor.fetchInstancesByClass("Species");
+			Collection<GKInstance> currentSpecies = this.dba.fetchInstancesByClass("Species");
 			
 			// To be used when sorting lists of classes.
 			Comparator<GKInstance> classNameSorter = new Comparator<GKInstance>() {
@@ -54,13 +90,13 @@ public class CompareSpeciesByClasses
 														//.filter(s -> s.getDisplayName().equals("Arabidopsis thaliana"))
 														.collect(Collectors.toList()))
 			{
-				System.out.println(species.getDisplayName());
+				//System.out.println(species.getDisplayName());
 				// Get all things that refer to the species. This is how it was done in the old Perl code for Orthoinference.
 				@SuppressWarnings("unchecked")
 				Collection<GKInstance> currentReferrers = species.getReferers("species");
 				@SuppressWarnings("unchecked")
 				// Get the prior species by name, or NULL of it's not in prior.
-				GKInstance priorSpecies = ((HashSet<GKInstance>) priorAdaptor.fetchInstanceByAttribute("Species", "name", "=", species.getDisplayName())).stream().findFirst().orElse(null);
+				GKInstance priorSpecies = ((HashSet<GKInstance>) this.priorAdaptor.fetchInstanceByAttribute("Species", "name", "=", species.getDisplayName())).stream().findFirst().orElse(null);
 				//if (!priorSpecies.toString().equals(species.toString()))
 				// It's possible that a species in current is new and is not in prior, so just print a message and keep going.
 				if (priorSpecies == null)
@@ -89,7 +125,7 @@ public class CompareSpeciesByClasses
 												.map( inst -> inst.getSchemClass().getName() )
 												.forEach( populateClassCountMap(priorClassCounts) );
 						
-						StringBuffer sb = new StringBuffer();
+						//StringBuffer sb = new StringBuffer();
 						// For each class in the map of classes from current database...
 						for (String className : currentClassCounts.keySet())
 						{
@@ -107,33 +143,41 @@ public class CompareSpeciesByClasses
 							int priorCount = priorClassCounts.containsKey(className) ? priorClassCounts.get(className) : 0;
 							double percentDiff = (((double)currentCount - (double)priorCount) / (double)priorCount) * 100.0d;
 							
-							sb.append("Class: ").append(className);
-							sb.append("\nR"+prior+" count: ").append(priorCount);
-							sb.append("\tR"+current+" count: ").append(currentCount);
+							String percentDiffString = String.valueOf(percentDiff);
+							//sb.append("Class: ").append(className);
+							//sb.append("\nR"+prior+" count: ").append(priorCount);
+							//sb.append("\tR"+current+" count: ").append(currentCount);
 							// Warn of a difference if it's > 10% AND ALSO the counts differ by more than 1000.
 							// TODO: parameterize these thresholds? 10% and 1000 feel a bit arbitrary, someone else might want different numbers later.
 							if (Math.abs(percentDiff) > 10.0 && priorCount - currentCount > 1000)
 							{
-								sb.append("\t*** Difference is "+percentDiff+"% ***");
+								//sb.append("\t*** Difference is "+percentDiff+"% ***");
+								percentDiffString = "*** Difference is "+percentDiff+"% ***";
 							}
-							sb.append("\n");
+							report.addLine(species.getDisplayName(), className, Integer.toString(priorCount), Integer.toString(currentCount), percentDiffString);
+							//sb.append("\n");
 						}
 						// TODO: Maybe use Log4j instead of printing directly to STDOUT.
-						System.out.print(sb.toString());
+						//System.out.print(sb.toString());
 					}
 					else
 					{
-						System.out.println("No referrers in R"+current+" for that species.");
+						//System.out.println("No referrers in R"+current+" for that species.");
+						report.addLine(species.getDisplayName(), "N/A", "THIS SPECIES NOT IN CURRENT RELEASE", "0", "N/A");
 					}
 				}
-				System.out.println("\n");
+				//System.out.println("\n");
 			}
-			System.out.println("Done.");
+			//System.out.println("Done.");
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+		
+		report.setColumnHeaders("Species", "Class", "Count for Prior Release", "Count for Current Release", "% Difference");
+		
+		return report;
 	}
 
 	private static Consumer<? super String> populateClassCountMap(Map<String, Integer> classCounts)

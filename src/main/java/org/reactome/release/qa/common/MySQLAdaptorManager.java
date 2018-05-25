@@ -10,6 +10,7 @@ import org.gk.persistence.MySQLAdaptor;
 public class MySQLAdaptorManager {
     
     private MySQLAdaptor dba;
+    private MySQLAdaptor altDba;
     private static MySQLAdaptorManager manager;
     
     public static MySQLAdaptorManager getManager() {
@@ -24,6 +25,19 @@ public class MySQLAdaptorManager {
         return dba;
     }
     
+    /**
+     * Some checks might compare the current database to a different database (usually the database
+     * from the previous release). The "alternate DBA" is a secondary DBA that can be used to get
+     * a connection to another database.
+     * @return
+     * @throws Exception
+     */
+    public MySQLAdaptor getAlternateDBA() throws Exception {
+        if (altDba == null)
+        	initAlternateDBA();
+        return altDba;
+    }
+    
     private void initDBA() throws Exception {
         InputStream is = getAuthConfig();
         Properties prop = new Properties();
@@ -33,6 +47,17 @@ public class MySQLAdaptorManager {
                                prop.getProperty("dbUser"),
                                prop.getProperty("dbPwd"));
     }
+    
+    private void initAlternateDBA() throws Exception {
+        InputStream is = getAuthConfig();
+        Properties prop = new Properties();
+        prop.load(is);
+        altDba = new MySQLAdaptor(prop.getProperty("altDbHost"),
+                               prop.getProperty("altDbName"),
+                               prop.getProperty("altDbUser"),
+                               prop.getProperty("altDbPwd"));
+    }
+
     
     private InputStream getAuthConfig() throws Exception {
         // Have to add "/" before the file name. Otherwise, the file cannot be found.
