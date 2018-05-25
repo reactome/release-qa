@@ -21,20 +21,12 @@ import org.reactome.release.qa.common.QAReport;
  */
 public class CompareSpeciesByClasses extends AbstractQACheck
 {
-//	private int current, prior;
-	
 	private MySQLAdaptor priorAdaptor;
 	
-//	public void setCurrentDatabaseReleaseVersion(int i)
-//	{
-//		this.current = i;
-//	}
-//	
-//	public void setPriorDatabaseReleaseVersion(int i)
-//	{
-//		this.prior = i;
-//	}
-	
+	/**
+	 * Set the adaptor for the prior database. This check will use the inherited adaptor for the current database.
+	 * @param adaptor
+	 */
 	public void setPriorDBAdaptor(MySQLAdaptor adaptor)
 	{
 		this.priorAdaptor = adaptor;
@@ -50,17 +42,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 	public QAReport executeQACheck() throws SQLException
 	{
 		QAReport report = new QAReport();
-		// TODO: parameterize the database release number.
-		//int current = 65;
-		//int prior = current - 1;
-		
-		// TODO: Paramaterize db connection info.
-		// QACheck interface has a method to set ONE MySQLAdaptor, but 
-		// since this check is looking at two databases, we'll need to
-		// find a way to work around this.
-//		MySQLAdaptor priorAdaptor = new MySQLAdaptor("", "", "", "");
-//		MySQLAdaptor currentAdaptor = new MySQLAdaptor("", "", "", "");
-		
+
 		try
 		{
 			// start with a list of all species in the current database.
@@ -90,14 +72,12 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 														//.filter(s -> s.getDisplayName().equals("Arabidopsis thaliana"))
 														.collect(Collectors.toList()))
 			{
-				//System.out.println(species.getDisplayName());
 				// Get all things that refer to the species. This is how it was done in the old Perl code for Orthoinference.
 				@SuppressWarnings("unchecked")
 				Collection<GKInstance> currentReferrers = species.getReferers("species");
 				@SuppressWarnings("unchecked")
 				// Get the prior species by name, or NULL of it's not in prior.
 				GKInstance priorSpecies = ((HashSet<GKInstance>) this.priorAdaptor.fetchInstanceByAttribute("Species", "name", "=", species.getDisplayName())).stream().findFirst().orElse(null);
-				//if (!priorSpecies.toString().equals(species.toString()))
 				// It's possible that a species in current is new and is not in prior, so just print a message and keep going.
 				if (priorSpecies == null)
 				{
@@ -125,16 +105,9 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 												.map( inst -> inst.getSchemClass().getName() )
 												.forEach( populateClassCountMap(priorClassCounts) );
 						
-						//StringBuffer sb = new StringBuffer();
 						// For each class in the map of classes from current database...
 						for (String className : currentClassCounts.keySet())
 						{
-							// This led to comparisons of different things! Do not use this!
-//							Collection<GKInstance> r64Instances = r64.fetchInstanceByAttribute(className, "species", "=", species.getDBID());
-//							int r65Count = r65ClassCounts.get(className);
-//							int r64Count = r64Instances.size();
-//							double percentDiff = (((double)r65Count - (double)r64Count) / (double)r64Count) * 100.0d;
-
 							// If a class isn't in prior, just set the counter to 0.
 							// It would also be possible to print a warning here, but it seems
 							// simpler to just let the count be 0, and that will *probably* 
@@ -144,31 +117,20 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 							double percentDiff = (((double)currentCount - (double)priorCount) / (double)priorCount) * 100.0d;
 							
 							String percentDiffString = String.valueOf(percentDiff);
-							//sb.append("Class: ").append(className);
-							//sb.append("\nR"+prior+" count: ").append(priorCount);
-							//sb.append("\tR"+current+" count: ").append(currentCount);
-							// Warn of a difference if it's > 10% AND ALSO the counts differ by more than 1000.
 							// TODO: parameterize these thresholds? 10% and 1000 feel a bit arbitrary, someone else might want different numbers later.
 							if (Math.abs(percentDiff) > 10.0 && priorCount - currentCount > 1000)
 							{
-								//sb.append("\t*** Difference is "+percentDiff+"% ***");
 								percentDiffString = "*** Difference is "+percentDiff+"% ***";
 							}
 							report.addLine(species.getDisplayName(), className, Integer.toString(priorCount), Integer.toString(currentCount), percentDiffString);
-							//sb.append("\n");
 						}
-						// TODO: Maybe use Log4j instead of printing directly to STDOUT.
-						//System.out.print(sb.toString());
 					}
 					else
 					{
-						//System.out.println("No referrers in R"+current+" for that species.");
 						report.addLine(species.getDisplayName(), "N/A", "THIS SPECIES NOT IN CURRENT RELEASE", "0", "N/A");
 					}
 				}
-				//System.out.println("\n");
 			}
-			//System.out.println("Done.");
 		}
 		catch (Exception e)
 		{
@@ -180,6 +142,12 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 		return report;
 	}
 
+	/**
+	 * Returns a function that will modify the input map, based on whether the input to the function
+	 * is new to the map. The function will take a String as input.
+	 * @param classCounts - The map that the function will modify.
+	 * @return A Function that takes in a String as its input, and modifies <code>classCounts</code>
+	 */
 	private static Consumer<? super String> populateClassCountMap(Map<String, Integer> classCounts)
 	{
 		return className -> {
