@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.common.QAReport;
+
 /**
  * This will compare the number of instances for each species between two databases.
  * The counts are broken down by instance class.
@@ -33,10 +34,10 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 	}
 	
 	@Override
-    public String getDisplayName()
+	public String getDisplayName()
 	{
-        return "CompareSpeciesByClasses";
-    }
+		return "CompareSpeciesByClasses";
+	}
 	
 	@Override
 	public QAReport executeQACheck() throws SQLException
@@ -52,16 +53,16 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 			// To be used when sorting lists of classes.
 			Comparator<GKInstance> classNameSorter = new Comparator<GKInstance>() {
 				@Override
-				public int compare(GKInstance o1, GKInstance o2) {
-					
+				public int compare(GKInstance o1, GKInstance o2)
+				{
 					return o1.getSchemClass().getName().compareTo(o2.getSchemClass().getName());
 				}
 			};
 			// To be used when sorting lists of species. Sorts by displayName (as String). 
 			Comparator<GKInstance> speciesNameSorter = new Comparator<GKInstance>() {
 				@Override
-				public int compare(GKInstance o1, GKInstance o2) {
-					
+				public int compare(GKInstance o1, GKInstance o2)
+				{
 					return o1.getDisplayName().compareTo(o2.getDisplayName());
 				}
 			};
