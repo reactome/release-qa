@@ -142,11 +142,12 @@
 			<version>0.9.11</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.reactome</groupId>
-			<artifactId>reactome-minimal</artifactId>
-			<version>1.5</version>
-		</dependency>
+		<!--Reactome-base for MYSQL Adapter-->
+        <dependency>
+            <groupId>org.reactome.base</groupId>
+            <artifactId>reactome-base</artifactId>
+            <version>RELEASE</version>
+        </dependency>
 
 		<dependency>
 			<groupId>mysql</groupId>
