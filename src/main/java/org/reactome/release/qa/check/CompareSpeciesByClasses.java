@@ -91,7 +91,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 				// It's possible that a species in current is new and is not in prior, so just print a message and keep going.
 				if (priorSpecies == null)
 				{
-					System.out.println("WARNING: Could not find "+species.getDisplayName()+ " in prior database.\n");
+					System.out.println("WARNING: Could not find Species \""+species.getDisplayName()+ "\" in prior database.");
 				}
 				else
 				{
