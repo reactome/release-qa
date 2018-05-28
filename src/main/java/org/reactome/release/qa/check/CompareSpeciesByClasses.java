@@ -27,6 +27,7 @@ import org.reactome.release.qa.common.QAReport;
  */
 public class CompareSpeciesByClasses extends AbstractQACheck
 {
+	private static final String INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA = "inferred events based on ensembl compara";
 	private MySQLAdaptor priorAdaptor;
 	
 	/**
@@ -74,6 +75,38 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 			return true;
 		};
 		
+		// This predicate is used to filter for inferred objects.
+		// We assume that objects created by the Orthoinference process will have a note in their
+		// "Created" attribute that reads: "inferred events based on ensembl compara"
+		// I'm concerned there could somehow be inferred objects that don't have this, though I 
+		// haven't found them yet, so maybe I'm just overly paranoid...
+		Predicate<? super GKInstance> filterOnlyInferredObjects = inst -> {
+			// check validity of attribute.
+			if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.created))
+			{
+				try
+				{
+					GKInstance modified = (GKInstance) inst.getAttributeValue(ReactomeJavaConstants.created);
+					if (modified != null)
+					{
+						String note = (String) modified.getAttributeValue(ReactomeJavaConstants.note);
+						// If the note on the "Created" InstanceEdit has the correct text,
+						// then try the filter to exclude chimeric instances.
+						if (note != null && note.equals(CompareSpeciesByClasses.INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA))
+						{
+							return filterToExcludeChimeras.test(inst);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			// if we got here, then the note we're looking for is not present.
+			return false;
+		};
+		
 		try
 		{
 			// start with a list of all species in the current database.
@@ -109,7 +142,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 						// are the number of times that classname has been seen.
 						// Determine counts by 
 						currentReferrers.stream().sequential()
-										.filter( filterToExcludeChimeras )
+										.filter( filterOnlyInferredObjects )
 										.map( inst -> inst.getSchemClass().getName() )
 										.forEach( populateClassCountMap(currentClassCounts) );
 						
@@ -117,7 +150,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 						@SuppressWarnings("unchecked")
 						Collection<GKInstance> priorReferrers = priorSpecies.getReferers(ReactomeJavaConstants.species);
 						priorReferrers.stream().sequential()
-										.filter( filterToExcludeChimeras )
+										.filter( filterOnlyInferredObjects )
 										.map( inst -> inst.getSchemClass().getName() )
 										.forEach( populateClassCountMap(priorClassCounts) );
 						
