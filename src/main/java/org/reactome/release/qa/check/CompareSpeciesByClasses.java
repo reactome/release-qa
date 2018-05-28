@@ -1,16 +1,21 @@
 package org.reactome.release.qa.check;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
+import org.gk.model.InstanceUtilities;
+import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.common.QAReport;
 
@@ -48,41 +53,23 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 		{
 			// start with a list of all species in the current database.
 			@SuppressWarnings("unchecked")
-			Collection<GKInstance> currentSpecies = this.dba.fetchInstancesByClass("Species");
-			
-			// To be used when sorting lists of classes.
-			Comparator<GKInstance> classNameSorter = new Comparator<GKInstance>() {
-				@Override
-				public int compare(GKInstance o1, GKInstance o2)
-				{
-					return o1.getSchemClass().getName().compareTo(o2.getSchemClass().getName());
-				}
-			};
-			// To be used when sorting lists of species. Sorts by displayName (as String). 
-			Comparator<GKInstance> speciesNameSorter = new Comparator<GKInstance>() {
-				@Override
-				public int compare(GKInstance o1, GKInstance o2)
-				{
-					return o1.getDisplayName().compareTo(o2.getDisplayName());
-				}
-			};
-			
+			List<GKInstance> currentSpecies = new ArrayList<GKInstance>( this.dba.fetchInstancesByClass(ReactomeJavaConstants.Species) );
+			InstanceUtilities.sortInstances(currentSpecies);
+
+			Long startTime = System.currentTimeMillis();
 			// For each species in the current database...
-			for (GKInstance species : currentSpecies.stream().sorted(speciesNameSorter)
-														//TODO: parameterize filter for species, so you can do a quick comparison on one species.
-														//.filter(s -> s.getDisplayName().equals("Arabidopsis thaliana"))
-														.collect(Collectors.toList()))
+			for (GKInstance species : currentSpecies )
 			{
 				// Get all things that refer to the species. This is how it was done in the old Perl code for Orthoinference.
 				@SuppressWarnings("unchecked")
-				Collection<GKInstance> currentReferrers = species.getReferers("species");
+				Collection<GKInstance> currentReferrers = species.getReferers(ReactomeJavaConstants.species);
 				@SuppressWarnings("unchecked")
 				// Get the prior species by name, or NULL of it's not in prior.
-				GKInstance priorSpecies = ((HashSet<GKInstance>) this.priorAdaptor.fetchInstanceByAttribute("Species", "name", "=", species.getDisplayName())).stream().findFirst().orElse(null);
+				GKInstance priorSpecies = ((HashSet<GKInstance>) this.priorAdaptor.fetchInstanceByAttribute(ReactomeJavaConstants.Species, ReactomeJavaConstants.name, "=", species.getDisplayName())).stream().findFirst().orElse(null);
 				// It's possible that a species in current is new and is not in prior, so just print a message and keep going.
 				if (priorSpecies == null)
 				{
-					System.out.println("ERROR: Could not find "+species.getDisplayName()+ " in prior database.\n");
+					System.out.println("WARNING: Could not find "+species.getDisplayName()+ " in prior database.\n");
 				}
 				else
 				{
@@ -95,26 +82,45 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 						// Process the list of all referrers: use a hashmap that is keyed by classname and whose values
 						// are the number of times that classname has been seen.
 						// Determine counts by 
-						currentReferrers.stream().sorted( classNameSorter )
-												.map( inst -> inst.getSchemClass().getName() )
-												.forEach( populateClassCountMap(currentClassCounts) );
+						currentReferrers.stream().parallel()
+										.map( inst -> inst.getSchemClass().getName() )
+										.forEach( populateClassCountMap(currentClassCounts) );
 						
 						// Get all things that refer to the species, this time in prior release database.
 						@SuppressWarnings("unchecked")
-						Collection<GKInstance> priorReferrers = priorSpecies.getReferers("species");
-						priorReferrers.stream().sorted( classNameSorter )
-												.map( inst -> inst.getSchemClass().getName() )
-												.forEach( populateClassCountMap(priorClassCounts) );
+						Collection<GKInstance> priorReferrers = priorSpecies.getReferers(ReactomeJavaConstants.species);
+						priorReferrers.stream().parallel()
+										.map( inst -> inst.getSchemClass().getName() )
+										.forEach( populateClassCountMap(priorClassCounts) );
 						
 						// For each class in the map of classes from current database...
-						for (String className : currentClassCounts.keySet())
+						List<String> combinedKeys = (new ArrayList<String>(currentClassCounts.keySet()));
+						//Add any keys from priorClassCounts that are not in currentClassCounts
+						combinedKeys.addAll(priorClassCounts.keySet().stream().filter(k -> !currentClassCounts.containsKey(k)).collect(Collectors.toList()));
+						combinedKeys.sort(Comparator.comparing(String::toString));
+						for (String className : combinedKeys )
 						{
-							// If a class isn't in prior, just set the counter to 0.
-							// It would also be possible to print a warning here, but it seems
-							// simpler to just let the count be 0, and that will *probably* 
-							// trigger a "*** Difference is... ***" message.
-							int currentCount = currentClassCounts.containsKey(className) ? currentClassCounts.get(className) : 0;
-							int priorCount = priorClassCounts.containsKey(className) ? priorClassCounts.get(className) : 0;
+							int currentCount = 0;
+							int priorCount = 0;
+							
+							if (currentClassCounts.containsKey(className))
+							{
+								currentCount = currentClassCounts.get(className);
+							}
+							else
+							{
+								System.out.println("WARNING: Class \""+className+"\" is not in current database for species "+species.getDisplayName());
+							}
+							
+							if (priorClassCounts.containsKey(className))
+							{
+								priorCount = priorClassCounts.get(className);
+							}
+							else
+							{
+								System.out.println("WARNING: Class \""+className+"\" is not in prior database for species "+species.getDisplayName());
+							}
+
 							double percentDiff = (((double)currentCount - (double)priorCount) / (double)priorCount) * 100.0d;
 							
 							String percentDiffString = String.valueOf(percentDiff);
@@ -132,6 +138,9 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 					}
 				}
 			}
+			Long endTime = System.currentTimeMillis();
+			System.out.println( "Time (seconds): " + TimeUnit.MILLISECONDS.toSeconds(endTime - startTime) );
+
 		}
 		catch (Exception e)
 		{
