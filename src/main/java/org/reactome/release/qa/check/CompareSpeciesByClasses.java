@@ -3,7 +3,6 @@ package org.reactome.release.qa.check;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
@@ -49,20 +49,42 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 	{
 		QAReport report = new QAReport();
 
+		// This predicate will be used to filter out chimeric instances
+		// when counting the number of instances per class.
+		Predicate<? super GKInstance> filterToExcludeChimeras = inst -> {
+			// check validity of attribute.
+			if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.isChimeric))
+			{
+				try
+				{
+					Boolean isChimeric = (Boolean) inst.getAttributeValue(ReactomeJavaConstants.isChimeric);
+						
+					// return false to exclude anything that is chimeric.
+					if (isChimeric != null && isChimeric)
+					{
+						return false;
+					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+			// if we got here, then this instance is not chimeric.
+			return true;
+		};
+		
 		try
 		{
 			// start with a list of all species in the current database.
 			@SuppressWarnings("unchecked")
 			List<GKInstance> currentSpecies = new ArrayList<GKInstance>( this.dba.fetchInstancesByClass(ReactomeJavaConstants.Species) );
 			InstanceUtilities.sortInstances(currentSpecies);
-
+			
 			Long startTime = System.currentTimeMillis();
 			// For each species in the current database...
 			for (GKInstance species : currentSpecies )
 			{
-				// Get all things that refer to the species. This is how it was done in the old Perl code for Orthoinference.
-				@SuppressWarnings("unchecked")
-				Collection<GKInstance> currentReferrers = species.getReferers(ReactomeJavaConstants.species);
 				@SuppressWarnings("unchecked")
 				// Get the prior species by name, or NULL of it's not in prior.
 				GKInstance priorSpecies = ((HashSet<GKInstance>) this.priorAdaptor.fetchInstanceByAttribute(ReactomeJavaConstants.Species, ReactomeJavaConstants.name, "=", species.getDisplayName())).stream().findFirst().orElse(null);
@@ -73,23 +95,29 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 				}
 				else
 				{
+					// Get all things that refer to the species. This is how it was done in the old Perl code for Orthoinference.
+					@SuppressWarnings("unchecked")
+					Collection<GKInstance> currentReferrers = species.getReferers(ReactomeJavaConstants.species);
+					
 					if (currentReferrers != null && !currentReferrers.isEmpty())
 					{
 						// These maps will track how often a class name is seen.
-						Map<String, Integer> currentClassCounts = Collections.synchronizedMap( new HashMap<String, Integer>() );
-						Map<String, Integer> priorClassCounts = Collections.synchronizedMap( new HashMap<String, Integer>() );
+						Map<String, Integer> currentClassCounts = new HashMap<String, Integer>();
+						Map<String, Integer> priorClassCounts = new HashMap<String, Integer>();
 						
 						// Process the list of all referrers: use a hashmap that is keyed by classname and whose values
 						// are the number of times that classname has been seen.
 						// Determine counts by 
-						currentReferrers.stream().parallel()
+						currentReferrers.stream().sequential()
+										.filter( filterToExcludeChimeras )
 										.map( inst -> inst.getSchemClass().getName() )
 										.forEach( populateClassCountMap(currentClassCounts) );
 						
 						// Get all things that refer to the species, this time in prior release database.
 						@SuppressWarnings("unchecked")
 						Collection<GKInstance> priorReferrers = priorSpecies.getReferers(ReactomeJavaConstants.species);
-						priorReferrers.stream().parallel()
+						priorReferrers.stream().sequential()
+										.filter( filterToExcludeChimeras )
 										.map( inst -> inst.getSchemClass().getName() )
 										.forEach( populateClassCountMap(priorClassCounts) );
 						
@@ -97,8 +125,9 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 						List<String> combinedKeys = (new ArrayList<String>(currentClassCounts.keySet()));
 						//Add any keys from priorClassCounts that are not in currentClassCounts
 						combinedKeys.addAll(priorClassCounts.keySet().stream().filter(k -> !currentClassCounts.containsKey(k)).collect(Collectors.toList()));
+						//Sort by class name (remember the class names ARE the keys)
 						combinedKeys.sort(Comparator.comparing(String::toString));
-						for (String className : combinedKeys )
+						for (String className : combinedKeys)
 						{
 							int currentCount = 0;
 							int priorCount = 0;
@@ -125,7 +154,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 							
 							String percentDiffString = String.valueOf(percentDiff);
 							// TODO: parameterize these thresholds? 10% and 1000 feel a bit arbitrary, someone else might want different numbers later.
-							if (Math.abs(percentDiff) > 10.0 && priorCount - currentCount > 1000)
+							if (Math.abs(percentDiff) > 10.0 && Math.abs(priorCount - currentCount) > 1000)
 							{
 								percentDiffString = "*** Difference is "+percentDiff+"% ***";
 							}
@@ -139,7 +168,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 				}
 			}
 			Long endTime = System.currentTimeMillis();
-			System.out.println( "Time (seconds): " + TimeUnit.MILLISECONDS.toSeconds(endTime - startTime) );
+			System.out.println( "Elapsed time (seconds): " + TimeUnit.MILLISECONDS.toSeconds(endTime - startTime) );
 
 		}
 		catch (Exception e)
