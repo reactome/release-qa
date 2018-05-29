@@ -17,6 +17,8 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
+import org.reactome.release.qa.annotations.ReleaseQATest;
+
 import org.reactome.release.qa.common.QAReport;
 
 /**
@@ -25,6 +27,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author sshorser
  *
  */
+@ReleaseQATest
 public class CompareSpeciesByClasses extends AbstractQACheck
 {
 	private static final String INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA = "inferred events based on ensembl compara";
