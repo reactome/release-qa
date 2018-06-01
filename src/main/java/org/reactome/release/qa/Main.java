@@ -36,8 +36,6 @@ public class Main {
                                                                      && Arrays.stream(c.getAnnotations()).noneMatch(a -> a.annotationType().getName().equals(ReleaseQATest.class.getName())) )
                                                         .collect(Collectors.toSet());
         for (Class<? extends QACheck> cls : releaseQAs) {
-//            if (Modifier.isAbstract(cls.getModifiers()))
-//                continue; // We don't want to get any abstract class.
             QACheck check = cls.newInstance();
             System.out.println("Perform " + check.getDisplayName() + "...");
             check.setMySQLAdaptor(dba);
