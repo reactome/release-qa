@@ -28,7 +28,7 @@ import org.reactome.release.qa.common.QAReport;
  *
  */
 @ReleaseQATest
-public class CompareSpeciesByClasses extends AbstractQACheck
+public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTwoDatabases
 {
 	private static final String INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA = "inferred events based on ensembl compara";
 	private MySQLAdaptor priorAdaptor;
@@ -37,6 +37,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck
 	 * Set the adaptor for the prior database. This check will use the inherited adaptor for the current database.
 	 * @param adaptor
 	 */
+	@Override
 	public void setPriorDBAdaptor(MySQLAdaptor adaptor)
 	{
 		this.priorAdaptor = adaptor;
