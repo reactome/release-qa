@@ -3,10 +3,13 @@ package org.reactome.release.qa;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.util.GKApplicationUtilities;
+import org.reactome.release.qa.annotations.ReleaseQATest;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QACheck;
 import org.reactome.release.qa.common.QAReport;
@@ -27,10 +30,14 @@ public class Main {
         // Get the list of QAs from the package
         String packageName = "org.reactome.release.qa.check";
         Reflections reflections = new Reflections(packageName);
-        Set<Class<? extends QACheck>> releaseQAs = reflections.getSubTypesOf(QACheck.class);
+        Set<Class<? extends QACheck>> releaseQAs = reflections.getSubTypesOf(QACheck.class).stream()
+                                                        // Filter to exclude Abstract classes, and anything annotated with @ReleaseQATest, since this Main is for Slice QA.
+                                                        .filter(c -> !Modifier.isAbstract(c.getModifiers())
+                                                                     && Arrays.stream(c.getAnnotations()).noneMatch(a -> a.annotationType().getName().equals(ReleaseQATest.class.getName())) )
+                                                        .collect(Collectors.toSet());
         for (Class<? extends QACheck> cls : releaseQAs) {
-            if (Modifier.isAbstract(cls.getModifiers()))
-                continue; // We don't want to get any abstract class.
+//            if (Modifier.isAbstract(cls.getModifiers()))
+//                continue; // We don't want to get any abstract class.
             QACheck check = cls.newInstance();
             System.out.println("Perform " + check.getDisplayName() + "...");
             check.setMySQLAdaptor(dba);
