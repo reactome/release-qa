@@ -38,7 +38,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 	 * @param adaptor
 	 */
 	@Override
-	public void setPriorDBAdaptor(MySQLAdaptor adaptor)
+	public void setOtherDBAdaptor(MySQLAdaptor adaptor)
 	{
 		this.priorAdaptor = adaptor;
 	}

@@ -87,7 +87,7 @@ public class Main {
                 // make sure altDBA was initialized OK...
                 if (altDBA != null)
                 {
-                    ((ChecksTwoDatabases)check).setPriorDBAdaptor(altDBA);
+                    ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
                 }
                 // ...print a message if it wasn't.
                 else

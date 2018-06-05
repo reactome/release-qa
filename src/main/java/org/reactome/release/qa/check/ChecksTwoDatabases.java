@@ -11,5 +11,5 @@ import org.gk.persistence.MySQLAdaptor;
  */
 public interface ChecksTwoDatabases
 {
-	public void setPriorDBAdaptor(MySQLAdaptor adaptor);
+	public void setOtherDBAdaptor(MySQLAdaptor adaptor);
 }
