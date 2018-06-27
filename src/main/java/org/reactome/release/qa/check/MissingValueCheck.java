@@ -1,8 +1,6 @@
 package org.reactome.release.qa.check;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.gk.model.Instance;
@@ -27,7 +25,7 @@ public class MissingValueCheck extends ClassBasedQACheck {
 
     @Override
     protected String getIssue(QueryResult result) {
-        return "Missing a" + getSchemaAttributeName();
+        return "Missing a " + getSchemaAttributeName();
     }
 
     @Override
