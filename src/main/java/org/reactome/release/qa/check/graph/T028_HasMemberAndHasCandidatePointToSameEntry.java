@@ -6,25 +6,24 @@ import java.util.List;
 
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
-import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.check.ClassBasedQACheck;
 
 public class T028_HasMemberAndHasCandidatePointToSameEntry extends ClassBasedQACheck {
 
     private static String DESCRIPTION =
             "Candidate sets with at least one physical entity which is both a candidate and a member";
- 
-    private static QueryAttribute QUERY_ATTRIBUTE =
-            new QueryAttribute("CandidateSet_2_hasCandidate", "cc", "hasCandidate");
 
+    private static final String ISSUE = "A candidate is also a member: ";
+ 
+    private static QueryAttribute QUERY_ATTRIBUTES[] = {
+            new QueryAttribute("CandidateSet_2_hasCandidate", "cc", "hasCandidate"),
+            new QueryAttribute("EntitySet_2_hasMember", "em", "hasMember")
+    };
+    
     private static String CONDITION =
-            "EXISTS (" + 
-            "  SELECT 1 FROM EntitySet_2_hasMember em" + 
-            "  WHERE em.hasMember = " +
-            String.join(".", QUERY_ATTRIBUTE.alias, QUERY_ATTRIBUTE.attributes[0]) +
-            "  AND DatabaseObject." + MySQLAdaptor.DB_ID_NAME + " = " +
-            String.join(".", QUERY_ATTRIBUTE.alias, MySQLAdaptor.DB_ID_NAME) +
-            ")";
+            "CandidateSet.DB_ID = cc.DB_ID" + 
+            " AND CandidateSet.DB_ID = em.DB_ID" + 
+            " AND cc.hasCandidate = em.hasMember";
  
     public T028_HasMemberAndHasCandidatePointToSameEntry() {
         super(ReactomeJavaConstants.CandidateSet);
@@ -37,7 +36,9 @@ public class T028_HasMemberAndHasCandidatePointToSameEntry extends ClassBasedQAC
 
     @Override
     protected String getIssue(QueryResult result) {
-        return "A candidate is also a member";
+        Instance instance =
+                fetch(ReactomeJavaConstants.PhysicalEntity, (Long) result.values[0]);
+        return ISSUE + format(instance);
     }
 
     @Override
@@ -48,9 +49,7 @@ public class T028_HasMemberAndHasCandidatePointToSameEntry extends ClassBasedQAC
 
     @Override
     protected Collection<QueryResult> fetchInvalid() {
-        // TODO - this takes too long. Change the query.
-        //return fetch(CONDITION, QUERY_ATTRIBUTE);
-        throw new UnsupportedOperationException("Not yet implemented");
+        return fetch(CONDITION, QUERY_ATTRIBUTES);
     }
 
     @Override

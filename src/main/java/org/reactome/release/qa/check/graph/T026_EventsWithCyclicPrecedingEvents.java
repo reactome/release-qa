@@ -2,7 +2,9 @@ package org.reactome.release.qa.check.graph;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
@@ -13,25 +15,35 @@ public class T026_EventsWithCyclicPrecedingEvents extends ClassBasedQACheck {
     private static String DESCRIPTION =
             "Events with a preceding event cyclical dependency";
 
-    private static QueryAttribute PRECEDING =
-            new QueryAttribute("Event_2_precedingEvent", "ep", "precedingEvent");
+    private static QueryAttribute HAS_EVENT_ATTRS[] = {
+            new QueryAttribute("Event_2_precedingEvent", "ep", "precedingEvent"),
+            new QueryAttribute("Pathway_2_hasEvent", "pe", "hasEvent")
+    };
     
-    private static String SUBQUERY =
-            "EXISTS (" + 
-            "  SELECT 1 FROM Pathway_2_hasEvent pe" + 
-            "  WHERE pe.DB_ID = ep.precedingEvent" + 
-            "  AND pe.hasEvent = ep.DB_ID" + 
-            ")" + 
-            "OR EXISTS (" + 
-            "  SELECT 1 FROM Event_2_inferredFrom pi" + 
-            "  WHERE pi.DB_ID = ep.precedingEvent" + 
-            "  AND pi.inferredFrom = ep.DB_ID" + 
-            ")" + 
-            "OR EXISTS (" + 
-            "  SELECT 1 FROM Event_2_orthologousEvent po" + 
-            "  WHERE po.DB_ID = ep.precedingEvent" + 
-            "  AND po.orthologousEvent = ep.DB_ID" + 
-            ")";
+    private static String HAS_EVENT_CONDITION =
+            "Event.DB_ID = ep.DB_ID" + 
+            " AND ep.precedingEvent = pe.DB_ID" +
+            " AND ep.DB_ID = pe.hasEvent";
+
+    private static QueryAttribute INFERRED_ATTRS[] = {
+            new QueryAttribute("Event_2_precedingEvent", "ep", "precedingEvent"),
+            new QueryAttribute("Event_2_inferredFrom", "ei", "inferredFrom")
+    };
+    
+    private static String INFERRED_CONDITION =
+            "Event.DB_ID = ep.DB_ID" + 
+            " AND ep.precedingEvent = ei.DB_ID" +
+            " AND ep.DB_ID = ei.inferredFrom";
+
+    private static QueryAttribute ORTHOLOGOUS_ATTRS[] = {
+            new QueryAttribute("Event_2_precedingEvent", "ep", "precedingEvent"),
+            new QueryAttribute("Event_2_orthologousEvent", "eo", "orthologousEvent")
+    };
+    
+    private static String ORTHOLOGOUS_CONDITION =
+            "Event.DB_ID = ep.DB_ID" + 
+            " AND ep.precedingEvent = eo.DB_ID" +
+            " AND ep.DB_ID = eo.orthologousEvent";
 
     public T026_EventsWithCyclicPrecedingEvents() {
         super(ReactomeJavaConstants.Event);
@@ -58,9 +70,25 @@ public class T026_EventsWithCyclicPrecedingEvents extends ClassBasedQACheck {
 
     @Override
     protected Collection<QueryResult> fetchInvalid() {
-        // TODO - this takes too long. Change the query.
-        //return fetch(SUBQUERY, PRECEDING);
-        throw new UnsupportedOperationException("Not yet implemented");
+        Collection<QueryResult> hasEventInvalid =
+                fetch(HAS_EVENT_CONDITION, HAS_EVENT_ATTRS);
+        Collection<QueryResult> inferredInvalid =
+                fetch(INFERRED_CONDITION, INFERRED_ATTRS);
+        Collection<QueryResult> orthoInvalid =
+                fetch(ORTHOLOGOUS_CONDITION, ORTHOLOGOUS_ATTRS);
+
+        Map<Instance, QueryResult> map = new HashMap<Instance, QueryResult>();
+        for (QueryResult qr: hasEventInvalid) {
+            map.put(qr.instance, qr);
+        }
+        for (QueryResult qr: inferredInvalid) {
+            map.put(qr.instance, qr);
+        }
+        for (QueryResult qr: orthoInvalid) {
+            map.put(qr.instance, qr);
+        }
+        
+        return map.values();
     }
 
     @Override
