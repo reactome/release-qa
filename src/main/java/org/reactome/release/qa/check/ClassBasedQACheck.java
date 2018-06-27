@@ -507,19 +507,6 @@ abstract public class ClassBasedQACheck extends AbstractQACheck {
      * a WHERE clause.
      * 
      * @param className the target class name
-     * @return the SQL query string
-     * @throws InvalidClassException if the given class is not found in the schema
-     */
-    private String createFetchInstancesByClassSQL(String className) throws Exception {
-        return createFetchInstancesByClassSQL(className, null);
-    }
-
-    /**
-     * Builds the SQL to fetch all records in the given class
-     * table. It is recommended that the query be qualified by
-     * a WHERE clause.
-     * 
-     * @param className the target class name
      * @param condition the optional additional <code>WHERE</code> subcondition
      * @param attributes the optional additional attributes
      * @return the SQL query string
