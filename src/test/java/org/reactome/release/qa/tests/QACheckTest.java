@@ -4,6 +4,7 @@ import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
 import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.ChimericInstancesChecker;
+import org.reactome.release.qa.check.CompareSpeciesByClasses;
 import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
 import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
 import org.reactome.release.qa.check.StableIdentifierCheck;
@@ -21,6 +22,10 @@ public class QACheckTest {
         MySQLAdaptorManager manager = MySQLAdaptorManager.getManager();
         MySQLAdaptor dba = manager.getDBA();
         checker.setMySQLAdaptor(dba);
+        if (checker instanceof CompareSpeciesByClasses)
+        {
+        	((CompareSpeciesByClasses) checker).setPriorDBAdaptor(manager.getAlternateDBA());
+        }
         System.out.println("Test " + checker.getDisplayName());
         QAReport report = checker.executeQACheck();
         if (report.isEmpty()) {
@@ -51,6 +56,12 @@ public class QACheckTest {
     @Test
     public void testSpeciesInPrecedingRelationChecker() throws Exception {
         AbstractQACheck checker = new SpeciesInPrecedingRelationChecker();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testCompareSpeciesByClasses() throws Exception {
+        AbstractQACheck checker = new CompareSpeciesByClasses();
         runTest(checker);
     }
 
