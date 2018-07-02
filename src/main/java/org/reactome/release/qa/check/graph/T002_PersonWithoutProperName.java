@@ -1,75 +1,61 @@
 package org.reactome.release.qa.check.graph;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.gk.model.Instance;
+import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.check.MissingAllValuesCheck;
+import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.check.QACheckerHelper;
+import org.reactome.release.qa.common.QAReport;
 
-public class T002_PersonWithoutProperName extends MissingAllValuesCheck {
-
-    private static final String DESCRIPTION = "Persons without a complete proper name";
-
-    public T002_PersonWithoutProperName() {
-        super(ReactomeJavaConstants.Person,
-                ReactomeJavaConstants.firstname,
-                ReactomeJavaConstants.initial);
-    }
-
-    @Override
-    public String getDescription() {
-        return DESCRIPTION;
-    }
+public class T002_PersonWithoutProperName extends AbstractQACheck {
+    
+    private final static String FETCH_ATTRIBUTES[] = {
+            ReactomeJavaConstants.surname,
+            ReactomeJavaConstants.firstname,
+            ReactomeJavaConstants.initial
+    };
+    
+    private static final List<String> HEADERS = Arrays.asList(
+            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
 
     @Override
-    public void testCheck() {
-        compareInvalidCountToExpected(5);
+    public String getDisplayName() {
+        return getClass().getSimpleName();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected Collection<Instance> fetchMissing() {
-        // The persons missing a firstname and initial.
-        Collection<Instance> missingRest = super.fetchMissing();
-        // Add the persons missing a surname.
-        Collection<Instance> missingSurname = fetchInstancesMissingAttribute(
-                ReactomeJavaConstants.Person,
-                ReactomeJavaConstants.surname);
-        // Return a set to remove redundant persons without
-        // a surname, first name or initial.
-        return Stream.concat(missingRest.stream(), missingSurname.stream())
-                .collect(Collectors.toSet());
+    public QAReport executeQACheck() throws Exception {
+        QAReport report = new QAReport();
+        Collection<GKInstance> invalid =
+                (Collection<GKInstance>) dba.fetchInstancesByClass(ReactomeJavaConstants.Person);
+        dba.loadInstanceAttributeValues(invalid, FETCH_ATTRIBUTES);
+ 
+        for (GKInstance instance: invalid) {
+            if (instance.getAttributeValue(ReactomeJavaConstants.surname) == null) {
+                String issue = "Missing a " + ReactomeJavaConstants.surname;
+                addReportLine(report, instance, issue);
+            } else if (instance.getAttributeValue(ReactomeJavaConstants.firstname) == null &&
+                    instance.getAttributeValue(ReactomeJavaConstants.initial) == null) {
+                String issue = "Missing a " + ReactomeJavaConstants.firstname +
+                        " and " + ReactomeJavaConstants.initial;
+                addReportLine(report, instance, issue);
+            }
+        }
+        report.setColumnHeaders(HEADERS);
+
+        return report;
     }
 
-    /**
-     * Creates seven new Person instances, two of which are valid.
-     */
-    @Override
-    protected List<Instance> createTestFixture() {
-        // Create a fixture with four persons, none of which
-        // has a surname.
-        List<Instance> fixture = createTestFixture("Test", "T");
-        
-        // A valid person with surname and first name.
-        Instance person = createInstance(ReactomeJavaConstants.Person);
-        setAttributeValue(person, ReactomeJavaConstants.surname, "Valid");
-        setAttributeValue(person, ReactomeJavaConstants.firstname, "Valid");
-        fixture.add(person);
-        
-        // A valid person with surname and initial.
-        person = createInstance(ReactomeJavaConstants.Person);
-        setAttributeValue(person, ReactomeJavaConstants.surname, "Valid");
-        setAttributeValue(person, ReactomeJavaConstants.initial, "V");
-        fixture.add(person);
-        
-        // An invalid person with neither a first name nor an initial.
-        person = createInstance(ReactomeJavaConstants.Person);
-        setAttributeValue(person, ReactomeJavaConstants.surname, "Invalid");
-        fixture.add(person);
-        
-        return fixture;
+    private void addReportLine(QAReport report, GKInstance instance, String issue) {
+        report.addLine(
+                Arrays.asList(instance.getDBID().toString(), 
+                        instance.getDisplayName(), 
+                        instance.getSchemClass().getName(), 
+                        issue,  
+                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }

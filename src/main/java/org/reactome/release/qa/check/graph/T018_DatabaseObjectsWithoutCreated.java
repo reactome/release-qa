@@ -1,21 +1,25 @@
 package org.reactome.release.qa.check.graph;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.gk.model.Instance;
+import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.check.MissingValueCheck;
+import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.check.QACheckerHelper;
+import org.reactome.release.qa.common.QAReport;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.junit.Test;
 
-public class T018_DatabaseObjectsWithoutCreated extends MissingValueCheck {
+public class T018_DatabaseObjectsWithoutCreated extends AbstractQACheck {
 
-    private static String[] DISQUALIFIED = {
+    /**
+     * The classes which don't required a created slot.
+     */
+    private static final String[] OPTIONAL = {
             ReactomeJavaConstants.InstanceEdit,
             ReactomeJavaConstants.DatabaseIdentifier,
             ReactomeJavaConstants.Taxon,
@@ -23,62 +27,54 @@ public class T018_DatabaseObjectsWithoutCreated extends MissingValueCheck {
             ReactomeJavaConstants.ReferenceEntity
     };
 
-    public T018_DatabaseObjectsWithoutCreated() {
-        super(ReactomeJavaConstants.DatabaseObject, ReactomeJavaConstants.created);
+    private static final String ISSUE = "No created person";
+
+    private static final List<String> HEADERS = Arrays.asList(
+            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+
+    @Override
+    public String getDisplayName() {
+        return getClass().getSimpleName();
     }
 
     @Override
-    public String getDescription() {
-        return "Qualifying " + super.getDescription();
-    }
-
-    @Override
-    @Test
-    public void testCheck() {
-        compareInvalidCountToExpected(1);
-    }
-
-    @Override
-    protected Collection<Instance> fetchMissing() {
-        Schema schema = dba.getSchema();
+    public QAReport executeQACheck() throws Exception {
         // The root class.
+        Schema schema = dba.getSchema();
         SchemaClass root =
                 schema.getClassByName(ReactomeJavaConstants.DatabaseObject);
+        // The optional schema classes.
+        List<SchemaClass> optional = Stream.of(OPTIONAL)
+                .map(clsName -> schema.getClassByName(clsName))
+                .collect(Collectors.toList());
         // All schema classes.
         @SuppressWarnings("unchecked")
         Collection<SchemaClass> classes = schema.getClasses();
-        // The disqualified schema classes.
-        List<SchemaClass> disqualified = Stream.of(DISQUALIFIED)
-                .map(clsName -> schema.getClassByName(clsName))
-                .collect(Collectors.toList());
 
-        // Return the qualified instances without a created slot.
-        return classes.stream()
-                // Root subclasses which are not disqualified.
-                .filter(cls -> cls.getSuperClasses().contains(root) &&
-                        !disqualified.stream().anyMatch(dq -> cls.isa(dq)))
-                // The qualified class names.
-                .map(cls -> cls.getName())
-                // The qualified instances.
-                .map(cls -> fetchInstancesMissingAttribute(cls, ReactomeJavaConstants.created))
-                // Flatten the lists.
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        // Build the report.
+        QAReport report = new QAReport();
+        for (SchemaClass cls: classes) {
+            if (cls.getSuperClasses().contains(root) &&
+                    !optional.stream().anyMatch(optCls -> cls.isa(optCls))) {
+                List<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
+                        cls.getName(), ReactomeJavaConstants.created, null);
+                for (GKInstance instance: invalid) {
+                    addReportLine(report, instance);
+                }
+            }
+        }
+        report.setColumnHeaders(HEADERS);
+
+        return report;
     }
 
-    @Override
-    protected List<Instance> createTestFixture() {
-        List<Instance> fixture = new ArrayList<Instance>();
-        // Instances which need not have a created slot.
-        for (String clsName: DISQUALIFIED) {
-            Instance inst = createInstance(clsName);
-            fixture.add(inst);
-        }
-        // An instance which must have a created slot.
-        Instance inst = createInstance(ReactomeJavaConstants.Pathway);
-        fixture.add(inst);
-        
-        return fixture;
+    private void addReportLine(QAReport report, GKInstance instance) {
+        report.addLine(
+                Arrays.asList(instance.getDBID().toString(), 
+                        instance.getDisplayName(), 
+                        instance.getSchemClass().getName(), 
+                        ISSUE,  
+                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }

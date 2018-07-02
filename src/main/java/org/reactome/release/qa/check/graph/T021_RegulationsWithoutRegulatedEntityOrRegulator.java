@@ -1,92 +1,78 @@
 package org.reactome.release.qa.check.graph;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.gk.model.Instance;
+import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.check.MissingValueCheck;
+import org.gk.schema.SchemaAttribute;
+import org.gk.schema.SchemaClass;
+import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.check.QACheckerHelper;
+import org.reactome.release.qa.common.QAReport;
 
-public class T021_RegulationsWithoutRegulatedEntityOrRegulator extends MissingValueCheck {
+public class T021_RegulationsWithoutRegulatedEntityOrRegulator extends AbstractQACheck {
 
-    public T021_RegulationsWithoutRegulatedEntityOrRegulator() {
-        super(ReactomeJavaConstants.Regulation,
-              ReactomeJavaConstants.regulator);
-    }
+    private static final String REGULATOR_ISSUE = "No regulator";
 
-    @Override
-    public String getDescription() {
-        return super.getDescription() + " or regulatedBy referral";
-    }
+    private static final String REGULATED_BY_ISSUE = "No regulated entity";
 
-    @Override
-    public void testCheck() {
-        compareInvalidCountToExpected(3);
-    }
+    private static final List<String> HEADERS = Arrays.asList(
+            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
 
     @Override
-    protected Collection<Instance> fetchMissing() {
-        // The default missing include Regulations without a regulator.
-        Collection<Instance> missingRegulator = super.fetchMissing();
-        
-        // Get the Regulations without a regulatedBy referral.
-        Collection<QueryResult> missingRegulatedBy = fetchUnreferenced(
-                ReactomeJavaConstants.ReactionlikeEvent,
-                ReactomeJavaConstants.regulatedBy);
-        
-        // Collect both missing collections into a set
-        // to avoid duplication.
-        Stream<Instance> regByStream =
-                missingRegulatedBy.stream().map(result -> result.instance);
-        return Stream.concat(missingRegulator.stream(), regByStream)
-                .collect(Collectors.toSet());
+    public String getDisplayName() {
+        return getClass().getSimpleName();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    /**
-     * Creates five regulations, two of which are valid.
-     */
-    protected List<Instance> createTestFixture() {
-        // The default fixture has an empty Regulation.
-        List<Instance> fixture = super.createTestFixture();
-        
-        // An invalid regulation without a regulator.
-        Instance event = createInstance(ReactomeJavaConstants.BlackBoxEvent);
-        fixture.add(event);
-        Instance regulation = createInstance(ReactomeJavaConstants.PositiveRegulation);
-        setAttributeValue(event, ReactomeJavaConstants.regulatedBy, regulation);
-        fixture.add(regulation);
-        
-        // An invalid regulation without a regulatedBy referral.
-        Instance regulator = createInstance(ReactomeJavaConstants.SimpleEntity);
-        fixture.add(regulator);
-        regulation = createInstance(ReactomeJavaConstants.PositiveRegulation);
-        setAttributeValue(regulation, ReactomeJavaConstants.regulator, regulator);
-        fixture.add(regulation);
-        
-        // A valid positive regulation.
-        event = createInstance(ReactomeJavaConstants.BlackBoxEvent);
-        fixture.add(event);
-        regulator = createInstance(ReactomeJavaConstants.SimpleEntity);
-        fixture.add(regulator);
-        regulation = createInstance(ReactomeJavaConstants.PositiveRegulation);
-        setAttributeValue(regulation, ReactomeJavaConstants.regulator, regulator);
-        setAttributeValue(event, ReactomeJavaConstants.regulatedBy, regulation);
-        fixture.add(regulation);
-        
-        // A valid negative regulation.
-        event = createInstance(ReactomeJavaConstants.BlackBoxEvent);
-        fixture.add(event);
-        regulator = createInstance(ReactomeJavaConstants.SimpleEntity);
-        fixture.add(regulator);
-        regulation = createInstance(ReactomeJavaConstants.NegativeRegulation);
-        setAttributeValue(regulation, ReactomeJavaConstants.regulator, regulator);
-        setAttributeValue(event, ReactomeJavaConstants.regulatedBy, regulation);
-        fixture.add(regulation);
-        
-        return fixture;
+    public QAReport executeQACheck() throws Exception {
+        QAReport report = new QAReport();
+
+        Collection<GKInstance> regulations =
+                dba.fetchInstancesByClass(ReactomeJavaConstants.Regulation);
+        SchemaClass regCls =
+                dba.getSchema().getClassByName(ReactomeJavaConstants.Regulation);
+        SchemaAttribute regAtt =
+                regCls.getAttribute(ReactomeJavaConstants.regulator);
+        SchemaClass rleCls =
+                dba.getSchema().getClassByName(ReactomeJavaConstants.ReactionlikeEvent);
+        SchemaAttribute regByAtt =
+                rleCls.getAttribute(ReactomeJavaConstants.regulatedBy);
+        dba.loadInstanceAttributeValues(regulations, regAtt);
+        dba.loadInstanceReverseAttributeValues(regulations, regByAtt);
+        for (GKInstance regulation: regulations) {
+            // The regulations without a regulator.
+            // Note: we cannot call getAttributeValue(regAtt) since
+            // regAtt is the Regulation.regulator attribute whereas
+            // the regulation instance class is a subclass of Regulation.
+            // The SchemaClass creates a separate SchemaAttribute instance
+            // for an inherited attribute and therefore does not recognize
+            // the superclass SchemaAttribute as a valid attribute. 
+            if (regulation.getAttributeValue(regAtt.getName()) == null) {
+                addReportLine(report, regulation, REGULATOR_ISSUE);
+            }
+            // The regulations without a regulatedBy referral.
+            Collection<GKInstance> referers =
+                    regulation.getReferers(regByAtt.getName());
+            if (referers == null || referers.isEmpty()) {
+                addReportLine(report, regulation, REGULATED_BY_ISSUE);
+            }
+        }
+
+        report.setColumnHeaders(HEADERS);
+
+        return report;
+    }
+
+    private void addReportLine(QAReport report, GKInstance instance, String issue) {
+        report.addLine(
+                Arrays.asList(instance.getDBID().toString(), 
+                        instance.getDisplayName(), 
+                        instance.getSchemClass().getName(), 
+                        issue,  
+                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }
