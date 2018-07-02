@@ -1,12 +1,47 @@
 package org.reactome.release.qa.check.graph;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.check.MissingValueCheck;
+import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.check.QACheckerHelper;
+import org.reactome.release.qa.common.QAReport;
 
-public class T022_PhysicalEntityWithoutCompartment extends MissingValueCheck {
+public class T022_PhysicalEntityWithoutCompartment extends AbstractQACheck {
 
-    public T022_PhysicalEntityWithoutCompartment() {
-        super(ReactomeJavaConstants.PhysicalEntity, ReactomeJavaConstants.compartment);
+    private static final String ISSUE = "No compartment";
+
+    private static final List<String> HEADERS = Arrays.asList(
+            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+
+    @Override
+    public String getDisplayName() {
+        return getClass().getSimpleName();
+    }
+
+    @Override
+    public QAReport executeQACheck() throws Exception {
+        QAReport report = new QAReport();
+        List<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
+                ReactomeJavaConstants.PhysicalEntity, ReactomeJavaConstants.compartment, null);
+ 
+        for (GKInstance instance: invalid) {
+            addReportLine(report, instance);
+        }
+        report.setColumnHeaders(HEADERS);
+
+        return report;
+    }
+
+    private void addReportLine(QAReport report, GKInstance instance) {
+        report.addLine(
+                Arrays.asList(instance.getDBID().toString(), 
+                        instance.getDisplayName(), 
+                        instance.getSchemClass().getName(), 
+                        ISSUE,  
+                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }

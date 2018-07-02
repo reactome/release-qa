@@ -73,7 +73,7 @@ public class QACheckerHelper {
 		return skipList;
 	}
 	
-	static String getLastModificationAuthor(GKInstance instance)
+	public static String getLastModificationAuthor(GKInstance instance)
 	{
 		final String noAuthor = "No modification or creation author";
 		
@@ -176,18 +176,18 @@ public class QACheckerHelper {
 		}
 	}
 	
-	static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)
+	public static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)
 	{
 		return getInstances(dba, schemaClass, attribute, IS_NULL, skipList);
 	}
 	
-	static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) 
+	public static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) 
 	{
 		return getInstances(dba, schemaClass, attribute, IS_NOT_NULL, skipList);
 	}
 	
 	@SuppressWarnings("unchecked")
-	static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
+	public static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
 	{
 		List<GKInstance> instances = new ArrayList<GKInstance>();
 		try

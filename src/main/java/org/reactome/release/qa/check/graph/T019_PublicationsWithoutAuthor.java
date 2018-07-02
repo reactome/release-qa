@@ -1,28 +1,48 @@
 package org.reactome.release.qa.check.graph;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.gk.model.Instance;
+import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.check.JavaConstants;
-import org.reactome.release.qa.check.MissingValueCheck;
+import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.check.QACheckerHelper;
+import org.reactome.release.qa.common.QAReport;
 
-public class T019_PublicationsWithoutAuthor extends MissingValueCheck {
+public class T019_PublicationsWithoutAuthor extends AbstractQACheck {
 
-    public T019_PublicationsWithoutAuthor() {
-        super(JavaConstants.Publication, ReactomeJavaConstants.author);
+    private static final String ISSUE = "No author";
+
+    private static final List<String> HEADERS = Arrays.asList(
+            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+
+    @Override
+    public String getDisplayName() {
+        return getClass().getSimpleName();
     }
 
     @Override
-    protected List<Instance> createTestFixture() {
-        List<Instance> fixture = new ArrayList<Instance>();
-        Instance book = createInstance(ReactomeJavaConstants.Book);
-        fixture.add(book);
-        Instance url = createInstance(ReactomeJavaConstants.URL);
-        fixture.add(url);
-        
-        return fixture;
+    public QAReport executeQACheck() throws Exception {
+        QAReport report = new QAReport();
+        List<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
+                JavaConstants.Publication, ReactomeJavaConstants.author, null);
+ 
+        for (GKInstance instance: invalid) {
+            addReportLine(report, instance);
+        }
+        report.setColumnHeaders(HEADERS);
+
+        return report;
+    }
+
+    private void addReportLine(QAReport report, GKInstance instance) {
+        report.addLine(
+                Arrays.asList(instance.getDBID().toString(), 
+                        instance.getDisplayName(), 
+                        instance.getSchemClass().getName(), 
+                        ISSUE,  
+                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }
