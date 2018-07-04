@@ -24,7 +24,7 @@ public class QACheckTest {
         checker.setMySQLAdaptor(dba);
         if (checker instanceof CompareSpeciesByClasses)
         {
-        	((CompareSpeciesByClasses) checker).setPriorDBAdaptor(manager.getAlternateDBA());
+        	((CompareSpeciesByClasses) checker).setOtherDBAdaptor(manager.getAlternateDBA());
         }
         System.out.println("Test " + checker.getDisplayName());
         QAReport report = checker.executeQACheck();
