@@ -35,3 +35,6 @@ ContributorsCheck/contributors-check/src/main/resources/auth.properties
 .recommenders
 NullCheck/src/main/resources/auth.properties
 auth.properties
+logs
+logs-test
+output

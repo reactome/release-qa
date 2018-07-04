@@ -13,6 +13,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
@@ -30,6 +32,8 @@ import org.reactome.release.qa.common.QAReport;
 @ReleaseQATest
 public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTwoDatabases
 {
+	private static final Logger logger = LogManager.getLogger();
+	
 	private static final String INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA = "inferred events based on ensembl compara";
 	private MySQLAdaptor priorAdaptor;
 	
@@ -128,7 +132,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 				// It's possible that a species in current is new and is not in prior, so just print a message and keep going.
 				if (priorSpecies == null)
 				{
-					System.out.println("WARNING: Could not find Species \""+species.getDisplayName()+ "\" in prior database.");
+					logger.warn("Could not find Species \""+species.getDisplayName()+ "\" in prior database.");
 				}
 				else
 				{
@@ -175,7 +179,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 							}
 							else
 							{
-								System.out.println("WARNING: Class \""+className+"\" is not in current database for species "+species.getDisplayName());
+								logger.warn("Class \""+className+"\" is not in current database for species "+species.getDisplayName());
 							}
 							
 							if (priorClassCounts.containsKey(className))
@@ -184,16 +188,16 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 							}
 							else
 							{
-								System.out.println("WARNING: Class \""+className+"\" is not in prior database for species "+species.getDisplayName());
+								logger.warn("Class \""+className+"\" is not in prior database for species "+species.getDisplayName());
 							}
 
 							double percentDiff = (((double)currentCount - (double)priorCount) / (double)priorCount) * 100.0d;
 							
-							String percentDiffString = String.valueOf(percentDiff);
+							String percentDiffString = String.format("%.4f", percentDiff);
 							// TODO: parameterize these thresholds? 10% and 1000 feel a bit arbitrary, someone else might want different numbers later.
 							if (Math.abs(percentDiff) > 10.0 && Math.abs(priorCount - currentCount) > 1000)
 							{
-								percentDiffString = "*** Difference is "+percentDiff+"% ***";
+								percentDiffString = "*** Difference is "+ String.format("%.4f", percentDiff)+"% ***";
 							}
 							report.addLine(species.getDisplayName(), className, Integer.toString(priorCount), Integer.toString(currentCount), percentDiffString);
 						}
@@ -205,7 +209,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 				}
 			}
 			Long endTime = System.currentTimeMillis();
-			System.out.println( "Elapsed time (seconds): " + TimeUnit.MILLISECONDS.toSeconds(endTime - startTime) );
+			logger.info( "Elapsed time (seconds): " + TimeUnit.MILLISECONDS.toSeconds(endTime - startTime) );
 
 		}
 		catch (Exception e)
