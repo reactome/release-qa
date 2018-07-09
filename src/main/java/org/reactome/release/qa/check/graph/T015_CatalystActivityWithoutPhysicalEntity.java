@@ -11,7 +11,7 @@ import org.reactome.release.qa.common.QAReport;
 
 public class T015_CatalystActivityWithoutPhysicalEntity extends AbstractQACheck {
 
-    private static final String ISSUE = "No author";
+    private static final String ISSUE = "No physical entity";
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
