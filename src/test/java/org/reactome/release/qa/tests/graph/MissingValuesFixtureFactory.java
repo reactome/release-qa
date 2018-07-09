@@ -39,8 +39,16 @@ public class MissingValuesFixtureFactory {
         List<Instance> fixture = new ArrayList<Instance>();
         // Add value instances to the fixture.
         for (Object value: values) {
-            if (value instanceof Instance && !fixture.contains(value)) {
-                fixture.add((Instance)value);
+            // Set instance value db adaptor and add it to the fixture,
+            // if necessary.
+            if (value instanceof GKInstance) {
+                GKInstance instance = (GKInstance)value;
+                if (instance.getDbAdaptor() == null) {
+                    instance.setDbAdaptor(dba);
+                }
+                if (!fixture.contains(instance)) {
+                    fixture.add(instance);
+                }
             }
         }
         for (BitSet indexes: permutations(values.length)) {
