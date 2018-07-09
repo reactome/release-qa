@@ -16,7 +16,7 @@ public class T021_RegulationsWithoutRegulatedEntityOrRegulatorTest
 extends QACheckReportComparisonTester {
 
     public T021_RegulationsWithoutRegulatedEntityOrRegulatorTest() {
-        super(new T021_RegulationsWithoutRegulatedEntityOrRegulator(), 3);
+        super(new T021_RegulationsWithoutRegulatedEntityOrRegulator(), 4);
     }
 
     @Override
@@ -25,11 +25,11 @@ extends QACheckReportComparisonTester {
         SchemaClass entityCls =
                 schema.getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance regulator = new GKInstance(entityCls);
-        regulator.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.PositiveRegulation,
                 ReactomeJavaConstants.regulator);
         // Two invalid regulations, both missing a regulated by referral.
+        // The regulation without both is reported twice.
         List<Instance> fixture = factory.createTestFixture(regulator);
         
         // An invalid regulation with a regulated by referral but no regulator.
@@ -40,8 +40,8 @@ extends QACheckReportComparisonTester {
         SchemaClass regCls = schema.getClassByName(ReactomeJavaConstants.PositiveRegulation);
         GKInstance regulation = new GKInstance(regCls);
         regulation.setDbAdaptor(dba);
-        bbe.setAttributeValue(ReactomeJavaConstants.regulatedBy, regulation);
         fixture.add(regulation);
+        bbe.setAttributeValue(ReactomeJavaConstants.regulatedBy, regulation);
         
         // The sole valid regulation with both a regulated by referral
         // and a regulator.
@@ -50,6 +50,7 @@ extends QACheckReportComparisonTester {
         fixture.add(bbe);
         regulation = new GKInstance(regCls);
         regulation.setDbAdaptor(dba);
+        fixture.add(regulation);
         bbe.setAttributeValue(ReactomeJavaConstants.regulatedBy, regulation);
         regulator = new GKInstance(entityCls);
         regulator.setDbAdaptor(dba);
