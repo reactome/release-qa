@@ -18,7 +18,6 @@ public class T012_SimpleEntityWithoutReferenceEntityTest extends QACheckReportCo
         SchemaClass refCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.ReferenceMolecule);
         GKInstance refMolecule = new GKInstance(refCls);
-        refMolecule.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.SimpleEntity,
                 ReactomeJavaConstants.referenceEntity);

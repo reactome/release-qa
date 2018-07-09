@@ -22,7 +22,6 @@ public class T028_HasMemberAndHasCandidatePointToSameEntryTest extends QACheckRe
         SchemaClass entityCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance candidate = new GKInstance(entityCls);
-        candidate.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.CandidateSet,
                 ReactomeJavaConstants.hasCandidate,

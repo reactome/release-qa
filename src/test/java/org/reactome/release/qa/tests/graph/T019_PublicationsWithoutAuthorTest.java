@@ -22,7 +22,6 @@ public class T019_PublicationsWithoutAuthorTest extends QACheckReportComparisonT
         SchemaClass personCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.Person);
         GKInstance author = new GKInstance(personCls);
-        author.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.Book,
                 ReactomeJavaConstants.author);

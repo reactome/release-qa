@@ -19,7 +19,6 @@ public class T016_CatalystActivityWithoutActivityTest extends QACheckReportCompa
         SchemaClass functionCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.GO_MolecularFunction);
         GKInstance function = new GKInstance(functionCls);
-        function.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.CatalystActivity,
                 ReactomeJavaConstants.activity);

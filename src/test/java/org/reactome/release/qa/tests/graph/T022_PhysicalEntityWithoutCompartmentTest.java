@@ -22,7 +22,6 @@ public class T022_PhysicalEntityWithoutCompartmentTest extends QACheckReportComp
         SchemaClass compartmentCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.Compartment);
         GKInstance compartment = new GKInstance(compartmentCls);
-        compartment.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.SimpleEntity,
                 ReactomeJavaConstants.compartment);

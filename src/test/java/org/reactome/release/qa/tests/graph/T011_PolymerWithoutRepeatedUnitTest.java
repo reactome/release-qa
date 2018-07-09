@@ -22,7 +22,6 @@ public class T011_PolymerWithoutRepeatedUnitTest extends QACheckReportComparison
         SchemaClass entityCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance entity = new GKInstance(entityCls);
-        entity.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.Polymer,
                 ReactomeJavaConstants.repeatedUnit);

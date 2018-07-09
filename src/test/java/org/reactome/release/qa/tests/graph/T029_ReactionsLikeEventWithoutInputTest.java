@@ -18,11 +18,9 @@ public class T029_ReactionsLikeEventWithoutInputTest extends QACheckReportCompar
         SchemaClass entityCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance input = new GKInstance(entityCls);
-        input.setDbAdaptor(dba);
         SchemaClass reactionCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.Reaction);
         GKInstance inferredFrom = new GKInstance(reactionCls);
-        inferredFrom.setDbAdaptor(dba);
         // Make this inferral a valid event by adding an input.
         // Otherwise, this event would be detected as invalid.
         inferredFrom.setAttributeValue(ReactomeJavaConstants.input, input);

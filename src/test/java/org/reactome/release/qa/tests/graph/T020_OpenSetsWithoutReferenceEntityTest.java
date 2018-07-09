@@ -22,7 +22,6 @@ public class T020_OpenSetsWithoutReferenceEntityTest extends QACheckReportCompar
         SchemaClass refCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.ReferenceMolecule);
         GKInstance refMolecule = new GKInstance(refCls);
-        refMolecule.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.OpenSet,
                 ReactomeJavaConstants.referenceEntity);

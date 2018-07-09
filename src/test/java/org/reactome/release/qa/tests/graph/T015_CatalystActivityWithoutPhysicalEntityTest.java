@@ -19,7 +19,6 @@ public class T015_CatalystActivityWithoutPhysicalEntityTest extends QACheckRepor
         SchemaClass entityCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance entity = new GKInstance(entityCls);
-        entity.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.CatalystActivity,
                 ReactomeJavaConstants.physicalEntity);

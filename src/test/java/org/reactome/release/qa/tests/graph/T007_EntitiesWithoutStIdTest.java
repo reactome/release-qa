@@ -25,14 +25,12 @@ public class T007_EntitiesWithoutStIdTest extends QACheckReportComparisonTester 
                 ReactomeJavaConstants.stableIdentifier);
         SchemaClass schemaCls = dba.getSchema().getClassByName(ReactomeJavaConstants.StableIdentifier);
         GKInstance stId = new GKInstance(schemaCls);
-        stId.setDbAdaptor(dba);
         Collection<Instance> entities = factory.createTestFixture(stId);
 
         factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.BlackBoxEvent,
                 ReactomeJavaConstants.stableIdentifier);
         stId = new GKInstance(schemaCls);
-        stId.setDbAdaptor(dba);
         Collection<Instance> bbes = factory.createTestFixture(stId);
         
         return Stream.concat(entities.stream(), bbes.stream())

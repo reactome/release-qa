@@ -34,7 +34,6 @@ public class T018_DatabaseObjectsWithoutCreatedTest extends QACheckReportCompari
         SchemaClass ieCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.InstanceEdit);
         GKInstance ie = new GKInstance(ieCls);
-        ie.setDbAdaptor(dba);
         
         // One valid and one invalid pathway.
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,

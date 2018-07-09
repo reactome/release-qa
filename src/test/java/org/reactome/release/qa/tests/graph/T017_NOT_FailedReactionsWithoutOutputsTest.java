@@ -23,7 +23,6 @@ public class T017_NOT_FailedReactionsWithoutOutputsTest extends QACheckReportCom
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         // Add one valid and one invalid RLE.
         GKInstance entity = new GKInstance(entityCls);
-        entity.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.BlackBoxEvent,
                 ReactomeJavaConstants.output);

@@ -19,7 +19,6 @@ public class T009_ComplexWithoutComponentsTest extends QACheckReportComparisonTe
         SchemaClass schemaCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance entity = new GKInstance(schemaCls);
-        entity.setDbAdaptor(dba);
         
         // The factory creates a fixture with one valid and one invalid instance.
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,

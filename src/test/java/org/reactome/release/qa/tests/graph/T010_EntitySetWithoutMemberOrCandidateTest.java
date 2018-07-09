@@ -22,16 +22,13 @@ public class T010_EntitySetWithoutMemberOrCandidateTest extends QACheckReportCom
         SchemaClass entityCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.SimpleEntity);
         GKInstance member = new GKInstance(entityCls);
-        member.setDbAdaptor(dba);
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.DefinedSet,
                 ReactomeJavaConstants.hasMember);
         List<Instance> definedSets = factory.createTestFixture(member);
         
         member = new GKInstance(entityCls);
-        member.setDbAdaptor(dba);
         GKInstance candidate = new GKInstance(entityCls);
-        candidate.setDbAdaptor(dba);
         factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.CandidateSet,
                 ReactomeJavaConstants.hasMember,

@@ -20,8 +20,6 @@ public class T006_EwasWithoutReferenceEntityTest extends QACheckReportComparison
         SchemaClass schemaCls =
                 dba.getSchema().getClassByName(ReactomeJavaConstants.Reaction);
         GKInstance event = new GKInstance(schemaCls);
-        event.setDbAdaptor(dba);
-        
         // The factory creates a fixture with one valid and one invalid instance.
         MissingValuesFixtureFactory factory = new MissingValuesFixtureFactory(dba,
                 ReactomeJavaConstants.Pathway,
