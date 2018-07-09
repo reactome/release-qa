@@ -16,6 +16,14 @@ public class T021_RegulationsWithoutRegulatedEntityOrRegulator extends AbstractQ
     private static final String REGULATOR_ISSUE = "No regulator";
 
     private static final String REGULATED_BY_ISSUE = "No regulated entity";
+    
+    private static final String[] REG_LOAD_ATTS = {
+            ReactomeJavaConstants.regulator
+    };
+    
+    private static final String[] REG_REVERSE_LOAD_ATTS = {
+            ReactomeJavaConstants.regulatedBy
+    };
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
@@ -32,30 +40,17 @@ public class T021_RegulationsWithoutRegulatedEntityOrRegulator extends AbstractQ
 
         Collection<GKInstance> regulations =
                 dba.fetchInstancesByClass(ReactomeJavaConstants.Regulation);
-        SchemaClass regCls =
-                dba.getSchema().getClassByName(ReactomeJavaConstants.Regulation);
-        SchemaAttribute regAtt =
-                regCls.getAttribute(ReactomeJavaConstants.regulator);
-        SchemaClass rleCls =
-                dba.getSchema().getClassByName(ReactomeJavaConstants.ReactionlikeEvent);
-        SchemaAttribute regByAtt =
-                rleCls.getAttribute(ReactomeJavaConstants.regulatedBy);
-        dba.loadInstanceAttributeValues(regulations, regAtt);
-        dba.loadInstanceReverseAttributeValues(regulations, regByAtt);
+        dba.loadInstanceAttributeValues(regulations, REG_LOAD_ATTS);
+        dba.loadInstanceReverseAttributeValues(regulations, REG_REVERSE_LOAD_ATTS);
         for (GKInstance regulation: regulations) {
-            // The regulations without a regulator.
-            // Note: we cannot call getAttributeValue(regAtt) since
-            // regAtt is the Regulation.regulator attribute whereas
-            // the regulation instance class is a subclass of Regulation.
-            // The SchemaClass creates a separate SchemaAttribute instance
-            // for an inherited attribute and therefore does not recognize
-            // the superclass SchemaAttribute as a valid attribute. 
-            if (regulation.getAttributeValue(regAtt.getName()) == null) {
+            GKInstance regulator =
+                    (GKInstance) regulation.getAttributeValue(ReactomeJavaConstants.regulator);
+            if (regulator == null) {
                 addReportLine(report, regulation, REGULATOR_ISSUE);
             }
             // The regulations without a regulatedBy referral.
             Collection<GKInstance> referers =
-                    regulation.getReferers(regByAtt.getName());
+                    regulation.getReferers(ReactomeJavaConstants.regulatedBy);
             if (referers == null || referers.isEmpty()) {
                 addReportLine(report, regulation, REGULATED_BY_ISSUE);
             }
