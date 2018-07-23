@@ -1,5 +1,7 @@
 package org.reactome.release.qa.tests;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
 import org.reactome.release.qa.check.AbstractQACheck;
@@ -17,7 +19,8 @@ import org.reactome.release.qa.common.QAReport;
  *
  */
 public class QACheckTest {
-    
+    private static final Logger logger = LogManager.getLogger();
+
     private void runTest(AbstractQACheck checker) throws Exception {
         MySQLAdaptorManager manager = MySQLAdaptorManager.getManager();
         MySQLAdaptor dba = manager.getDBA();
@@ -26,10 +29,10 @@ public class QACheckTest {
         {
         	((CompareSpeciesByClasses) checker).setOtherDBAdaptor(manager.getAlternateDBA());
         }
-        System.out.println("Test " + checker.getDisplayName());
+        logger.info("Test " + checker.getDisplayName());
         QAReport report = checker.executeQACheck();
         if (report.isEmpty()) {
-            System.out.println("All is fine. Nothing needs to report!");
+        	logger.info("All is fine. Nothing needs to report!");
             return;
         }
         report.output(10);
