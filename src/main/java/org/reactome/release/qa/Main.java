@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
+
 import java.util.stream.Collectors;
 
 import org.gk.persistence.MySQLAdaptor;
@@ -19,6 +20,9 @@ import org.reactome.release.qa.common.QACheck;
 import org.reactome.release.qa.common.QAReport;
 import org.reflections.Reflections;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+	 
 /**
  * The entry point to run all tests.
  * @author wug
@@ -26,6 +30,8 @@ import org.reflections.Reflections;
  */
 public class Main {
     
+    private static final Logger logger = LogManager.getLogger();
+
     public static void main(String[] args) throws Exception {
         File output = prepareOutput();
         // Make sure we have output
@@ -41,7 +47,7 @@ public class Main {
         
         // testType should come from auth.properties. For backwards compatibility reasons, this property defaults to SliceQATest.
         String testType = prop.getProperty("testType", SliceQATest.class.getSimpleName());
-        System.out.println("Will execute tests of type: "+testType);
+        logger.info("Will execute tests of type: " + testType);
         MySQLAdaptor altDBA = null;
 
         // Get the list of QAs from the package
@@ -67,7 +73,7 @@ public class Main {
 
         for (Class<? extends QACheck> cls : releaseQAs) {
             QACheck check = cls.newInstance();
-            System.out.println("Perform " + check.getDisplayName() + "...");
+            logger.info("Perform " + check.getDisplayName() + "...");
             check.setMySQLAdaptor(dba);
             // Some checks might compare two databases to each other (usually test_reactome_## and test_reactome_##-1)
             // So far, this only happens with CompareSpeciesByClasses, but there could be other multi-database checks in the future.
@@ -92,21 +98,21 @@ public class Main {
                 // ...print a message if it wasn't.
                 else
                 {
-                    System.out.println("The check \"" +check.getDisplayName() +"\" is supposed to check two databases, but the alternate DBA was NULL! Please set the altDbHost, altDbName, altDbUser, altDbPass properties in your config file.");
+                	logger.warn("The check \"" +check.getDisplayName() +"\" is supposed to check two databases, but the alternate DBA was NULL! Please set the altDbHost, altDbName, altDbUser, altDbPass properties in your config file.");
                 }
             }
 
             QAReport qaReport = check.executeQACheck();
             if (qaReport.isEmpty())
             {
-                System.out.println("Nothing to report!");
+            	logger.info("Nothing to report!");
                 continue;
             }
             else
             {
                 String fileName = check.getDisplayName();
                 qaReport.output(fileName + ".txt", output.getAbsolutePath());
-                System.out.println("Check "+output.getAbsolutePath()+"/"+fileName+".txt for report details.");
+                logger.info("Check "+output.getAbsolutePath()+"/"+fileName+".txt for report details.");
             }
         }
     }

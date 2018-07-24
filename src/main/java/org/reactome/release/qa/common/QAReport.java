@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.util.FileUtilities;
 
 public class QAReport {
@@ -14,7 +16,7 @@ public class QAReport {
 	protected List<List<String>> reportLines = new ArrayList<List<String>>();
 	protected List<String> columnHeaders = new ArrayList<String>();
     private String delimiter = "\t";
-
+    private static final Logger logger = LogManager.getLogger();
 	public QAReport() {
 	}
 	
@@ -108,12 +110,12 @@ public class QAReport {
      */
     public void output(int maximumRow) {
         List<String> headers = getHeaders();
-        System.out.println(String.join("\t", headers));
+        logger.info(String.join("\t", headers));
         int row = 0;
         List<List<String>> lines = getReportLines();
         for (int i = 0; i < lines.size(); i++) {
             row ++;
-            System.out.println(String.join("\t", lines.get(i)));
+            logger.info(String.join("\t", lines.get(i)));
             if (row > maximumRow)
                 break;
         }
