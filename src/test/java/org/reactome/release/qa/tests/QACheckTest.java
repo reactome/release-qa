@@ -8,6 +8,7 @@ import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.ChimericInstancesChecker;
 import org.reactome.release.qa.check.CompareSpeciesByClasses;
 import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
+import org.reactome.release.qa.check.PathwayDiagramRenderableTypeChecker;
 import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
 import org.reactome.release.qa.check.StableIdentifierCheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
@@ -15,12 +16,17 @@ import org.reactome.release.qa.common.QAReport;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
+ * Note: To run newly added test methods, need to run maven install first!!! Otherwise, an error
+ * may be generated.
  * @author wug
  *
  */
 public class QACheckTest {
     private static final Logger logger = LogManager.getLogger();
-
+    
+    public QACheckTest() {
+    }
+    
     private void runTest(AbstractQACheck checker) throws Exception {
         MySQLAdaptorManager manager = MySQLAdaptorManager.getManager();
         MySQLAdaptor dba = manager.getDBA();
@@ -35,7 +41,7 @@ public class QACheckTest {
         	logger.info("All is fine. Nothing needs to report!");
             return;
         }
-        report.output(10);
+        report.output(report.getReportLines().size());
     }
     
     @Test
@@ -65,6 +71,12 @@ public class QACheckTest {
     @Test
     public void testCompareSpeciesByClasses() throws Exception {
         AbstractQACheck checker = new CompareSpeciesByClasses();
+        runTest(checker);
+    }
+        
+    @Test
+    public void testPathwayDiagramRenderableTypeChecker() throws Exception {
+        AbstractQACheck checker = new PathwayDiagramRenderableTypeChecker();
         runTest(checker);
     }
 

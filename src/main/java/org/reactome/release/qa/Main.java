@@ -47,7 +47,7 @@ public class Main {
         
         // testType should come from auth.properties. For backwards compatibility reasons, this property defaults to SliceQATest.
         String testType = prop.getProperty("testType", SliceQATest.class.getSimpleName());
-        logger.info("Will execute tests of type: "+testType);
+        logger.info("Will execute tests of type: " + testType);
         MySQLAdaptor altDBA = null;
 
         // Get the list of QAs from the package
