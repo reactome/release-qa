@@ -4,11 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.check.AbstractQACheck;
@@ -29,6 +26,10 @@ public class T062_DuplicatedReferenceEntities extends AbstractQACheck {
 
     @SuppressWarnings("unchecked")
     @Override
+    /**
+     * Reports the reference entities with the same database name,
+     * identifier and variant identifier.
+     */
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 

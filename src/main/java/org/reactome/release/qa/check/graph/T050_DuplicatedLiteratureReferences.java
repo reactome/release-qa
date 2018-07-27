@@ -3,16 +3,11 @@ package org.reactome.release.qa.check.graph;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
-import org.gk.pathwaylayout.Utils;
 import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;

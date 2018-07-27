@@ -2,9 +2,6 @@ package org.reactome.release.qa.tests.graph;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;

@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.gk.schema.SchemaAttribute;
-import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;

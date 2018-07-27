@@ -1,7 +1,6 @@
 package org.reactome.release.qa.tests.graph;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.Instance;

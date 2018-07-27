@@ -1,18 +1,25 @@
 package org.reactome.release.qa.check.graph;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T061_EntitySetsWithOnlyOneMember extends AbstractQACheck {
+public class T057_ComplexesWithOnlyOneComponent extends AbstractQACheck {
+    
+    private static final String SQL =
+            "SELECT DB_ID" +
+            " FROM Complex_2_hasComponent" +
+            " GROUP BY DB_ID" +
+            " HAVING COUNT(*) = 1";
 
-    private static final String ISSUE = "Has exactly one member";
-
+    private final static String ISSUE = "Only one component";
+     
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
 
@@ -21,23 +28,19 @@ public class T061_EntitySetsWithOnlyOneMember extends AbstractQACheck {
         return getClass().getSimpleName();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-
-        Collection<GKInstance> definedSets =
-                dba.fetchInstancesByClass(ReactomeJavaConstants.DefinedSet);
-        String[] loadAtts = { ReactomeJavaConstants.hasMember };
-        dba.loadInstanceAttributeValues(definedSets, loadAtts);
-        for (GKInstance definedSet: definedSets) {
-            List<GKInstance> members =
-                    definedSet.getAttributeValuesList(ReactomeJavaConstants.hasMember);
-            if (members.size() == 1) {
-                addReportLine(report, definedSet);
-            }
+        
+        Connection conn = dba.getConnection();
+        PreparedStatement ps = conn.prepareStatement(SQL);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Long dbId = new Long(rs.getLong(1));
+            GKInstance instance = dba.fetchInstance(dbId);
+            addReportLine(report, instance);
         }
-
+        
         report.setColumnHeaders(HEADERS);
 
         return report;
