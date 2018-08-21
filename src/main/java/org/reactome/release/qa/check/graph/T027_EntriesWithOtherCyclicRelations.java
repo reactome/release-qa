@@ -26,17 +26,24 @@ public class T027_EntriesWithOtherCyclicRelations extends AbstractQACheck {
     
     private final static String ISSUE = "Cycle to this instance";
     
-    private final static String[] SKIP_SINGLE_ATTS = {
+    /**
+     * The attributes to skip when checking for x == x.attribute.attribute.
+     */
+    private final static String[] SKIP_INVOLUTORY_ATTS = {
             "hasEncapsulatedEvent", "precedingEvent", "inferredTo"
     };
     
-    // These attributes are bi-directional equivalences in the curator
-    // database but uni-directional in the graph db. 
-    private final static String[] EQUIVALENCE_ATTS = {
+    /* The attributes which are bi-directional symmetric relations in the
+     * curator database but uni-directional in the graph db.
+     */ 
+    private final static String[] SYMMETRIC_ATTS = {
             "equivalentTo", "reverseReaction"
     };
     
-    private final static String[] SKIP_MULTI_ATTS = {
+    /**
+     * The attributes to skip when checking for x == x.attribute1.attribute2.
+     */
+    private final static String[] SKIP_NONINVOLUTORY_ATTS = {
             "author", "created", "edited", "modified", "revised", "reviewed",
             "inferredTo", "hasPart", "precedingEvent", "hasEncapsulatedEvent"
     };
@@ -82,11 +89,12 @@ public class T027_EntriesWithOtherCyclicRelations extends AbstractQACheck {
         SchemaClass[] valueClasses =
                 valueClsAtts.keySet().toArray(new SchemaClass[valueClsAtts.size()]);
         
-        // Second pass: check for single-attribute cycles.
-        Set<String> skipSingleAttSet = Stream.of(SKIP_SINGLE_ATTS)
+        // Second pass: check for involution cycles, i.e.
+        // x == x.attribute.attribute.
+        Set<String> skipSingleAttSet = Stream.of(SKIP_INVOLUTORY_ATTS)
                 .collect(Collectors.toSet());
         // Skip equivalences as well.
-        skipSingleAttSet.addAll(Arrays.asList(EQUIVALENCE_ATTS));
+        skipSingleAttSet.addAll(Arrays.asList(SYMMETRIC_ATTS));
         for (int i=0; i < valueClasses.length; i++) {
             SchemaClass valueCls = valueClasses[i];
             for (SchemaAttribute att: valueClsAtts.get(valueCls)) {
@@ -100,8 +108,9 @@ public class T027_EntriesWithOtherCyclicRelations extends AbstractQACheck {
             }
         }
 
-        // Third pass: check for multi-attribute cycles.
-        Set<String> skipMultiAttSet = Stream.of(SKIP_MULTI_ATTS)
+        // Third pass: check for non-involution cycles, i.e.
+        // x == x.attribute1.attribute2.
+        Set<String> skipMultiAttSet = Stream.of(SKIP_NONINVOLUTORY_ATTS)
                 .collect(Collectors.toSet());
         for (int i=0; i < valueClasses.length; i++) {
             SchemaClass valueCls = valueClasses[i];
