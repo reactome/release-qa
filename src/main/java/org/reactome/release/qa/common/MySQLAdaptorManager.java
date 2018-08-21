@@ -2,6 +2,7 @@ package org.reactome.release.qa.common;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -25,13 +26,18 @@ public class MySQLAdaptorManager {
     }
     
     private void initDBA() throws Exception {
-        InputStream is = getAuthConfig();
-        Properties prop = new Properties();
-        prop.load(is);
+        Properties prop = getAuthProperties();
         dba = new MySQLAdaptor(prop.getProperty("dbHost"),
                                prop.getProperty("dbName"),
                                prop.getProperty("dbUser"),
                                prop.getProperty("dbPwd"));
+    }
+
+    protected Properties getAuthProperties() throws Exception {
+        InputStream is = getAuthConfig();
+        Properties prop = new Properties();
+        prop.load(is);
+        return prop;
     }
     
     private InputStream getAuthConfig() throws Exception {

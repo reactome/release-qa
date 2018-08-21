@@ -1,0 +1,21 @@
+<!--
+  The check types are as follows:
+  
+  * MissingAllAttributes - all of the specified attributes have a null value.
+    The first listed attribute is checked against all instances of the given
+    class. Each of the instances with the missing first attribute are then
+    checked against each remaining listed attributes if and only if the
+    attribute is valid for that instance. 
+  -->
+<checks>
+    <check type="MissingAllAttributes">
+        <class>Person</class>
+        <attribute>firstname</attribute>
+        <attribute>initial</attribute>
+    </check>
+    <check type="MissingAllAttributes">
+        <class>EntitySet</class>
+        <attribute>hasMember</attribute>
+        <attribute>hasCandidate</attribute>
+    </check>
+</checks>
