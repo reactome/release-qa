@@ -89,7 +89,7 @@ public class QACheckerHelper {
 					GKInstance modificationInstance = modificationInstances.get(index);
 					GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
 					// Skip modification instance for Solomon, Joel, or Guanming
-					if (Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString()))
+					if (author == null || Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString()))
 					{
 						continue;
 					}
