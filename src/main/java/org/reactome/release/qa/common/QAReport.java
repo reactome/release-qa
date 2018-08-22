@@ -105,17 +105,19 @@ public class QAReport {
     }
     
     /**
-     * This method is for debugging purpose.
+     * This method is for debugging purpose. The output should not be wrapped in a log4j.
      * @param builder
      */
     public void output(int maximumRow) {
         List<String> headers = getHeaders();
-        logger.info(String.join("\t", headers));
+//        logger.info(String.join("\t", headers));
+        System.out.println(String.join("\t", headers));
         int row = 0;
         List<List<String>> lines = getReportLines();
         for (int i = 0; i < lines.size(); i++) {
             row ++;
-            logger.info(String.join("\t", lines.get(i)));
+            System.out.println(String.join("\t", lines.get(i)));
+//            logger.info(String.join("\t", lines.get(i)));
             if (row > maximumRow)
                 break;
         }
