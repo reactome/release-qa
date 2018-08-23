@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.common.QACheck;
 import org.reactome.release.qa.common.QAReport;
 
 /**
