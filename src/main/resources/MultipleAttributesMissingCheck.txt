@@ -1,0 +1,9 @@
+# A simple text file to provide classes and attributes that are subject to multiple attribute missing simultaneously check.
+# It is tab delimited. One line for one class. The first token is the class name. Tokens after the first are attribute names.
+# Currently there is only one check. However, more classes and attributes can be added here and will be loaded automatically.
+Person	firstname	initial
+ReferenceDatabase	accessUrl	url
+ReactionlikeEvent	
+# This is just a test and should not be checked in the future
+EntitySet	hasMember	hasCandidate
+

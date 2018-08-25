@@ -9,7 +9,7 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T025_EntriesWithCyclicInferredToRelations;
+import org.reactome.release.qa.graph.T025_EntriesWithCyclicInferredToRelations;
 
 public class T025_EntriesWithCyclicInferredToRelationsTest extends QACheckReportComparisonTester {
 

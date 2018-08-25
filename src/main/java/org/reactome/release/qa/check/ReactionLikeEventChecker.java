@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
+import org.reactome.release.qa.common.AbstractQACheck;
+import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**

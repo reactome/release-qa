@@ -4,15 +4,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
-import org.reactome.release.qa.check.AbstractQACheck;
 import org.reactome.release.qa.check.ChimericInstancesChecker;
 import org.reactome.release.qa.check.CompareSpeciesByClasses;
 import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
 import org.reactome.release.qa.check.PathwayDiagramRenderableTypeChecker;
 import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
 import org.reactome.release.qa.check.StableIdentifierCheck;
+import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.graph.InstanceDuplicationCheck;
+import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
+import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
+import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
+import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
@@ -42,6 +47,36 @@ public class QACheckTest {
             return;
         }
         report.output(report.getReportLines().size());
+    }
+    
+    @Test
+    public void SingleAttributeDuplicationCheck() throws Exception {
+        AbstractQACheck checker = new SingleAttributeDuplicationCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testMultipleAttributesCrossClassesMissingCheck() throws Exception {
+        AbstractQACheck checker = new MultipleAttributesCrossClassesMissingCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testInstanceDuplicationCheck() throws Exception {
+        AbstractQACheck checker = new InstanceDuplicationCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testSingleAttributeMissingCheck() throws Exception {
+        AbstractQACheck checker = new SingleAttributeMissingCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testMultipleAttributesMissingCheck() throws Exception {
+        AbstractQACheck checker = new MultipleAttributesMissingCheck();
+        runTest(checker);
     }
     
     @Test

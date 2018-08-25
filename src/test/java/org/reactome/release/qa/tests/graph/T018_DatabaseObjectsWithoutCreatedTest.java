@@ -7,7 +7,7 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T018_DatabaseObjectsWithoutCreated;
+import org.reactome.release.qa.graph.T018_DatabaseObjectsWithoutCreated;
 
 public class T018_DatabaseObjectsWithoutCreatedTest extends QACheckReportComparisonTester {
 

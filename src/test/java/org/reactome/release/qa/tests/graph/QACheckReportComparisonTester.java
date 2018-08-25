@@ -12,7 +12,7 @@ import org.gk.persistence.MySQLAdaptor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.reactome.release.qa.check.AbstractQACheck;
+import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QACheck;
 import org.reactome.release.qa.common.QAReport;

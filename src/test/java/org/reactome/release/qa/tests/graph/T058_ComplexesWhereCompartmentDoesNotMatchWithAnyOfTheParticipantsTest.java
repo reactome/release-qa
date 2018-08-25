@@ -7,7 +7,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T058_ComplexesWhereCompartmentDoesNotMatchWithAnyOfTheParticipants;
+import org.reactome.release.qa.graph.T058_ComplexesWhereCompartmentDoesNotMatchWithAnyOfTheParticipants;
 
 public class T058_ComplexesWhereCompartmentDoesNotMatchWithAnyOfTheParticipantsTest
 extends QACheckReportComparisonTester {

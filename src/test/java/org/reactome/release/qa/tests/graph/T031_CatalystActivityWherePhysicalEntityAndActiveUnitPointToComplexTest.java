@@ -9,7 +9,7 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T031_CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex;
+import org.reactome.release.qa.graph.T031_CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex;
 
 public class T031_CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplexTest
 extends QACheckReportComparisonTester {

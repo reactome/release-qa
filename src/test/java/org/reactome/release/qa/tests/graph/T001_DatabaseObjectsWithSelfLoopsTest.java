@@ -9,8 +9,8 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.JavaConstants;
-import org.reactome.release.qa.check.graph.T001_DatabaseObjectsWithSelfLoops;
+import org.reactome.release.qa.common.JavaConstants;
+import org.reactome.release.qa.graph.T001_DatabaseObjectsWithSelfLoops;
 
 public class T001_DatabaseObjectsWithSelfLoopsTest extends QACheckReportComparisonTester {
 

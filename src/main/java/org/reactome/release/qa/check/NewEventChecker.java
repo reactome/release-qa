@@ -11,6 +11,8 @@ import org.gk.persistence.MySQLAdaptor;
 import org.gk.persistence.MySQLAdaptor.AttributeQueryRequest;
 import org.gk.persistence.MySQLAdaptor.QueryRequestList;
 import org.gk.schema.InvalidAttributeException;
+import org.reactome.release.qa.common.AbstractQACheck;
+import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /** 

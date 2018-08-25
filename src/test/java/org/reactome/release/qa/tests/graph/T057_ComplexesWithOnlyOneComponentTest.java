@@ -9,7 +9,7 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T057_ComplexesWithOnlyOneComponent;
+import org.reactome.release.qa.graph.T057_ComplexesWithOnlyOneComponent;
 
 public class T057_ComplexesWithOnlyOneComponentTest extends QACheckReportComparisonTester {
 

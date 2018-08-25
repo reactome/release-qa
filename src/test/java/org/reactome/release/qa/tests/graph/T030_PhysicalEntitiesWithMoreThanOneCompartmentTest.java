@@ -9,8 +9,8 @@ import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.JavaConstants;
-import org.reactome.release.qa.check.graph.T030_PhysicalEntitiesWithMoreThanOneCompartment;
+import org.reactome.release.qa.common.JavaConstants;
+import org.reactome.release.qa.graph.T030_PhysicalEntitiesWithMoreThanOneCompartment;
 
 public class T030_PhysicalEntitiesWithMoreThanOneCompartmentTest
 extends QACheckReportComparisonTester {

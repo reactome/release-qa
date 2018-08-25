@@ -1,0 +1,11 @@
+# List SchemaClass names here to perform duplication check. One line per class. Since super class may have different defined attributes, try to list the bottom level classes (e.g. ReferenceIsoform should be listed). If a superclass and a subclass are listed together, instances may be checked twice.
+DefinedSet
+OpenSet
+CandidateSet
+LiteratureReference
+ReferenceGroup
+ReferenceMolecule
+ReferenceSequence
+ReferenceIsoform
+ReferenceTherapeutic
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- One check for one top level class element. Currently it supports only 
+	one hop reference. -->
+<configurations>
+	<class name="ReactionlikeEvent">
+		<attribute name="inferredFrom" />
+		<attribute name="literatureReference" />
+		<refer name="summation">
+			<attribute name="literatureReference" />
+		</refer>
+	</class>
+</configurations>

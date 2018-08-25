@@ -6,19 +6,21 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.schema.InvalidAttributeException;
 import org.gk.schema.InvalidAttributeValueException;
 import org.gk.schema.SchemaClass;
+import org.junit.Test;
 
 public class MissingValuesFixtureFactory {
 
     private String[] attNames;
     private SchemaClass schemaCls;
     private MySQLAdaptor dba;
-
+    
     public MissingValuesFixtureFactory(MySQLAdaptor dba, String clsName, String... attNames) {
         this.dba = dba;
         this.schemaCls = dba.getSchema().getClassByName(clsName);
@@ -51,6 +53,10 @@ public class MissingValuesFixtureFactory {
                 }
             }
         }
+        for (int i = 0; i < 5; i++) {
+            Collection<BitSet> set = permutations(2);
+            System.out.println(set);
+        }
         for (BitSet indexes: permutations(values.length)) {
             GKInstance instance = createTestInstance(values, indexes);
             fixture.add(instance);
@@ -69,13 +75,13 @@ public class MissingValuesFixtureFactory {
 
     private static Collection<BitSet> permutations(BitSet base) {
         // Collect the other permutations.
-        Set<BitSet> bitsets = base.stream()
+        List<BitSet> bitsets = base.stream()
                 .mapToObj(i -> clear(base, i))
                 .map(MissingValuesFixtureFactory::permutations)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         // Add the bitset with all indexes set to the others.
-        bitsets.add(base);
+        bitsets.add(0, base);
         return bitsets;
     }
 

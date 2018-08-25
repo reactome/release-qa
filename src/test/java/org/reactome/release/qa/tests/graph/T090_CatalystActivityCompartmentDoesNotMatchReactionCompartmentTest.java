@@ -7,7 +7,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T090_CatalystActivityCompartmentDoesNotMatchReactionCompartment;
+import org.reactome.release.qa.graph.T090_CatalystActivityCompartmentDoesNotMatchReactionCompartment;
 
 public class T090_CatalystActivityCompartmentDoesNotMatchReactionCompartmentTest
 extends QACheckReportComparisonTester {

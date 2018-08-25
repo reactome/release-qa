@@ -1,0 +1,5 @@
+# Configuration to check duplication in a slot. For example, a member should not be used
+# twice in the hasMember slot of EntitySet.
+# One class per line: the first token is class name, followed by attributes. They are tab-delimited.
+DatabaseObject	modified
+EntitySet	hasMember

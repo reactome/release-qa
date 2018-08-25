@@ -7,7 +7,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.Instance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.check.graph.T071_ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch;
+import org.reactome.release.qa.graph.T071_ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch;
 
 public class T071_ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatchTest
 extends QACheckReportComparisonTester {
