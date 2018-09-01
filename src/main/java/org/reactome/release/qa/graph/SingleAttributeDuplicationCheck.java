@@ -3,17 +3,12 @@ package org.reactome.release.qa.graph;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
-import org.gk.schema.SchemaAttribute;
-import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -56,7 +51,6 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
     private void executeQACheck(String clsName, 
                                 List<String> attributes, 
                                 QAReport report) throws Exception {
-        Collection<GKInstance> instances = dba.fetchInstancesByClass(clsName);
         // Based on Fred's direct SQL query like the following. Otherwise, it takes huge time to check something
         // like DatabaseObject.created.
         // SQL =
@@ -64,16 +58,12 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
         //        " FROM DatabaseObject_2_modified" +
         //        " GROUP BY DB_ID, modified" +
         //        " HAVING COUNT(*) > 1";
-        SchemaClass cls = dba.fetchSchema().getClassByName(clsName);
         for (String attName : attributes) {
             logger.info("Checking " + attName + "...");
-            SchemaAttribute att = cls.getAttribute(attName);
-            SchemaClass origin = att.getOrigin();
+            String tableName = QACheckerHelper.getAttributeTableName(clsName, attName, dba);
             StringBuilder builder = new StringBuilder();
             builder.append("SELECT DB_ID, ").append(attName).append(" FROM ");
-            builder.append(origin.getName());
-            if (att.isMultiple())
-                builder.append("_2_").append(attName);
+            builder.append(tableName);
             builder.append(" GROUP BY DB_ID, ").append(attName);
             builder.append(" HAVING COUNT(*) > 1");
 

@@ -1,0 +1,6 @@
+# Configuration for running SingleAttributeSoleValueCheck to list instances having only one value in the
+# configured attributes. One line per class with the first token class name, followed by attributes, delimited by
+# tab.
+DefinedSet	hasMember
+Complex	hasComponent
+Pathway	hasEvent

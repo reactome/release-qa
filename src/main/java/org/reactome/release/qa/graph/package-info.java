@@ -15,6 +15,7 @@
  *                                                           T015_CatalystActivityWithoutPhysicalEntity
  *                                                           T017_NOT_FailedReactionsWithoutOutputs (BlackBoxEvent check has been registered for SingleAttributeMissingCheck)
  *                                                           T019_PublicationsWithoutAuthor
+ *                                                           T021_RegulationsWithoutRegulatedEntityOrRegulator (regulatedEntity should not be checked since regulatedBy is used)
  *                                                           T022_PhysicalEntityWithoutCompartment
  *                                                           T023_DatabaseIdentifierWithoutReferenceDatabase
  *                                                           T029_ReactionsLikeEventWithoutInput
@@ -38,6 +39,12 @@
  * 
  * SingleAttriuteDuplicationCheck:  T034_ModifiedRelationshipDuplication
  *                                  T065_EntitySetsWithRepeatedMembers
+ * 
+ * SingleAttributeSoleValueCheck: T057_ComplexesWithOnlyOneComponent
+ *                                T061_EntitySetsWithOnlyOneMember
+ *                                
+ * DatabaseObjectsWithoutCreated: T018_DatabaseObjectsWithoutCreated
+ * DatabaseObjectsWithSelfLoops: T001_DatabaseObjectsWithSelfLoops
  * 
  * @author wug
  *

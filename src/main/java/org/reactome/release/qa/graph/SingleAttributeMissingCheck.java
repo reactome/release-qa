@@ -42,7 +42,7 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
         return report;
     }
     
-    private void executeQACheck(String clsName, String attName, QAReport report) {
+    protected void executeQACheck(String clsName, String attName, QAReport report) throws Exception {
         List<GKInstance> instances = QACheckerHelper.getInstancesWithNullAttribute(dba,
                                                                                    clsName,
                                                                                    attName,

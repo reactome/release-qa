@@ -6,15 +6,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.gk.schema.Schema;
+import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
-import org.gk.schema.Schema;
-import org.gk.schema.SchemaClass;
 
-public class T018_DatabaseObjectsWithoutCreated extends AbstractQACheck {
+public class DatabaseObjectsWithoutCreated extends AbstractQACheck {
+    private final static Logger logger = Logger.getLogger(DatabaseObjectsWithoutCreated.class);
 
     /**
      * The classes which don't required a created slot.
@@ -27,14 +29,12 @@ public class T018_DatabaseObjectsWithoutCreated extends AbstractQACheck {
             ReactomeJavaConstants.ReferenceEntity
     };
 
-    private static final String ISSUE = "No created person";
-
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+            "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return getClass().getSimpleName();
+        return "DatabaseObject_Without_Created";
     }
 
     @Override
@@ -56,8 +56,11 @@ public class T018_DatabaseObjectsWithoutCreated extends AbstractQACheck {
         for (SchemaClass cls: classes) {
             if (cls.getSuperClasses().contains(root) &&
                     !optional.stream().anyMatch(optCls -> cls.isa(optCls))) {
+                logger.info("Checking " + cls + "...");
                 List<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
-                        cls.getName(), ReactomeJavaConstants.created, null);
+                        cls.getName(), 
+                        ReactomeJavaConstants.created, 
+                        null);
                 for (GKInstance instance: invalid) {
                     addReportLine(report, instance);
                 }
@@ -69,12 +72,9 @@ public class T018_DatabaseObjectsWithoutCreated extends AbstractQACheck {
     }
 
     private void addReportLine(QAReport report, GKInstance instance) {
-        report.addLine(
-                Arrays.asList(instance.getDBID().toString(), 
-                        instance.getDisplayName(), 
-                        instance.getSchemClass().getName(), 
-                        ISSUE,  
-                        QACheckerHelper.getLastModificationAuthor(instance)));
+        report.addLine(instance.getDBID().toString(), 
+                       instance.getDisplayName(), 
+                       instance.getSchemClass().getName(), 
+                       QACheckerHelper.getLastModificationAuthor(instance));
     }
-
 }

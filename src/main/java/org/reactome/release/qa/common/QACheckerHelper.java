@@ -16,6 +16,9 @@ import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.schema.InvalidAttributeException;
+import org.gk.schema.Schema;
+import org.gk.schema.SchemaAttribute;
+import org.gk.schema.SchemaClass;
 
 public class QACheckerHelper {
     
@@ -202,5 +205,25 @@ public class QACheckerHelper {
 		return instances;
 	}
 	
+	/**
+	 * A generic method to get the table for an attribute in a specified class.
+	 * @param clsName
+	 * @param attributeName
+	 * @param dba
+	 * @return
+	 * @throws Exception
+	 */
+	public static String getAttributeTableName(String clsName, 
+	                                           String attributeName,
+	                                           MySQLAdaptor dba) throws Exception {
+	    Schema schema = dba.fetchSchema();
+	    SchemaClass cls = schema.getClassByName(clsName);
+	    SchemaAttribute attribute = cls.getAttribute(attributeName);
+	    SchemaClass originCls = attribute.getOrigin();
+	    if (attribute.isMultiple())
+	        return originCls.getName() + "_2_" + attribute.getName();
+	    else
+	        return originCls.getName();
+	}
 	
 }

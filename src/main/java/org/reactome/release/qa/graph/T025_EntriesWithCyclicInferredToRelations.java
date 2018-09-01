@@ -14,7 +14,8 @@ import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
-
+// Will be converted to check: an evidence instance referred in inferredFrom should not be
+// used in any other attributes!
 public class T025_EntriesWithCyclicInferredToRelations extends AbstractQACheck {
     
     private static final String INFERRED_TO_TABLE =

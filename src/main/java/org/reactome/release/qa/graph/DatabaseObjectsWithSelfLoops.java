@@ -13,16 +13,14 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T001_DatabaseObjectsWithSelfLoops extends AbstractQACheck {
-    
-    private final static String ISSUE = "The instance contains itself in ";
+public class DatabaseObjectsWithSelfLoops extends AbstractQACheck {
     
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+            "DBID", "DisplayName", "SchemaClass", "Attribute", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return getClass().getSimpleName();
+        return "DatabaseObject_With_Self_Loop";
     }
 
     @SuppressWarnings("unchecked")
@@ -69,7 +67,7 @@ public class T001_DatabaseObjectsWithSelfLoops extends AbstractQACheck {
                 Arrays.asList(instance.getDBID().toString(), 
                         instance.getDisplayName(), 
                         instance.getSchemClass().getName(), 
-                        ISSUE + attribute,  
+                        attribute,  
                         QACheckerHelper.getLastModificationAuthor(instance)));
     }
 

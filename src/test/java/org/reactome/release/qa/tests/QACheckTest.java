@@ -18,6 +18,7 @@ import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
+import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
@@ -50,7 +51,13 @@ public class QACheckTest {
     }
     
     @Test
-    public void SingleAttributeDuplicationCheck() throws Exception {
+    public void testSingleAttributeSoleValueCheck() throws Exception {
+        AbstractQACheck checker = new SingleAttributeSoleValueCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testSingleAttributeDuplicationCheck() throws Exception {
         AbstractQACheck checker = new SingleAttributeDuplicationCheck();
         runTest(checker);
     }
