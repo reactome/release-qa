@@ -43,6 +43,12 @@
  * SingleAttributeSoleValueCheck: T057_ComplexesWithOnlyOneComponent
  *                                T061_EntitySetsWithOnlyOneMember
  *                                
+ * TwoAttributesReferToSameCheck: T028_HasMemberAndHasCandidatePointToSameEntry
+ *                                T032_PrecedingEventOrReverseReactionOrHasEventPointToSameEntry (slot reverseReaction has been deleted)
+ * 
+ * InferredFromInOtherAttributeCheck: T025_EntriesWithCyclicInferredToRelations (switch to check duplicated use in inferredFrom and other slots)
+ * OtherRelationsThatPointToTheSameEntryTest: T033_OtherRelationsThatPointToTheSameEntryTest
+ *                                
  * DatabaseObjectsWithoutCreated: T018_DatabaseObjectsWithoutCreated
  * DatabaseObjectsWithSelfLoops: T001_DatabaseObjectsWithSelfLoops
  * 

@@ -1,0 +1,6 @@
+# Use to check if two attributes refer to the same instance. For example hasMember and hasCandidate
+# refer to the same instance, which is not right semantically. One check per line with the first token
+# as the class name, followed by two tokens for two attribute names, delimited by tab.
+CandidateSet	hasMember	hasCandidate
+Pathway	hasEvent	precedingEvent
+

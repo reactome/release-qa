@@ -10,12 +10,12 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.common.JavaConstants;
-import org.reactome.release.qa.graph.T033_OtherRelationsThatPointToTheSameEntry;
+import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntry;
 
 public class T033_OtherRelationsThatPointToTheSameEntryTest extends QACheckReportComparisonTester {
 
     public T033_OtherRelationsThatPointToTheSameEntryTest() {
-        super(new T033_OtherRelationsThatPointToTheSameEntry(), 1);
+        super(new OtherRelationsThatPointToTheSameEntry(), 1);
     }
 
     @Override

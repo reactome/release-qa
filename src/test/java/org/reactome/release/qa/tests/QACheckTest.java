@@ -13,12 +13,15 @@ import org.reactome.release.qa.check.StableIdentifierCheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
 import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
+import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntry;
 import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
+import org.reactome.release.qa.graph.TwoAttributesReferToSameCheck;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
@@ -48,6 +51,24 @@ public class QACheckTest {
             return;
         }
         report.output(report.getReportLines().size());
+    }
+    
+    @Test
+    public void testOtherRelationsThatPointToTheSameEntry() throws Exception {
+        OtherRelationsThatPointToTheSameEntry checker = new OtherRelationsThatPointToTheSameEntry();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testInferredFromInOtherAttributeCheck() throws Exception {
+        InferredFromInOtherAttributeCheck checker = new InferredFromInOtherAttributeCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testTwoAttributesReferToSameCheck() throws Exception {
+        TwoAttributesReferToSameCheck checker = new TwoAttributesReferToSameCheck();
+        runTest(checker);
     }
     
     @Test

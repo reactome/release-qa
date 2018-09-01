@@ -13,7 +13,8 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T026_EventsWithCyclicPrecedingEvents extends AbstractQACheck {
+// Need to check with Fred about the meaning. It seems not right!
+public class P_T026_EventsWithCyclicPrecedingEvents extends AbstractQACheck {
 
     private final static String CHECK_ATTRIBUTES[] = {
             "hasEvent",
