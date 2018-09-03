@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -13,6 +14,7 @@ import org.reactome.release.qa.common.QAReport;
  * Not sure what this check is for.
  */
 @SuppressWarnings("unchecked")
+@SliceQATest
 public class SimpleEntityChecker extends AbstractQACheck {
 
 	@Override

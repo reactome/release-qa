@@ -14,6 +14,7 @@ import org.gk.render.ProcessNode;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -23,6 +24,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
+@SliceQATest
 public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
     private final static Logger logger = Logger.getLogger(PathwayDiagramRenderableTypeChecker.class);
     

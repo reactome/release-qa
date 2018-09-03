@@ -65,7 +65,7 @@ public class MySQLAdaptorManager {
     }
 
     
-    private InputStream getAuthConfig() throws Exception {
+    public InputStream getAuthConfig() throws IOException {
         // Have to add "/" before the file name. Otherwise, the file cannot be found.
         String fileName = File.separator + "auth.properties";
         // Try to get the configuration file first

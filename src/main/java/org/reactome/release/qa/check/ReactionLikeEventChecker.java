@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -16,6 +17,7 @@ import org.reactome.release.qa.common.QAReport;
  * Consider to add some new attributes to avoid skip lists: e.g. allowInputNull etc. 
  *
  */
+@SliceQATest
 public class ReactionLikeEventChecker extends AbstractQACheck {
 	
 	private String rleCompartmentSkipList;

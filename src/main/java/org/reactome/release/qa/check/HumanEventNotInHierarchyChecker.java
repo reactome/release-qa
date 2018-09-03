@@ -7,6 +7,7 @@ import java.util.Set;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -16,6 +17,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  */
 @SuppressWarnings("unchecked")
+@SliceQATest
 public class HumanEventNotInHierarchyChecker extends AbstractQACheck {
     
     public HumanEventNotInHierarchyChecker() {

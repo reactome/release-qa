@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -17,6 +18,7 @@ import org.reactome.release.qa.common.QAReport;
  * to change the data model to enforce this!)
  *
  */
+@SliceQATest
 public class FailedReactionChecker extends AbstractQACheck {
 
     private static final String schemaClassName = ReactomeJavaConstants.FailedReaction;

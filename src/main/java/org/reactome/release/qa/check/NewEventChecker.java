@@ -11,6 +11,7 @@ import org.gk.persistence.MySQLAdaptor;
 import org.gk.persistence.MySQLAdaptor.AttributeQueryRequest;
 import org.gk.persistence.MySQLAdaptor.QueryRequestList;
 import org.gk.schema.InvalidAttributeException;
+import org.reactome.release.qa.annotations.SliceQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -23,6 +24,7 @@ import org.reactome.release.qa.common.QAReport;
  *
  */
 @SuppressWarnings("unchecked")
+@SliceQATest
 public class NewEventChecker extends AbstractQACheck {
     
 	@Override
