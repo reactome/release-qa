@@ -13,11 +13,17 @@ import org.reactome.release.qa.check.StableIdentifierCheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.graph.CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
 import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
+import org.reactome.release.qa.graph.OneHopCircularReferenceCheck;
+import org.reactome.release.qa.graph.OrphanEvents;
 import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntry;
+import org.reactome.release.qa.graph.PhysicalEntitiesWithMoreThanOneCompartment;
+import org.reactome.release.qa.graph.PrecedingEventOutputsNotUsedInReaction;
+import org.reactome.release.qa.graph.ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch;
 import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
@@ -51,6 +57,42 @@ public class QACheckTest {
             return;
         }
         report.output(report.getReportLines().size());
+    }
+    
+    @Test
+    public void testOneHopCircularReferenceCheck() throws Exception {
+        OneHopCircularReferenceCheck checker = new OneHopCircularReferenceCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch() throws Exception {
+        ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch checker = new ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testOrphanEvents() throws Exception {
+        OrphanEvents checker = new OrphanEvents();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testPrecedingEventOutputsNotUsedInReaction() throws Exception {
+        PrecedingEventOutputsNotUsedInReaction checker = new PrecedingEventOutputsNotUsedInReaction();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testCatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex() throws Exception {
+        CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex checker = new CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testPhysicalEntitiesWithMoreThanOneCompartment() throws Exception {
+        PhysicalEntitiesWithMoreThanOneCompartment checker = new PhysicalEntitiesWithMoreThanOneCompartment();
+        runTest(checker);
     }
     
     @Test

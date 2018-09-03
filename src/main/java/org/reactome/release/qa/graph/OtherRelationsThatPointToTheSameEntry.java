@@ -11,7 +11,9 @@ import org.gk.schema.GKSchema;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
+import org.reactome.release.qa.annotations.GraphQATest;
 
+@GraphQATest
 public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToSameCheck {
     
     //TODO: Need to check with Fred how the following list was created.
@@ -45,26 +47,6 @@ public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToS
         return "Other_Relations_Refer_Same_Instance";
     }
     
-    /**
-     * Check is two instances can use the same type of instances so that it is possible
-     * they may refer to the same instance.
-     * @param att1
-     * @param att2
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private boolean isCompatible(SchemaAttribute att1, SchemaAttribute att2) {
-        Collection<SchemaClass> clses1 = att1.getAllowedClasses();
-        Collection<SchemaClass> clses2 = att2.getAllowedClasses();
-        for (SchemaClass cls1 : clses1) {
-            for (SchemaClass cls2 : clses2) {
-                if (cls1.isa(cls2) || cls2.isa(cls1))
-                    return true;
-            }
-        }
-        return false;
-    }
-    
     @SuppressWarnings("unchecked")
     @Override
     protected List<CheckConfiguration> loadConfiguration() throws Exception {
@@ -85,7 +67,7 @@ public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToS
                 if (!cls1.isa(cls2) && !cls2.isa(cls1))
                     continue; // att1 and att2 cannot be used in the same class
                 // Make sure the same types of instances can be used in these two attributes
-                if (!isCompatible(att1, att2))
+                if (!isCompatibleAttributes(att1, att2))
                     continue;
                 // Find which class should be used
                 CheckConfiguration config = new CheckConfiguration();
@@ -101,6 +83,26 @@ public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToS
             }
         }
         return configurations;
+    }
+    
+    /**
+     * Check if two attributes can use the same type of instances so that it is possible
+     * they may refer to the same instance or creating circular reference.
+     * @param att1
+     * @param att2
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private boolean isCompatibleAttributes(SchemaAttribute att1, SchemaAttribute att2) {
+        Collection<SchemaClass> clses1 = att1.getAllowedClasses();
+        Collection<SchemaClass> clses2 = att2.getAllowedClasses();
+        for (SchemaClass cls1 : clses1) {
+            for (SchemaClass cls2 : clses2) {
+                if (cls1.isa(cls2) || cls2.isa(cls1))
+                    return true;
+            }
+        }
+        return false;
     }
 
 }

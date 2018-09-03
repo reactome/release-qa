@@ -8,21 +8,20 @@ import java.util.Set;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.gk.pathwaylayout.Utils;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T047_OrphanEvents extends AbstractQACheck {
-
-    private static final String ISSUE = "Event is orphaned";
+@GraphQATest
+public class OrphanEvents extends AbstractQACheck {
 
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+            "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return getClass().getSimpleName();
+        return "OrphanEvents";
     }
 
     @Override
@@ -31,7 +30,7 @@ public class T047_OrphanEvents extends AbstractQACheck {
         QAReport report = new QAReport();
         
         //The top-level events.
-        Set<GKInstance> tles = new HashSet<GKInstance>(Utils.getTopLevelPathways(dba));
+        Set<GKInstance> tles = getTopLevelPathways();
         // Check for events which are not referenced by another event.
         Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         String[] loadAtts = { ReactomeJavaConstants.hasEvent }; 
@@ -46,13 +45,25 @@ public class T047_OrphanEvents extends AbstractQACheck {
 
         return report;
     }
+    
+    @SuppressWarnings("unchecked")
+    private Set<GKInstance> getTopLevelPathways() throws Exception {
+        Set<GKInstance> topLevelPathways = new HashSet<>();
+        // There should be only one frontPage instance
+        Collection<GKInstance> frontPages = dba.fetchInstancesByClass(ReactomeJavaConstants.FrontPage);
+        for (GKInstance frontPage : frontPages) {
+            List<GKInstance> frontPageItems = frontPage.getAttributeValuesList(ReactomeJavaConstants.frontPageItem);
+            if (frontPageItems != null)
+                topLevelPathways.addAll(frontPageItems); 
+        }
+        return topLevelPathways;
+    }
 
     private void addReportLine(QAReport report, GKInstance instance) {
         report.addLine(
                 Arrays.asList(instance.getDBID().toString(), 
                         instance.getDisplayName(), 
                         instance.getSchemClass().getName(), 
-                        ISSUE,  
                         QACheckerHelper.getLastModificationAuthor(instance)));
     }
 

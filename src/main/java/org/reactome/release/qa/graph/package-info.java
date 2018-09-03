@@ -51,6 +51,19 @@
  *                                
  * DatabaseObjectsWithoutCreated: T018_DatabaseObjectsWithoutCreated
  * DatabaseObjectsWithSelfLoops: T001_DatabaseObjectsWithSelfLoops
+ * PhysicalEntitiesWithMoreThanOneCompartment: T030_PhysicalEntitiesWithMoreThanOneCompartment (inferred filtering is not applied here)
+ * CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex: T031_CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex (inferred filtering is not applied in this implementation)
+ * PrecedingEventOutputsNotUsedInReaction: T053_PrecedingEventOutputsNotUsedInReaction (inferred filtering is not applied)
+ * OrphanEvents: T047_OrphanEvents
+ * ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatchTest: T071_ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch
+ *                                                                   T092_PotentialTranslocationReactionChangesParticipantsSchemaClass (cases here are covered by T071. Therefore not used any more)
+ *                                                                      
+ * OneHopCircularReferenceCheck: T026_EventsWithCyclicPrecedingEvents (Not implemented explicitly. Included case)
+ *                               T027_EntriesWithOtherCyclicRelations
+ * 
+ * Not ported: T090_CatalystActivityCompartmentDoesNotMatchReactionCompartment (Should be handled by ReactionlikeEvent compartment check)
+ *             T058_ComplexesWhereCompartmentDoesNotMatchWithAnyOfTheParticipants (Should be handled by Complex's compartment check)
+ *             T092_PotentialTranslocationReactionChangesParticipantsSchemaClass (covered by T071)
  * 
  * @author wug
  *

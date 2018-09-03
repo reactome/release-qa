@@ -1,7 +1,6 @@
 package org.reactome.release.qa.graph;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
@@ -15,6 +14,7 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.schema.SchemaClass;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -26,6 +26,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
+@GraphQATest
 public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     private static final Logger logger = Logger.getLogger(TwoAttributesReferToSameCheck.class);
 

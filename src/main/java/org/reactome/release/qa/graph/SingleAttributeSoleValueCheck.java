@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -15,6 +16,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
+@GraphQATest
 public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
     private static final Logger logger = Logger.getLogger(SingleAttributeSoleValueCheck.class);
     

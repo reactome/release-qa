@@ -1,0 +1,13 @@
+# Attributes listed here should not be checked. Two attributes, listed alphabetically and delimited by tab,
+# per line. Not class is needed
+# Used in class InterChainCrosslinkedResidue.
+equivalentTo	equivalentTo
+reverseReaction	reverseReaction
+precedingEvent	precedingEvent
+precedingEvent	reverseReaction
+# Not used any more
+vertex	vertex
+# Normal use during auto-creationg
+author	created
+author	modified
+componentOf	hasPart

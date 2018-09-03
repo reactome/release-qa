@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -14,6 +15,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
+@GraphQATest
 public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck {
 
     public SingleAttributeMissingCheck() {

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -17,6 +18,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
+@GraphQATest
 public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCheck {
     private static final Logger logger = Logger.getLogger(SingleAttributeDuplicationCheck.class);
     

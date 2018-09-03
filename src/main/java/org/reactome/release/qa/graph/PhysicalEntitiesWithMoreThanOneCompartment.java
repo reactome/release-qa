@@ -10,25 +10,24 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.JavaConstants;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T030_PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQACheck {
+@GraphQATest
+public class PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQACheck {
     
-    private final static String ISSUE = "More than one compartment";
+    private final static String LOAD_ATTS[] = {ReactomeJavaConstants.inferredFrom, JavaConstants.entityOnOtherCell};
 
-    private final static String LOAD_ATTS[] = { ReactomeJavaConstants.inferredFrom };
-
-    private final static String LOAD_REV_ATTS[] = { JavaConstants.entityOnOtherCell };
-    
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+            "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
+    
 
     @Override
     public String getDisplayName() {
-        return getClass().getSimpleName();
+        return "Entity_With_More_Than_One_Compartment";
     }
 
     @Override
@@ -36,7 +35,9 @@ public class T030_PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQAC
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
-        String e2c = ReactomeJavaConstants.PhysicalEntity + "_2_" + ReactomeJavaConstants.compartment;
+        String e2c = QACheckerHelper.getAttributeTableName(ReactomeJavaConstants.PhysicalEntity,
+                                                           ReactomeJavaConstants.compartment,
+                                                           dba);
         String sql = "SELECT DB_ID" +
                 " FROM " + e2c +
                 " GROUP BY DB_ID" +
@@ -51,31 +52,21 @@ public class T030_PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQAC
         Collection<GKInstance> entities =
                 dba.fetchInstances(ReactomeJavaConstants.PhysicalEntity, dbIds);
         dba.loadInstanceAttributeValues(entities, LOAD_ATTS);
-        dba.loadInstanceReverseAttributeValues(entities, LOAD_REV_ATTS);
         for (GKInstance entity: entities) {
-            Collection<GKInstance> inferred =
-                    entity.getAttributeValuesList(ReactomeJavaConstants.inferredFrom);
-            if (inferred ==  null || inferred.size() == 0) {
-                Collection<GKInstance> onOtherCell =
-                        entity.getReferers(JavaConstants.entityOnOtherCell);
-                if (onOtherCell == null || onOtherCell.size() == 0) {
-                    addReportLine(report, entity);
-                }
+            GKInstance entityOnOtherCell = null;
+            if (entity.getSchemClass().isValidAttribute(JavaConstants.entityOnOtherCell))
+                entityOnOtherCell = (GKInstance) entity.getAttributeValue(JavaConstants.entityOnOtherCell);
+            if (entityOnOtherCell == null) {
+                report.addLine(entity.getDBID().toString(), 
+                               entity.getDisplayName(), 
+                               entity.getSchemClass().getName(), 
+                               QACheckerHelper.getLastModificationAuthor(entity));
             }
         }
         
         report.setColumnHeaders(HEADERS);
 
         return report;
-    }
-
-    private void addReportLine(QAReport report, GKInstance instance) {
-        report.addLine(
-                Arrays.asList(instance.getDBID().toString(), 
-                        instance.getDisplayName(), 
-                        instance.getSchemClass().getName(), 
-                        ISSUE, 
-                        QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
 }

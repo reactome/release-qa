@@ -3,24 +3,24 @@ package org.reactome.release.qa.graph;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.SchemaClass;
+import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-public class T071_ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch
-extends AbstractQACheck {
-
-    private static final String ISSUE = "Sole input class does not match the sole output class";
+@GraphQATest
+public class ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch extends AbstractQACheck {
 
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
+            "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return getClass().getSimpleName();
+        return "Reaction_Single_Input_Output_Schema_Not_Matched";
     }
 
     @SuppressWarnings("unchecked")
@@ -28,23 +28,18 @@ extends AbstractQACheck {
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
-        Collection<GKInstance> rles = QACheckerHelper.getInstancesWithNullAttribute(dba,
-                ReactomeJavaConstants.ReactionlikeEvent,
-                ReactomeJavaConstants.inferredFrom, null);
+        Collection<GKInstance> rles = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         String[] loadAtts = {
                 ReactomeJavaConstants.input,
                 ReactomeJavaConstants.output
         };
         dba.loadInstanceAttributeValues(rles, loadAtts);
-        SchemaClass polyCls =
-                dba.getSchema().getClassByName(ReactomeJavaConstants.Polymerisation);
-        SchemaClass depolyCls =
-                dba.getSchema().getClassByName(ReactomeJavaConstants.Depolymerisation);
         for (GKInstance rle: rles) {
-            // Skip (de-)polymerisations.
-            if (rle.getSchemClass().isa(polyCls) || rle.getSchemClass().isa(depolyCls)) {
+            SchemaClass cls = rle.getSchemClass();
+            if (cls.isa(ReactomeJavaConstants.Polymerisation) || 
+                cls.isa(ReactomeJavaConstants.Depolymerisation) ||
+                cls.isa(ReactomeJavaConstants.BlackBoxEvent))
                 continue;
-            }
             // Check for incompatible input/output singletons.
             List<GKInstance> inputs =
                     rle.getAttributeValuesList(ReactomeJavaConstants.input);
@@ -71,7 +66,6 @@ extends AbstractQACheck {
                 Arrays.asList(instance.getDBID().toString(), 
                         instance.getDisplayName(), 
                         instance.getSchemClass().getName(), 
-                        ISSUE,  
                         QACheckerHelper.getLastModificationAuthor(instance)));
     }
 
