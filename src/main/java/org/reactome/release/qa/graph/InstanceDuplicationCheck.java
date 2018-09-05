@@ -122,6 +122,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             return null;
         try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
             List<String> names = lines.filter(line -> !line.startsWith("#"))
+                                      .filter(line -> line.trim().length() > 0)
                                       .sorted()
                                       .collect(Collectors.toList());
             return names;

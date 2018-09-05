@@ -3,3 +3,11 @@
 # One class per line: the first token is class name, followed by attributes. They are tab-delimited.
 DatabaseObject	modified
 EntitySet	hasMember
+Pathway	hasEvent
+Event	summation
+PhysicalEntity	summation
+CandidateSet	hasCandidate
+Regulation	summation
+ReplacedResidue	psiMod
+TranslationalModification	psiMod
+
