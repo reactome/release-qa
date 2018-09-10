@@ -44,7 +44,7 @@
  *                                T061_EntitySetsWithOnlyOneMember
  *                                
  * TwoAttributesReferToSameCheck: T028_HasMemberAndHasCandidatePointToSameEntry
- *                                T032_PrecedingEventOrReverseReactionOrHasEventPointToSameEntry (slot reverseReaction has been deleted)
+ *                                T032_PrecedingEventOrReverseReactionOrHasEventPointToSameEntry (slot reverseReaction is not checked here)
  * 
  * InferredFromInOtherAttributeCheck: T025_EntriesWithCyclicInferredToRelations (switch to check duplicated use in inferredFrom and other slots)
  * OtherRelationsThatPointToTheSameEntryTest: T033_OtherRelationsThatPointToTheSameEntryTest

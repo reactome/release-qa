@@ -80,6 +80,7 @@ public class MultipleAttributesMissingCheck extends AbstractQACheck {
         try (Stream<String> lines = Files.lines(Paths.get(file.getAbsolutePath()))) {
             Map<String, List<String>> clsToAttributes = new HashMap<>();
             lines.filter(line -> !line.startsWith("#"))
+                 .filter(line -> line.trim().length() > 0)
                  .map(line -> line.split("\t"))
 //                 .filter(tokens -> tokens.length > 2) // At least three tokens should be available: class and two attributes.
                  .forEach(tokens -> {
