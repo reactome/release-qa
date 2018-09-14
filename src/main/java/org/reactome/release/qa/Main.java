@@ -4,7 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,12 +32,16 @@ import org.reflections.Reflections;
  */
 public class Main {
     
+    private static final String CHECKS_OPT = "checks";
+
     private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
+        // Parse command line arguments.
+        Map<String, Object> cmdOpts = parseCommandArguments(args);
         File output = prepareOutput();
-        // Make sure we have output
-        MySQLAdaptorManager manager = MySQLAdaptorManager.getManager();
+        // Make the SQL adapter.
+        MySQLAdaptorManager manager = MySQLAdaptorManager.getManager(cmdOpts);
         MySQLAdaptor dba = manager.getDBA();
         MySQLAdaptor altDBA = null;
         
@@ -47,7 +56,19 @@ public class Main {
                                                               .stream()
                                                               .filter(checker -> isPicked(checker, testTypes))
                                                               .collect(Collectors.toSet());
+        
+        // If checks were specified on the command line, then filter for those checks.
+        @SuppressWarnings("unchecked")
+        Collection<String> includes = (Collection<String>) cmdOpts.get(CHECKS_OPT);
+        if (includes != null && !includes.isEmpty()) {
+            releaseQAs = releaseQAs
+                    .stream()
+                    .filter(check -> includes.contains(check.getSimpleName()))
+                    .collect(Collectors.toSet());
+        }
+        
 
+        // Run the QA checks.
         for (Class<? extends QACheck> cls : releaseQAs) {
             QACheck check = cls.newInstance();
             logger.info("Perform " + check.getDisplayName() + "...");
@@ -63,7 +84,7 @@ public class Main {
             }
             QAReport qaReport = check.executeQACheck();
             if (qaReport.isEmpty()) {
-            	logger.info("Nothing to report!");
+                logger.info("Nothing to report!");
                 continue;
             }
             else {
@@ -116,5 +137,65 @@ public class Main {
         file.mkdir();
         return file;
     }
-    
+
+    /**
+     * A simple roll-your-own command line parser.
+     * Arguments are parsed as follows:
+     * 
+     * Arguments which follow a {@code --} option, e.g.
+     * {@code -- FailedReactionChecker DatabaseObjectsWithSelfLoops},
+     * or without a preceding option are added to the
+     * {@code checks} option list value.
+     * 
+     * If the argument starts with {@code --}, then it is recognized
+     * as an option. A following argument is processed as follows:
+     * 
+     * If there is no following argument or the following argument
+     * is also an option, then the preceding option is assigned the
+     * boolean value {code true}.
+     * Otherwise, the preceding option is assigned the following
+     * argument, e.g. {@code --dbName test_slice_99} is captured as
+     * option {@code dbName} with value {@code test_slice_99}.
+     * 
+     * @param args the command line arguments
+     * @return the {option: value} map
+     * @throws IllegalArgumentException if an option other than
+     *   {@code --notify} is followed by another option
+     */
+    private static Map<String, Object> parseCommandArguments(String[] args) {
+        Map<String, Object> cmdOpts = new HashMap<String, Object>();
+        String option = null;
+        List<String> checks = new ArrayList<String>();
+        for (String arg: args) {
+            if (CHECKS_OPT.equals(option)) {
+                checks.add(arg);
+            } else if (arg.startsWith("--")) {
+                if (option != null) {
+                    // The option is assumed to be a flag.
+                    cmdOpts.put(option, Boolean.TRUE);
+                }
+                if ("--".equals(arg)) {
+                    option = CHECKS_OPT;
+                } else {
+                    option = arg.substring(2);
+                }
+            } else if (option == null) {
+                checks.add(arg);
+            } else {
+                cmdOpts.put(option, arg);
+                option = null;
+            }
+        }
+        // A final option without an argument has value true.
+        if (option != null && !CHECKS_OPT.equals(option)) {
+            cmdOpts.put(option, Boolean.TRUE);
+        }
+        // If there are checks, then add the checks option.
+        if (!checks.isEmpty()) {
+            cmdOpts.put(CHECKS_OPT, checks);
+        }
+        
+        return cmdOpts;
+    }
+   
 }

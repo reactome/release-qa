@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import org.gk.persistence.MySQLAdaptor;
@@ -12,12 +13,25 @@ public class MySQLAdaptorManager {
     
     private MySQLAdaptor dba;
     private MySQLAdaptor altDba;
+    private Map<String, Object> cmdOpts;
     private static MySQLAdaptorManager manager;
-    
+
     public static MySQLAdaptorManager getManager() {
         if (manager == null)
             manager = new MySQLAdaptorManager();
         return manager;
+    }
+
+    public static MySQLAdaptorManager getManager(Map<String, Object> cmdOpts) {
+        return new MySQLAdaptorManager(cmdOpts);
+    }
+    
+    public MySQLAdaptorManager() {
+        this(null);
+    }
+    
+    private MySQLAdaptorManager(Map<String, Object> cmdOpt) {
+        this.cmdOpts = cmdOpt;
     }
 
     public MySQLAdaptor getDBA() throws Exception {
@@ -41,6 +55,10 @@ public class MySQLAdaptorManager {
     
     private void initDBA() throws Exception {
         Properties prop = getAuthProperties();
+        // The command line options augment or override the auth.properties values.
+        if (cmdOpts != null) {
+            prop.putAll(cmdOpts);
+        }
         dba = new MySQLAdaptor(prop.getProperty("dbHost"),
                                prop.getProperty("dbName"),
                                prop.getProperty("dbUser"),
@@ -58,6 +76,9 @@ public class MySQLAdaptorManager {
         InputStream is = getAuthConfig();
         Properties prop = new Properties();
         prop.load(is);
+        if (cmdOpts != null) {
+            prop.putAll(cmdOpts);
+        }
         altDba = new MySQLAdaptor(prop.getProperty("altDbHost"),
                                prop.getProperty("altDbName"),
                                prop.getProperty("altDbUser"),
