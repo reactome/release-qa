@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,15 +30,42 @@ import org.apache.logging.log4j.Logger;
 import org.reactome.release.qa.common.QAReport;
 	 
 /**
- * The entry point to run all tests.
- * @author wug
- *
+ * Notifies the responsible curators of weekly QA reports.
+ * 
+ * Note: notification requires two configuration files in the working directory:
+ * <ul>
+ * <li><code>curators.csv</code> - the list of potential curators</li>
+ * <li><code>mail.properties</code> - the JavaMail properties</li>
+ * </ul>
+ * <p>
+ * <code>curators.csv</code> has columns Coordinator, Surname, First Name
+ * and Email. <em>Coordinator</em> is the release coordinator flag. Each
+ * coordinator is notified of all QA reports. Non-coordinators are notified
+ * of only those reports where they are listed as the last modifier.
+ * </p>
+ * <p>
+ * <code>mail.properties</code> is the JavaMail properties. The following
+ * properties are recommended:
+ * <ul>
+ * <li><code>mail.from</code> - the required mail sender
+ * <li><code>mail.smtp.host</code> - the optional mail host name
+ *     (default <code>localhost</code>)
+ * </li>
+ * <li><code>mail.smtp.port</code> - the optional mail port (default 25)</li>
+ * </ul>
+ * </li>
+ * </ul>
+ * </p>
+ * 
+ * @author Fred Loney <loneyf@ohsu.edu>
  */
 public class Notify {
-    
+
     private static final String NL = System.getProperty("line.separator");
 
     private static final String EMAIL_LOOKUP_FILE = "curators.csv";
+    
+    private static final String MAIL_CONFIG_FILE = "mail.properties";
     
     // The release coordinators.
     private static final Collection<String> COORDINATOR_NAMES =
@@ -48,25 +74,22 @@ public class Notify {
             new HashSet<String>(1);
     
     private static final String COORDINATOR_PRELUDE =
-            "The weekly QA checks issued the following QA reports:";
+            "The weekly QA checks issued the following reports:";
     
     private static final String NONCOORDINATOR_PRELUDE =
             "You are listed as the most recent author in the following weekly QA reports:";
 
-    private static final String LAST_AUTHOR_HEADER = "MostRecentAuthor";
-    
-    private static final String MAIL_HOST = "localhost"; //"smtp.oicr.ca.on";
-    
-    private static final int MAIL_PORT = 8025; //25;
-    
-    private static final String MAIL_FROM = "donotreply@reactome.org";
+    private static final String[] AUTHOR_HEADERS = {
+            "MostRecentAuthor",
+            "LastAuthor"
+    };
     
     private static final Map<String, String> RPT_DIR_DESCRIPTIONS =
             new HashMap<String, String>();
     
     static {
-        RPT_DIR_DESCRIPTIONS.put("CuratorQA", "gk_central");
-        RPT_DIR_DESCRIPTIONS.put("SliceQA", "Trial slice");
+        RPT_DIR_DESCRIPTIONS.put("CuratorQA", "Curator");
+        RPT_DIR_DESCRIPTIONS.put("ReleaseQA", "Release");
     }
     
     private static final Logger logger = LogManager.getLogger();
@@ -84,6 +107,10 @@ public class Notify {
             System.exit(1);
         }
         String rptsDirArg = args[0];
+        
+        // The mail properties.
+        Properties props = loadProperties();
+        
         // The {curator:email} lookup map.
         Map<String, String> emailLookup = null;
         try {
@@ -93,6 +120,7 @@ public class Notify {
             System.err.println(e);
             System.exit(1);
         }
+        
         // The {author: reports} map.
         Map<String, Collection<File>> notifications =
                 new HashMap<String, Collection<File>>();
@@ -109,7 +137,23 @@ public class Notify {
             }
         }
         // Notify the modifiers.
-        sendNotifications(notifications, emailLookup, rptsDir);
+        sendNotifications(notifications, emailLookup, props, rptsDir);
+    }
+    
+    private static Properties loadProperties() throws IOException {
+        File file = new File("resources" + File.separator + MAIL_CONFIG_FILE);
+        InputStream is;
+        if (file.exists()) {
+            is = new FileInputStream(file);
+       } else {
+            String msg = "The mail configuration file was not found: " + file;
+            throw new FileNotFoundException(msg);
+       }
+        Properties properties = new Properties();
+        properties.load(is);
+        is.close();
+
+        return properties;
     }
 
     private static Map<String, String> getCuratorEmailLookup() throws IOException {
@@ -118,11 +162,8 @@ public class Notify {
         if (file.exists()) {
              is = new FileInputStream(file);
         } else {
-            is = Notify.class.getResourceAsStream(EMAIL_LOOKUP_FILE);
-            if (is == null) {
-                String msg = "The curator email lookup configuration was not found: " + file;
-                throw new FileNotFoundException(msg);
-            }
+            String msg = "The curator email lookup file was not found: " + file;
+            throw new FileNotFoundException(msg);
         }
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         Map<String, String> map = new HashMap<String, String>();
@@ -182,7 +223,13 @@ public class Notify {
            Map<String, Collection<File>> notifications) throws IOException {
        QAReport report = getQAReport(file);
        List<String> headers = report.getHeaders();
-        int authorNdx = headers.indexOf(LAST_AUTHOR_HEADER);
+        int authorNdx = -1;
+        for (String hdr: AUTHOR_HEADERS) {
+            authorNdx = headers.indexOf(hdr);
+            if (authorNdx != -1) {
+                break;
+            }
+        }
         if (authorNdx == -1) {
             return;
         }
@@ -219,7 +266,7 @@ public class Notify {
     }
 
     private static void sendNotifications(Map<String, Collection<File>> notifications,
-            Map<String, String> emailLookup, File output)
+            Map<String, String> emailLookup, Properties props, File output)
             throws Exception {
         String host = InetAddress.getLocalHost().getHostName();
         String url = "https://" + host + "/QAReports/" + output.getName();
@@ -227,19 +274,15 @@ public class Notify {
             String author = notification.getKey();
             String recipient = emailLookup.get(author);
             if (recipient != null) {
-                notify(recipient, url, notification.getValue());
+                notify(recipient, url, props, notification.getValue());
             }
         }
     }
     
-    private static void notify(String recipient, String url, Collection<File> reports)
-            throws Exception {
-        Properties properties = System.getProperties();
-        properties.setProperty("mail.smtp.host", MAIL_HOST);
-        properties.setProperty("mail.smtp.port", Integer.toString(MAIL_PORT));
+    private static void notify(String recipient, String url, Properties properties,
+            Collection<File> reports) throws Exception {
         Session session = Session.getDefaultInstance(properties);
         MimeMessage message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(MAIL_FROM));
         
         message.setSubject("Reactome Weekly QA");
         if (!url.endsWith("/")) {
@@ -252,7 +295,7 @@ public class Notify {
             sb.append(NONCOORDINATOR_PRELUDE + NL);
         }
         Function<File, String> classifier = f -> f.getParentFile().getName();
-        Map<String, List<File>> groups =reports.stream()
+        Map<String, List<File>> groups = reports.stream()
                 .collect(Collectors.groupingBy(classifier));
         for (Entry<String, List<File>> entry: groups.entrySet()) {
             String dir = entry.getKey();
