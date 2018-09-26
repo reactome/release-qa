@@ -66,7 +66,6 @@ public class Main {
                     .filter(check -> includes.contains(check.getSimpleName()))
                     .collect(Collectors.toSet());
         }
-        
 
         // Run the QA checks.
         for (Class<? extends QACheck> cls : releaseQAs) {
