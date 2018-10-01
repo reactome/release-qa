@@ -45,6 +45,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
                 continue;
             report.addLine(instance.getDBID() + "",
                            instance.getDisplayName(),
+                           clsName,
                            attName,
                            QACheckerHelper.getLastModificationAuthor(instance));
         }
