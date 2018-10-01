@@ -108,7 +108,6 @@ rls_qa_rpt_dir="$current_rpt_dir/ReleaseQA"
 [ -e "$rls_qa_rpt_dir" ] || mkdir -p $rls_qa_rpt_dir
 [ -n "$(ls -A $rls_qa_rpt_dir)" ] && rm -f $rls_qa_rpt_dir/*
 [ -n "$(ls -A $rls_qa_out_dir)" ] && cp -f $rls_qa_out_dir/* $rls_qa_rpt_dir
-echo "The gk_central reports are in $rls_qa_rpt_dir."
 
 echo "The Release QA reports are in $rls_qa_out_dir."
 
