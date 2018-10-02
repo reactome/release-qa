@@ -22,7 +22,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.Session;
@@ -33,7 +32,7 @@ import javax.mail.internet.MimeMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.reactome.release.qa.common.QAReport;
-	 
+
 /**
  * Notifies the responsible curators of weekly QA reports.
  * 
@@ -88,10 +87,14 @@ public class Notify {
     private static final String NONCOORDINATOR_PRELUDE =
             "You are listed as the most recent author in the following weekly QA reports:";
 
+    // The last author columns have variant spellings.
     private static final String[] AUTHOR_HEADERS = {
             "MostRecentAuthor",
             "LastAuthor"
     };
+
+    // The DB ID columns have variant spellings.
+    private static final String[] DB_ID_HEADERS = { "DB_ID", "DBID" };
     
     private static final Logger logger = LogManager.getLogger();
 
@@ -123,7 +126,8 @@ public class Notify {
         }
         
         // The {curator: {report file: html file}} map.
-        Map<String, Map<File, File>> notifications = new HashMap<String, Map<File, File>>();
+        Map<String, Map<File, File>> notifications =
+                new HashMap<String, Map<File, File>>();
         // Coordinators always receive notification.
         for (String coordinator: COORDINATOR_NAMES) {
             notifications.put(coordinator, new HashMap<File, File>());
@@ -258,8 +262,16 @@ public class Notify {
        for (String coordinator: COORDINATOR_NAMES) {
            linesMap.put(coordinator, new ArrayList<String>());
        }
-       // The DB_ID column index.
-       int dbIdNdx = report.getHeaders().indexOf("DB_ID");
+       // The DB ID column indexes match the pattern /.*DB_?ID/.
+       Set<Integer> dbIdNdxs = new HashSet<Integer>();
+       for (String dbHdr: DB_ID_HEADERS) {
+           for (int i = 0; i < report.getHeaders().size(); i++) {
+               String hdr = report.getHeaders().get(i);
+               if (hdr.endsWith(dbHdr)) {
+                   dbIdNdxs.add(i);
+               }
+           }
+       }
        // The DB ID link URL prefix.
        String instUrlPrefix = hostPrefix + INSTANCE_BROWSER_URL;
        // Apportion report lines to the curators.       
@@ -276,7 +288,7 @@ public class Notify {
            }
 
            // Convert the report line to HTML.
-           String html = createHTMLTableRow(line, dbIdNdx, instUrlPrefix);
+           String html = createHTMLTableRow(line, dbIdNdxs, instUrlPrefix);
 
            // Coordinators get every line.
            for (String coordinator: COORDINATOR_NAMES) {
@@ -288,7 +300,7 @@ public class Notify {
            // last,initial format for matching against the curators.
            for (String author: authors) {
                // The author field format pseudo-regex is:
-               //   /last, first|initial(, date)?/
+               //   /last, *first|initial(, *date)?/
                String[] authorFields = author.split(", *");
                if (authorFields.length > 1) {
                    String last = authorFields[0];
@@ -384,13 +396,13 @@ public class Notify {
         return sb.toString();
     }
 
-    private static String createHTMLTableRow(List<String> line, int dbIdColNdx, String instUrlPrefix) {
+    private static String createHTMLTableRow(List<String> line, Set<Integer> dbIdNdxs, String instUrlPrefix) {
         StringBuffer sb = new StringBuffer();
         sb.append("<tr>");
         for (int i = 0; i < line.size(); i++) {
             String col = line.get(i);
             sb.append("<td>");
-            if (i == dbIdColNdx) {
+            if (dbIdNdxs.contains(i)) {
                 sb.append("<a href=");
                 sb.append(instUrlPrefix);
                 sb.append(col);
