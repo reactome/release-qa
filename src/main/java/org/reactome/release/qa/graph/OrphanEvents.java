@@ -16,7 +16,6 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQATest
 public class OrphanEvents extends AbstractQACheck {
 
-    private static final String HUMAN_ABBREVIATION = "HSA";
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
