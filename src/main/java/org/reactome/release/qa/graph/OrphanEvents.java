@@ -31,54 +31,24 @@ public class OrphanEvents extends AbstractQACheck {
         QAReport report = new QAReport();
         
         //The top-level events.
-        Set<GKInstance> tles = getTopLevelPathways();
+        Set<GKInstance> tlps = getTopLevelPathways();
         // Check for events which are not referenced by another event.
-        Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
+        GKInstance human = QACheckerHelper.getHuman(dba);
+        Collection<GKInstance> events = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Event,
+                        ReactomeJavaConstants.species,
+                        "=",
+                        human);
         String[] loadAtts = { ReactomeJavaConstants.hasEvent }; 
         dba.loadInstanceReverseAttributeValues(events, loadAtts);
         for (GKInstance event: events) {
             Collection<GKInstance> referers = event.getReferers(ReactomeJavaConstants.hasEvent);
-            if ((referers == null || referers.isEmpty()) && !tles.contains(event)) {
-                // Escape the special case
-                if (shouldEscape(event))
-                    continue;
+            if ((referers == null || referers.isEmpty()) && !tlps.contains(event)) {
                 addReportLine(report, event);
             }
         }
         report.setColumnHeaders(HEADERS);
 
         return report;
-    }
-    
-    /**
-     * Returns whether the given event is a non-human reaction used to
-     * infer human events.
-     * 
-     * @param event
-     * @return whether the event should <em>not</em> be reported
-     * @throws Exception
-     */
-    private boolean shouldEscape(GKInstance event) throws Exception {
-        GKInstance species = (GKInstance) event.getAttributeValue(ReactomeJavaConstants.species);
-        String abbrev = (String) species.getAttributeValue(ReactomeJavaConstants.abbreviation);
-        if (!HUMAN_ABBREVIATION.equals(abbrev)) {
-            @SuppressWarnings("unchecked")
-            Collection<GKInstance> inferrals =
-                    (Collection<GKInstance>) event.getReferers(ReactomeJavaConstants.inferredFrom);
-            if (inferrals == null) {
-                return false;
-            }
-            for (GKInstance other: inferrals) {
-                GKInstance otherSpecies =
-                        (GKInstance) other.getAttributeValue(ReactomeJavaConstants.species);
-                String otherAbbrev =
-                        (String) otherSpecies.getAttributeValue(ReactomeJavaConstants.abbreviation);
-                if (HUMAN_ABBREVIATION.equals(otherAbbrev)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
     
     @SuppressWarnings("unchecked")
