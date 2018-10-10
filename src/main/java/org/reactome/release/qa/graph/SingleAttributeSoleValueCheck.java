@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
+import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -21,6 +22,16 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
     private static final Logger logger = Logger.getLogger(SingleAttributeSoleValueCheck.class);
     
     public SingleAttributeSoleValueCheck() {
+    }
+    
+    private boolean shouldEscape(GKInstance inst, String attName) throws Exception {
+        if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway) && 
+            attName.equals(ReactomeJavaConstants.hasEvent)) {
+            GKInstance disease = (GKInstance) inst.getAttributeValue(ReactomeJavaConstants.disease);
+            if (disease != null)
+                return true;
+        }
+        return false;
     }
 
     @Override
@@ -43,6 +54,9 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
             // the following check.
             if (!instance.getSchemClass().isa(clsName))
                 continue;
+            // Escape the special case
+            if (shouldEscape(instance, attName))
+                continue;
             report.addLine(instance.getDBID() + "",
                            instance.getDisplayName(),
                            clsName,
@@ -57,7 +71,5 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
     public String getDisplayName() {
         return "Single_Attribute_Sole_Value";
     }
-    
-    
 
 }
