@@ -16,6 +16,7 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQATest
 public class OrphanEvents extends AbstractQACheck {
 
+    private static final String HUMAN_ABBREVIATION = "HSA";
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
@@ -38,12 +39,46 @@ public class OrphanEvents extends AbstractQACheck {
         for (GKInstance event: events) {
             Collection<GKInstance> referers = event.getReferers(ReactomeJavaConstants.hasEvent);
             if ((referers == null || referers.isEmpty()) && !tles.contains(event)) {
+                // Escape the special case
+                if (shouldEscape(event))
+                    continue;
                 addReportLine(report, event);
             }
         }
         report.setColumnHeaders(HEADERS);
 
         return report;
+    }
+    
+    /**
+     * Returns whether the given event is a non-human reaction used to
+     * infer human events.
+     * 
+     * @param event
+     * @return whether the event should <em>not</em> be reported
+     * @throws Exception
+     */
+    private boolean shouldEscape(GKInstance event) throws Exception {
+        GKInstance species = (GKInstance) event.getAttributeValue(ReactomeJavaConstants.species);
+        String abbrev = (String) species.getAttributeValue(ReactomeJavaConstants.abbreviation);
+        if (!HUMAN_ABBREVIATION.equals(abbrev)) {
+            @SuppressWarnings("unchecked")
+            Collection<GKInstance> inferrals =
+                    (Collection<GKInstance>) event.getReferers(ReactomeJavaConstants.inferredFrom);
+            if (inferrals == null) {
+                return false;
+            }
+            for (GKInstance other: inferrals) {
+                GKInstance otherSpecies =
+                        (GKInstance) other.getAttributeValue(ReactomeJavaConstants.species);
+                String otherAbbrev =
+                        (String) otherSpecies.getAttributeValue(ReactomeJavaConstants.abbreviation);
+                if (HUMAN_ABBREVIATION.equals(otherAbbrev)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     @SuppressWarnings("unchecked")
