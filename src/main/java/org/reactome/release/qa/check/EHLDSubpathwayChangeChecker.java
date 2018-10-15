@@ -36,23 +36,18 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			"HasEvent DB_IDs for " + this.olderDatabase.getDBName()
 		);
 
-		Collection<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
+		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
+		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, this.olderDatabase);
+		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
-		List<GKInstance> oldPathways = getPathways(pathwayIds, this.olderDatabase);
-		List<GKInstance> newPathways = getPathways(pathwayIds, this.dba);
+		for (EHLDPathway oldPathway : oldPathways) {
+			Optional<EHLDPathway> newPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
 
-		Map<Long, List<Long>> newPathwayIdsToSubPathwayIds = getPathwayIdToSubPathwayIdMap(newPathways);
-
-		for (Map.Entry<GKInstance, List<Long>> pathwayToSubPathwayIds : getPathwayInstanceToSubPathwayIdsMap(oldPathways).entrySet()) {
-			GKInstance pathway = pathwayToSubPathwayIds.getKey();
-			List<Long> oldSubPathwayIds = new ArrayList<>(pathwayToSubPathwayIds.getValue());
-			List<Long> newSubPathwayIds = new ArrayList<>(newPathwayIdsToSubPathwayIds.get(pathway.getDBID()));
-
-			if (!(oldSubPathwayIds.equals(newSubPathwayIds))) {
+			if (oldPathway.subPathwaysAreDifferent(newPathway)) {
 				report.addLine(
-					pathway.getDBID().toString(),
-					join(newSubPathwayIds),
-					join(oldSubPathwayIds)
+					oldPathway.getDatabaseId().toString(),
+					newPathway.map(EHLDPathway::getSubPathwayIdsAsString).orElse(""),
+					oldPathway.getSubPathwayIdsAsString()
 				);
 			}
 		}
@@ -65,37 +60,6 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 	@Override
 	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
-
-	private Map<GKInstance, List<Long>> getPathwayInstanceToSubPathwayIdsMap(List<GKInstance> pathways) {
-		Map<GKInstance, List<Long>> pathwayToSubPathwayIdsMap = new HashMap<>();
-		for (GKInstance pathway : pathways) {
-			try {
-				@SuppressWarnings("unchecked")
-				List<Long> subPathways =
-					((List<GKInstance>) pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
-					.stream()
-					.map(GKInstance::getDBID)
-					.sorted()
-					.collect(Collectors.toList());
-
-				pathwayToSubPathwayIdsMap.put(pathway, subPathways);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return pathwayToSubPathwayIdsMap;
-	}
-
-	private Map<Long, List<Long>> getPathwayIdToSubPathwayIdMap(List<GKInstance> pathways) {
-		return getPathwayInstanceToSubPathwayIdsMap(pathways).entrySet()
-			.stream()
-			.collect(
-				Collectors.toMap(
-					pathway -> pathway.getKey().getDBID(),
-					Map.Entry::getValue
-				)
-			);
-	}
 
 	private List<Long> getPathwayIDsWithEHLD() {
 		List<Long> pathwayIds = new ArrayList<>();
@@ -118,22 +82,32 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		pathwayIds.sort(Comparator.comparing(Long::longValue));
 		return pathwayIds;
 	}
 
-	private List<GKInstance> getPathways(Collection<Long> dbIds, MySQLAdaptor database) {
-		List<GKInstance> pathways = new ArrayList<>();
+	private List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
+		List<EHLDPathway> ehldPathways = new ArrayList<>();
 		try {
-			pathways.addAll(
+			ehldPathways.addAll(
 				asGKInstanceCollection(database.fetchInstance(dbIds))
 				.stream()
 				.filter(this::isPathway)
+				.sorted(Comparator.comparing(GKInstance::getDBID))
+				.map(EHLDPathway::new)
 				.collect(Collectors.toList())
 			);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return pathways;
+		return ehldPathways;
+	}
+
+	private Optional<EHLDPathway> findEHLDPathway(List<EHLDPathway> pathways, Long databaseId) {
+		return pathways
+				.stream()
+				.filter(pathway -> pathway.getDatabaseId().equals(databaseId))
+				.findFirst();
 	}
 
 	// Cast moved to its own method to restrict scope for suppression of unchecked warning
@@ -147,7 +121,91 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		return instance.getSchemClass().getName().equals(ReactomeJavaConstants.Pathway);
 	}
 
-	private String join(List<?> objectsToJoin) {
-		return objectsToJoin.stream().map(String::valueOf).collect(Collectors.joining("|"));
+	private class EHLDPathway {
+		private GKInstance pathway;
+		private List<GKInstance> subPathways;
+
+		public EHLDPathway(GKInstance pathway) {
+			if (pathway == null) {
+				throw new NullPointerException("A pathway of type GKInstance must be provided");
+			}
+
+			this.pathway = pathway;
+			this.subPathways = retrieveSubPathways(pathway);
+		}
+
+		public GKInstance getPathway() {
+			return this.pathway;
+		}
+
+		public List<GKInstance> getSubPathways() {
+			return this.subPathways;
+		}
+
+		public List<Long> getSubPathwayIds() {
+			return	getSubPathways()
+					.stream()
+					.map(GKInstance::getDBID)
+					.collect(Collectors.toList());
+		}
+
+		private String getSubPathwayIdsAsString() {
+			return getSubPathwayIds()
+					.stream()
+					.map(String::valueOf)
+					.collect(Collectors.joining("|"));
+		}
+
+		public Long getDatabaseId() {
+			return getPathway().getDBID();
+		}
+
+		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
+		public boolean subPathwaysAreDifferent(Optional<EHLDPathway> secondPathway) {
+			return secondPathway.map(this::subPathwaysAreDifferent).orElse(true);
+		}
+
+		private boolean subPathwaysAreDifferent(EHLDPathway secondPathway) {
+			return !(getSubPathwayIds().equals(secondPathway.getSubPathwayIds()));
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj == null) {
+				return false;
+			}
+			if (obj == this) {
+				return true;
+			}
+			if (!(obj instanceof EHLDPathway)) {
+				return false;
+			}
+
+			return Objects.equals(this.getDatabaseId(), ((EHLDPathway) obj).getDatabaseId());
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(this.getDatabaseId());
+		}
+
+		@Override
+		public String toString() {
+			return getPathway().toString();
+		}
+
+		private List<GKInstance> retrieveSubPathways(GKInstance pathway) {
+			List<GKInstance> subPathways = new ArrayList<>();
+			try {
+				subPathways.addAll(
+					asGKInstanceCollection(pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
+				);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			subPathways.sort(Comparator.comparing(GKInstance::getDBID));
+			return subPathways;
+		}
 	}
 }
