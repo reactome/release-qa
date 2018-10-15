@@ -33,11 +33,11 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		report.setColumnHeaders(
 			"EHLD Pathway ID",
 			"HasEvent DB_IDs for " + this.dba.getDBName(),
-			"HasEvent DB_IDs for " + this.olderDatabase.getDBName()
+			"HasEvent DB_IDs for " + getOtherDBAdaptor().getDBName()
 		);
-
+		
 		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
-		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, this.olderDatabase);
+		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, getOtherDBAdaptor());
 		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
 		for (EHLDPathway oldPathway : oldPathways) {
@@ -60,6 +60,8 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 	@Override
 	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
+
+	public MySQLAdaptor getOtherDBAdaptor() { return this.olderDatabase; };
 
 	private List<Long> getPathwayIDsWithEHLD() {
 		List<Long> pathwayIds = new ArrayList<>();
