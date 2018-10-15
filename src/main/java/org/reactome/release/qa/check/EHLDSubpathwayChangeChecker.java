@@ -60,17 +60,23 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		return report;
 	}
 
+	@Override
+	public String getDisplayName() { return "EHLD_Subpathway_Change_Check"; }
+
+	@Override
+	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
+
 	private Map<GKInstance, List<Long>> getPathwayInstanceToSubPathwayIdsMap(List<GKInstance> pathways) {
 		Map<GKInstance, List<Long>> pathwayToSubPathwayIdsMap = new HashMap<>();
 		for (GKInstance pathway : pathways) {
 			try {
 				@SuppressWarnings("unchecked")
 				List<Long> subPathways =
-						((List<GKInstance>) pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
-								.stream()
-								.map(GKInstance::getDBID)
-								.sorted()
-								.collect(Collectors.toList());
+					((List<GKInstance>) pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
+					.stream()
+					.map(GKInstance::getDBID)
+					.sorted()
+					.collect(Collectors.toList());
 
 				pathwayToSubPathwayIdsMap.put(pathway, subPathways);
 			} catch (Exception e) {
@@ -91,20 +97,12 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			);
 	}
 
-	@Override
-	public String getDisplayName() { return "EHLD_Subpathway_Change_Check"; }
-
-	@Override
-	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)
-	{
-		this.olderDatabase = olderDatabase;
-	}
-
 	private List<Long> getPathwayIDsWithEHLD() {
 		List<Long> pathwayIds = new ArrayList<>();
 		try {
 			BufferedReader in = new BufferedReader(
-					new InputStreamReader(new URL("https://reactome.org/download/current/ehld/").openStream()));
+				new InputStreamReader(new URL("https://reactome.org/download/current/ehld/").openStream())
+			);
 
 			Pattern pattern = Pattern.compile("\"(\\d+)\\.svg\"");
 			String inputLine;
