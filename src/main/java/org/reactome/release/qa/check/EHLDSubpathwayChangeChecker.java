@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  *
  */
 @ReleaseQATest
-public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements ChecksTwoDatabases
+public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements ChecksTwoDatabases
 {
 	private MySQLAdaptor olderDatabase;
 
