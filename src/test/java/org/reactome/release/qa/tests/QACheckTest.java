@@ -4,12 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
-import org.reactome.release.qa.check.ChimericInstancesChecker;
-import org.reactome.release.qa.check.CompareSpeciesByClasses;
-import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
-import org.reactome.release.qa.check.PathwayDiagramRenderableTypeChecker;
-import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
-import org.reactome.release.qa.check.StableIdentifierCheck;
+import org.reactome.release.qa.check.*;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
@@ -46,14 +41,13 @@ public class QACheckTest {
         MySQLAdaptorManager manager = MySQLAdaptorManager.getManager();
         MySQLAdaptor dba = manager.getDBA();
         checker.setMySQLAdaptor(dba);
-        if (checker instanceof CompareSpeciesByClasses)
-        {
-        	((CompareSpeciesByClasses) checker).setOtherDBAdaptor(manager.getAlternateDBA());
+        if (checker instanceof ChecksTwoDatabases) {
+            ((ChecksTwoDatabases) checker).setOtherDBAdaptor(manager.getAlternateDBA());
         }
         logger.info("Test " + checker.getDisplayName());
         QAReport report = checker.executeQACheck();
         if (report.isEmpty()) {
-        	logger.info("All is fine. Nothing needs to report!");
+            logger.info("All is fine. Nothing needs to report!");
             return;
         }
         report.output(report.getReportLines().size());
@@ -185,4 +179,9 @@ public class QACheckTest {
         runTest(checker);
     }
 
+    @Test
+    public void testEHLDSubPathwayChangeChecker() throws Exception {
+        AbstractQACheck checker = new EHLDSubpathwayChangeChecker();
+        runTest(checker);
+    }
 }
