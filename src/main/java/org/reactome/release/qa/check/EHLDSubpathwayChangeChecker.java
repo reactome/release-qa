@@ -178,6 +178,10 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			return getPathway().getDBID();
 		}
 
+		public String getPathwayName() {
+			return getPathway().getDisplayName();
+		}
+
 		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
 		public boolean subPathwaysAreDifferent(Optional<EHLDPathway> secondPathway) {
 			return secondPathway.map(this::subPathwaysAreDifferent).orElse(true);
@@ -199,12 +203,13 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				return false;
 			}
 
-			return Objects.equals(this.getDatabaseId(), ((EHLDPathway) obj).getDatabaseId());
+			return Objects.equals(this.getDatabaseId(), ((EHLDPathway) obj).getDatabaseId()) &&
+					Objects.equals(this.getPathwayName(), ((EHLDPathway) obj).getPathwayName());
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getDatabaseId());
+			return Objects.hash(this.getDatabaseId(), this.getPathwayName());
 		}
 
 		@Override
@@ -224,7 +229,6 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			subPathways.sort(Comparator.comparing(GKInstance::getDBID));
 			return subPathways;
-
 		}
 
 		private boolean isElectronicallyInferred(GKInstance pathway) {
