@@ -131,6 +131,9 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			if (pathway == null) {
 				throw new NullPointerException("A pathway of type GKInstance must be provided");
 			}
+			if (isElectronicallyInferred(pathway)) {
+				throw new IllegalArgumentException("The pathway provided cannot be electronically inferred");
+			}
 
 			this.pathway = pathway;
 			this.subPathways = retrieveSubPathways(pathway);
@@ -208,6 +211,25 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			subPathways.sort(Comparator.comparing(GKInstance::getDBID));
 			return subPathways;
+
+		}
+
+		private boolean isElectronicallyInferred(GKInstance pathway) {
+			GKInstance evidenceType;
+			try {
+				evidenceType = ((GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.evidenceType));
+			} catch (Exception e) {
+				throw new IllegalArgumentException("The GKInstance provided must be a pathway");
+			}
+
+			if (evidenceType == null) {
+				return false;
+			}
+
+			return evidenceType
+				.getDisplayName()
+				.toLowerCase()
+				.contains("electronic");
 		}
 	}
 }
