@@ -120,7 +120,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	}
 
 	private boolean isPathway(GKInstance instance) {
-		return instance.getSchemClass().getName().equals(ReactomeJavaConstants.Pathway);
+		return instance.getSchemClass().isa(ReactomeJavaConstants.Pathway);
 	}
 
 	private class EHLDPathway {
