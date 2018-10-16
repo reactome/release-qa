@@ -66,26 +66,39 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	private List<Long> getPathwayIDsWithEHLD() {
 		List<Long> pathwayIds = new ArrayList<>();
 		try {
-			BufferedReader in = new BufferedReader(
+			BufferedReader ehldWebSource = new BufferedReader(
 				new InputStreamReader(new URL("https://reactome.org/download/current/ehld/").openStream())
 			);
 
-			Pattern pattern = Pattern.compile("\"(\\d+)\\.svg\"");
-			String inputLine;
-			while ((inputLine = in.readLine()) != null) {
-				Matcher matcher = pattern.matcher(inputLine);
-				if (matcher.find()) {
-					Long pathwayId = Long.parseLong(matcher.group(1));
-					pathwayIds.add(pathwayId);
-				}
-			}
+			pathwayIds.addAll(parsePathwayIds(ehldWebSource));
+			pathwayIds.sort(Comparator.comparing(Long::longValue));
 
-			in.close();
+			ehldWebSource.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		pathwayIds.sort(Comparator.comparing(Long::longValue));
+
 		return pathwayIds;
+	}
+
+	private List<Long> parsePathwayIds(BufferedReader ehldWebSource) throws IOException {
+		List<Long> pathwayIds = new ArrayList<>();
+
+		Pattern svgFileName = getSVGFileNamePattern();
+		String sourceLine;
+		while ((sourceLine = ehldWebSource.readLine()) != null) {
+			Matcher svgMatcher = svgFileName.matcher(sourceLine);
+			if (svgMatcher.find()) {
+				Long pathwayId = Long.parseLong(svgMatcher.group(1));
+				pathwayIds.add(pathwayId);
+			}
+		}
+
+		return pathwayIds;
+	}
+
+	private Pattern getSVGFileNamePattern() {
+		return Pattern.compile("\"(\\d+)\\.svg\"");
 	}
 
 	private List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
