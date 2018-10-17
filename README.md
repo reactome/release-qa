@@ -10,13 +10,13 @@ A collection of tools to perform QA checks during the Release process.
 
 * ReactionlikeEvent_Species_Chimeric: Check the usage of isChimeric and species assignment
 * FailedReaction_NormalReaction_Output: FailedReaction should have normalReaction filled and no output
-* Human_Event_Not_In_Hierarchy: Make sure human events are listed in the pathway hierarchy always.
 * New_Event_QA: Check newly released Events for several related issues, which should output if any.
 * PhysicalEntity_Container_Species: Make sure the usage of species is correct between container PE (e.g. Complex or EntitySet) and its contained PEs.
 * ReactionLikeEvent_Multiple_Check: Several checks related to ReactionlikeEvents, including null inputs, outputs, and use of normalReaction slot and disease assignment. This check should be split in the future.
 * SimpleEntity_With_Species: Get a list of SimpleEntity having no-null species.
 * Species_in_Preceding_Event: Make sure two Events linked by preceding/following relationship have shared species in species or relatedSpecis slot.
 * StableIdentifier_Identifier: Make sure StableIdentifiers don't have empty or duplicated identifier values, and a StableIdentifier instance is not used by more than one Instance. 
+* OrphanEvents: Make sure human events are contained in the pathway hierarchy.
 
 ### QA checks to run against the Release database
 
