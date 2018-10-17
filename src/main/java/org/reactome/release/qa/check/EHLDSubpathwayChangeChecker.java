@@ -31,6 +31,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	{
 		QAReport report = new QAReport();
 		report.setColumnHeaders(
+			"EHLD Pathway Name",
 			"EHLD Pathway ID",
 			"HasEvent DB_IDs for " + this.dba.getDBName(),
 			"HasEvent DB_IDs for " + getOtherDBAdaptor().getDBName()
@@ -45,6 +46,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			if (oldPathway.subPathwaysAreDifferent(newPathway)) {
 				report.addLine(
+					oldPathway.getPathwayName(),
 					oldPathway.getDatabaseId().toString(),
 					newPathway.map(EHLDPathway::getSubPathwayIdsAsString).orElse(""),
 					oldPathway.getSubPathwayIdsAsString()
