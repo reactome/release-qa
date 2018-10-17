@@ -4,11 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
-<<<<<<< HEAD
-import org.reactome.release.qa.check.*;
-=======
+import org.reactome.release.qa.check.ChecksTwoDatabases;
 import org.reactome.release.qa.check.ChimericInstancesChecker;
 import org.reactome.release.qa.check.CompareSpeciesByClasses;
+import org.reactome.release.qa.check.EHLDSubpathwayChangeChecker;
 import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
 import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
 import org.reactome.release.qa.check.StableIdentifierCheck;
@@ -16,7 +15,6 @@ import org.reactome.release.qa.check.diagram.DiagramDuplicateReactionParticipant
 import org.reactome.release.qa.check.diagram.DiagramEmptyChecker;
 import org.reactome.release.qa.check.diagram.DiagramExtraParticipantChecker;
 import org.reactome.release.qa.check.diagram.DiagramRenderableTypeChecker;
->>>>>>> Pull common diagram checker methods into abstract superclass.
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
