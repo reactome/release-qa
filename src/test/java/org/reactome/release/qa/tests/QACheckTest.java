@@ -150,12 +150,6 @@ public class QACheckTest {
     }
     
     @Test
-    public void testHumanEventNotInHierarchyChecker() throws Exception {
-        AbstractQACheck checker = new HumanEventNotInHierarchyChecker();
-        runTest(checker);
-    }
-    
-    @Test
     public void testHumanStableIdentifierChecker() throws Exception {
         AbstractQACheck checker = new StableIdentifierCheck();
         runTest(checker);
