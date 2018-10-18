@@ -129,7 +129,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	}
 
 	private Optional<EHLDPathway> findEHLDPathway(List<EHLDPathway> pathways, Long databaseId) {
-		return pathways
+		return  pathways
 				.stream()
 				.filter(pathway -> pathway.getDatabaseId().equals(databaseId))
 				.findFirst();
