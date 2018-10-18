@@ -283,12 +283,12 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			return subPathways;
 		}
 
-		private boolean isElectronicallyInferred(GKInstance pathway) {
+		private boolean isElectronicallyInferred(GKInstance event) {
 			GKInstance evidenceType;
 			try {
-				evidenceType = ((GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.evidenceType));
+				evidenceType = ((GKInstance) event.getAttributeValue(ReactomeJavaConstants.evidenceType));
 			} catch (Exception e) {
-				throw new IllegalArgumentException("The GKInstance provided must be a pathway");
+				throw new IllegalArgumentException("The GKInstance provided must be an event (i.e. pathway or reaction like event)");
 			}
 
 			if (evidenceType == null) {
