@@ -256,24 +256,30 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			}
 
 			return Objects.equals(this.getDatabaseId(), ((EHLDPathway) obj).getDatabaseId()) &&
-					Objects.equals(this.getPathwayName(), ((EHLDPathway) obj).getPathwayName());
+					Objects.equals(this.getPathwayName(), ((EHLDPathway) obj).getPathwayName()) &&
+					Objects.equals(this.getReactomeVersion(), ((EHLDPathway) obj).getReactomeVersion());
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getDatabaseId(), this.getPathwayName());
+			return Objects.hash(
+				this.getDatabaseId(),
+				this.getPathwayName(),
+				this.getReactomeVersion()
+			);
 		}
 
 		@Override
-		public String toString() {
-			return getPathway().toString();
-		}
+		public String toString() { return getPathway().toString(); }
 
 		private List<GKInstance> retrieveSubPathways(GKInstance pathway) {
 			List<GKInstance> subPathways = new ArrayList<>();
 			try {
 				subPathways.addAll(
 					asGKInstanceCollection(pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
+					.stream()
+					.filter(EHLDSubpathwayChangeChecker.this::isPathway)
+					.collect(Collectors.toList())
 				);
 			} catch (Exception e) {
 				e.printStackTrace();
