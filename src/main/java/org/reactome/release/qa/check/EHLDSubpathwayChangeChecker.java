@@ -68,11 +68,12 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 	public MySQLAdaptor getOtherDBAdaptor() { return this.olderDatabase; };
 
-	private List<Long> getPathwayIDsWithEHLD() {
+	private List<Long> getPathwayIDsWithEHLD() throws EHLDPathwayIDRetrievalException {
+		final String reactomeEHLDURL = "https://reactome.org/download/current/ehld/";
 		List<Long> pathwayIds = new ArrayList<>();
 		try {
 			BufferedReader ehldWebSource = new BufferedReader(
-				new InputStreamReader(new URL("https://reactome.org/download/current/ehld/").openStream())
+				new InputStreamReader(new URL(reactomeEHLDURL).openStream())
 			);
 
 			pathwayIds.addAll(parsePathwayIds(ehldWebSource));
@@ -81,6 +82,10 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			ehldWebSource.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		if (pathwayIds.isEmpty()) {
+			throw new EHLDPathwayIDRetrievalException("Unable to retrieve pathway ids from " + reactomeEHLDURL);
 		}
 
 		return pathwayIds;
@@ -139,6 +144,12 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 	private boolean isPathway(GKInstance instance) {
 		return instance.getSchemClass().isa(ReactomeJavaConstants.Pathway);
+	}
+
+	private class EHLDPathwayIDRetrievalException extends Exception {
+		public EHLDPathwayIDRetrievalException(String retrievalError) {
+			super(retrievalError);
+		}
 	}
 
 	private class EHLDPathway {
