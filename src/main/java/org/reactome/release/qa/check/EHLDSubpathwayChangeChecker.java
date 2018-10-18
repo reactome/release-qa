@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @ReleaseQATest
 public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements ChecksTwoDatabases
 {
+	final private String NOT_AVAILABLE = "N/A";
 	private MySQLAdaptor olderDatabase;
 
 	@Override
@@ -33,23 +34,25 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		report.setColumnHeaders(
 			"EHLD Pathway Name",
 			"EHLD Pathway ID",
-			"HasEvent DB_IDs for " + this.dba.getDBName(),
-			"HasEvent DB_IDs for " + getOtherDBAdaptor().getDBName()
+			"Subpathways added in " + this.dba.getDBName(),
+			"Subpathways removed in " + this.dba.getDBName()
 		);
-		
+
 		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
 		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, getOtherDBAdaptor());
 		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
 		for (EHLDPathway oldPathway : oldPathways) {
-			Optional<EHLDPathway> newPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
+			Optional<EHLDPathway> potentialNewPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
 
-			if (oldPathway.subPathwaysAreDifferent(newPathway)) {
+			if (oldPathway.subPathwaysAreDifferent(potentialNewPathway)) {
 				report.addLine(
 					oldPathway.getPathwayName(),
 					oldPathway.getDatabaseId().toString(),
-					newPathway.map(EHLDPathway::getSubPathwayIdsAsString).orElse(""),
-					oldPathway.getSubPathwayIdsAsString()
+					potentialNewPathway
+						.map(newPathway -> newPathway.getAsStringSubPathwayIdsNotPresentIn(oldPathway))
+						.orElse(NOT_AVAILABLE),
+					oldPathway.getAsStringSubPathwayIdsNotPresentIn(potentialNewPathway)
 				);
 			}
 		}
@@ -169,11 +172,43 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 					.collect(Collectors.toList());
 		}
 
-		private String getSubPathwayIdsAsString() {
-			return getSubPathwayIds()
+		public String getSubPathwayIdsAsString() {
+			return	stringOrDefaultValue(
+						asPipeDelimitedString(getSubPathwayIds()),
+						EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
+					);
+		}
+
+		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
+		public String getAsStringSubPathwayIdsNotPresentIn(Optional<EHLDPathway> secondPathway) {
+			return secondPathway.map(this::getAsStringSubPathwayIdsNotPresentIn).orElse(EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE);
+		}
+
+		public String getAsStringSubPathwayIdsNotPresentIn(EHLDPathway secondPathway) {
+			return	stringOrDefaultValue(
+						asPipeDelimitedString(getSubPathwayIdsNotPresentIn(secondPathway)),
+						EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
+					);
+		}
+
+		private List<Long> getSubPathwayIdsNotPresentIn(EHLDPathway secondPathway) {
+			Set<Long> otherSubPathwayIds = new HashSet<>(secondPathway.getSubPathwayIds());
+
+			return	getSubPathwayIds()
+					.stream()
+					.filter(subPathwayId -> !otherSubPathwayIds.contains(subPathwayId))
+					.collect(Collectors.toList());
+		}
+
+		private String asPipeDelimitedString(List<?> listElements) {
+			return	listElements
 					.stream()
 					.map(String::valueOf)
 					.collect(Collectors.joining("|"));
+		}
+
+		private String stringOrDefaultValue(String string, String defaultValue) {
+			return !string.isEmpty() ? string : defaultValue;
 		}
 
 		public Long getDatabaseId() {
