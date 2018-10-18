@@ -153,8 +153,9 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	}
 
 	private class EHLDPathway {
-		private GKInstance pathway;
-		private List<GKInstance> subPathways;
+		final private GKInstance pathway;
+		final private List<GKInstance> subPathways;
+		final private Integer reactomeVersion;
 
 		public EHLDPathway(GKInstance pathway) {
 			if (pathway == null) {
@@ -166,6 +167,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			this.pathway = pathway;
 			this.subPathways = retrieveSubPathways(pathway);
+			this.reactomeVersion = getReactomeVersion(pathway);
 		}
 
 		public GKInstance getPathway() {
@@ -229,6 +231,8 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		public String getPathwayName() {
 			return getPathway().getDisplayName();
 		}
+
+		public Integer getReactomeVersion() { return this.reactomeVersion; };
 
 		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
 		public boolean subPathwaysAreDifferent(Optional<EHLDPathway> secondPathway) {
@@ -295,6 +299,14 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				.getDisplayName()
 				.toLowerCase()
 				.contains("electronic");
+		}
+
+		private Integer getReactomeVersion(GKInstance pathway) {
+			try {
+				return ((MySQLAdaptor) pathway.getDbAdaptor()).getReleaseNumber();
+			} catch (Exception e) {
+				return null;
+			}
 		}
 	}
 }
