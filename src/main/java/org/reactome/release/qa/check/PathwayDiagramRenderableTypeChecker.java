@@ -89,6 +89,11 @@ public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
             if (dbId == null)
                 continue;
             GKInstance dbInst = dba.fetchInstance(dbId);
+            if (dbInst == null) {
+                // TODO - when could this occur? Should there be a skip list?
+                logger.warn("Diagram references DB id not found in database: " + dbId);
+                continue;
+            }
             Class renderable = getRenderableType(dbInst, typeHelper);
             // There are two types of errors
             // The saved schemaClass and the actual schemaClass
