@@ -41,6 +41,9 @@ public class OrphanEvents extends AbstractQACheck {
         dba.loadInstanceReverseAttributeValues(events, loadAtts);
         // Check for events which are not referenced by another event.
         for (GKInstance event: events) {
+            // A chimeric is used for inference, which doesn't need to be in the hierachy.
+            if (QACheckerHelper.isChimeric(event))
+                continue;
             Collection<GKInstance> referers = event.getReferers(ReactomeJavaConstants.hasEvent);
             if ((referers == null || referers.isEmpty()) && !tlps.contains(event)) {
                 addReportLine(report, event);
