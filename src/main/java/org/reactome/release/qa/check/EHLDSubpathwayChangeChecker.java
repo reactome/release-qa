@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -34,8 +35,10 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		report.setColumnHeaders(
 			"EHLD Pathway Name",
 			"EHLD Pathway ID",
-			"Subpathways added in " + this.dba.getDBName(),
-			"Subpathways removed in " + this.dba.getDBName()
+			"Subpathway IDs added in " + this.dba.getDBName(),
+			"Subpathway Names added in " + this.dba.getDBName(),
+			"Subpathway IDs removed in " + this.dba.getDBName(),
+			"Subpathway Names removed in " + this.dba.getDBName()
 		);
 
 		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
@@ -46,13 +49,18 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			Optional<EHLDPathway> potentialNewPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
 
 			if (oldPathway.subPathwaysAreDifferent(potentialNewPathway)) {
+				List<GKInstance> addedSubPathways = potentialNewPathway
+					.map(newPathway -> newPathway.getSubPathwaysNotPresentIn(oldPathway))
+					.orElse(new ArrayList<>());
+				List<GKInstance> removedSubPathways = oldPathway.getSubPathwaysNotPresentIn(potentialNewPathway);
+
 				report.addLine(
 					oldPathway.getPathwayName(),
 					oldPathway.getDatabaseId().toString(),
-					potentialNewPathway
-						.map(newPathway -> newPathway.getAsStringSubPathwayIdsNotPresentIn(oldPathway))
-						.orElse(NOT_AVAILABLE),
-					oldPathway.getAsStringSubPathwayIdsNotPresentIn(potentialNewPathway)
+					transformPathwaysToString(addedSubPathways, pathway -> pathway.getDBID().toString()),
+					transformPathwaysToString(addedSubPathways, GKInstance::getDisplayName),
+					transformPathwaysToString(removedSubPathways, pathway -> pathway.getDBID().toString()),
+					transformPathwaysToString(removedSubPathways, GKInstance::getDisplayName)
 				);
 			}
 		}
@@ -135,6 +143,29 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				.findFirst();
 	}
 
+	private String transformPathwaysToString(List<GKInstance> pathways, Function<GKInstance, String> transform) {
+		return stringOrDefaultValue(
+				   asPipeDelimitedString(
+					   pathways
+					   .stream()
+					   .map(transform)
+					   .collect(Collectors.toList())
+				   ),
+				   EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
+			   );
+	}
+
+	private String asPipeDelimitedString(List<?> listElements) {
+		return listElements
+			   .stream()
+			   .map(String::valueOf)
+			   .collect(Collectors.joining("|"));
+	}
+
+	private String stringOrDefaultValue(String string, String defaultValue) {
+		return !string.isEmpty() ? string : defaultValue;
+	}
+
 	// Cast moved to its own method to restrict scope for suppression of unchecked warning
 	// https://stackoverflow.com/questions/31737288/how-to-suppress-unchecked-typecast-warning-with-generics-not-at-declaration
 	@SuppressWarnings("unchecked")
@@ -185,43 +216,29 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 					.collect(Collectors.toList());
 		}
 
-		public String getSubPathwayIdsAsString() {
-			return	stringOrDefaultValue(
-						asPipeDelimitedString(getSubPathwayIds()),
-						EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
-					);
-		}
-
 		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
-		public String getAsStringSubPathwayIdsNotPresentIn(Optional<EHLDPathway> secondPathway) {
-			return secondPathway.map(this::getAsStringSubPathwayIdsNotPresentIn).orElse(EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE);
+		public List<GKInstance> getSubPathwaysNotPresentIn(Optional<EHLDPathway> secondPathway) {
+			return secondPathway.map(this::getSubPathwaysNotPresentIn).orElse(new ArrayList<>());
 		}
 
-		public String getAsStringSubPathwayIdsNotPresentIn(EHLDPathway secondPathway) {
-			return	stringOrDefaultValue(
-						asPipeDelimitedString(getSubPathwayIdsNotPresentIn(secondPathway)),
-						EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
-					);
+		public List<GKInstance> getSubPathwaysNotPresentIn(EHLDPathway secondPathway) {
+			Map<Long, GKInstance> firstSubPathways = getSubPathwayIdToGKInstanceMap();
+
+			return firstSubPathways
+				   .keySet()
+				   .stream()
+				   .filter(subPathwayId -> !secondPathway.getSubPathwayIds().contains(subPathwayId))
+				   .sorted()
+				   .map(firstSubPathways::get)
+				   .collect(Collectors.toList());
 		}
 
-		private List<Long> getSubPathwayIdsNotPresentIn(EHLDPathway secondPathway) {
-			Set<Long> otherSubPathwayIds = new HashSet<>(secondPathway.getSubPathwayIds());
-
-			return	getSubPathwayIds()
-					.stream()
-					.filter(subPathwayId -> !otherSubPathwayIds.contains(subPathwayId))
-					.collect(Collectors.toList());
-		}
-
-		private String asPipeDelimitedString(List<?> listElements) {
-			return	listElements
-					.stream()
-					.map(String::valueOf)
-					.collect(Collectors.joining("|"));
-		}
-
-		private String stringOrDefaultValue(String string, String defaultValue) {
-			return !string.isEmpty() ? string : defaultValue;
+		private Map<Long, GKInstance> getSubPathwayIdToGKInstanceMap() {
+			return getSubPathways()
+				   .stream()
+				   .collect(
+					   Collectors.toMap(GKInstance::getDBID, subPathway -> subPathway)
+				   );
 		}
 
 		public Long getDatabaseId() {
