@@ -5,6 +5,7 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.annotations.ReleaseQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
+import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 import java.io.BufferedReader;
@@ -41,6 +42,9 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
 		for (EHLDPathway oldPathway : oldPathways) {
+		    if (isEscaped(oldPathway.getPathway())) {
+		        continue;
+		    }
 			Optional<EHLDPathway> newPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
 
 			if (oldPathway.subPathwaysAreDifferent(newPathway)) {

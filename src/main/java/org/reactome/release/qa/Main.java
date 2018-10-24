@@ -1,13 +1,19 @@
 package org.reactome.release.qa;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +26,7 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
+import org.gk.util.FileUtilities;
 import org.gk.util.GKApplicationUtilities;
 import org.reactome.release.qa.check.ChecksTwoDatabases;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
@@ -77,7 +84,17 @@ public class Main {
                     .filter(check -> !skipList.contains(check.getSimpleName()))
                     .collect(Collectors.toSet());
         }
-
+        
+        File qaPropsFile = getQAPropertiesFile();
+        Properties qaProps = new Properties();
+        qaProps.load(new FileInputStream(qaPropsFile));
+        String cutoffDateStr = qaProps.getProperty("cutoffDate");
+        Date cutoffDate = null;
+        if (cutoffDateStr != null) {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            cutoffDate = df.parse(cutoffDateStr);
+        }
+        
         // Run the QA checks.
         for (Class<? extends QACheck> cls : releaseQAs) {
             QACheck check = cls.newInstance();
@@ -92,6 +109,11 @@ public class Main {
                 }
                 ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
             }
+            // Load escape DB ids and cut-off date.
+            Set<Long> escDbIds = getEscapedDbIds(cls);
+            check.setEscapedDbIds(escDbIds);
+            check.setCutoffDate(cutoffDate);
+
             QAReport qaReport = check.executeQACheck();
             if (qaReport.isEmpty()) {
                 logger.info("Nothing to report!");
@@ -207,5 +229,38 @@ public class Main {
         
         return cmdOpts;
     }
-   
+    
+    private static File getQAPropertiesFile() {
+        File file = new File("resources/qa.properties");
+        if (file.exists())
+            return file;
+        throw new IllegalStateException("Make sure resources/qa.properties exists, which provides common QA settings");
+    }
+    
+    /**
+     * Opens the file consisting of escaped instance DB ids.
+     * @param class the QA class
+     * @throws IOException
+     */
+    private static Set<Long> getEscapedDbIds(Class<? extends QACheck> cls) throws IOException {
+        File file = new File("QA_SkipList" + File.separator + cls.getSimpleName() + ".txt");
+        HashSet<Long> escapedDbIds = new HashSet<Long>();
+        if (file.exists()) {
+            FileUtilities fu = new FileUtilities();
+            fu.setInput(file.getAbsolutePath());
+            String line = null;
+            while ((line = fu.readLine()) != null) {
+                if (line.startsWith("#"))
+                    continue; // Escape comment line
+                String[] tokens = line.split("\t");
+                // Make sure only number will be got
+                if (tokens[0].matches("\\d+"))
+                    escapedDbIds.add(new Long(tokens[0]));
+            }
+            fu.close();
+        }
+        
+        return escapedDbIds;
+    }
+  
 }

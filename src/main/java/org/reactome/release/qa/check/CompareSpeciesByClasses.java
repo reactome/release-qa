@@ -26,8 +26,10 @@ import org.reactome.release.qa.common.QAReport;
 /**
  * This will compare the number of instances for each species between two databases.
  * The counts are broken down by instance class.
+ * 
+ * Skip lists do not apply to this check.
+ * 
  * @author sshorser
- *
  */
 @ReleaseQATest
 public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTwoDatabases

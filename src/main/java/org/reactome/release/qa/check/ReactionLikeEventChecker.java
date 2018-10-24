@@ -78,6 +78,7 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 	}
 	
 	private QAReport report(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
+	        throws Exception
 	{
 		QAReport r = new QAReport();
 		
@@ -86,7 +87,15 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 
 		for (GKInstance instance : instances)
 		{
-			r.addLine(Arrays.asList(instance.getDBID().toString(), instance.getDisplayName(), instance.getSchemClass().getName(), instance.getSchemClass().getName() + " with NULL " + attribute, QACheckerHelper.getLastModificationAuthor(instance)));
+		    if (!isEscaped(instance)) {
+	            List<String> line = Arrays.asList(
+	                    instance.getDBID().toString(),
+	                    instance.getDisplayName(),
+	                    instance.getSchemClass().getName(),
+	                    instance.getSchemClass().getName() + " with NULL " + attribute,
+	                    QACheckerHelper.getLastModificationAuthor(instance));
+                r.addLine(line);
+		    }
 		}
 
 		return r;

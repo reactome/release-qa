@@ -75,6 +75,9 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
             while (rs.next()) {
                 Long dbId = rs.getLong(1);
                 GKInstance instance = dba.fetchInstance(dbId);
+                if (isEscaped(instance)) {
+                    continue;
+                }
                 Long valueDbId = rs.getLong(2);
                 GKInstance value = dba.fetchInstance(valueDbId);
                 report.addLine(instance.getDBID() + "",
@@ -91,6 +94,6 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
 
     @Override
     public String getDisplayName() {
-        return "Attrinute_Value_Duplication";
+        return "Attribute_Value_Duplication";
     }
 }

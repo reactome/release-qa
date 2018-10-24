@@ -35,6 +35,9 @@ public class ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch extend
         };
         dba.loadInstanceAttributeValues(rles, loadAtts);
         for (GKInstance rle: rles) {
+            if (isEscaped(rle)) {
+                continue;
+            }
             SchemaClass cls = rle.getSchemClass();
             if (cls.isa(ReactomeJavaConstants.Polymerisation) || 
                 cls.isa(ReactomeJavaConstants.Depolymerisation) ||

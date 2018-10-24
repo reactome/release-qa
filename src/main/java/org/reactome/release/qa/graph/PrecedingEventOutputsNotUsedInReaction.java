@@ -50,6 +50,9 @@ public class PrecedingEventOutputsNotUsedInReaction extends AbstractQACheck {
         while (rs.next()) {
             Long dbId = new Long(rs.getLong(1));
             GKInstance following = dba.fetchInstance(dbId);
+            if (isEscaped(following)) {
+                continue;
+            }
             Long precedingDbId = new Long(rs.getLong(2));
             GKInstance preceding = dba.fetchInstance(precedingDbId);
             if (preceding == null) {

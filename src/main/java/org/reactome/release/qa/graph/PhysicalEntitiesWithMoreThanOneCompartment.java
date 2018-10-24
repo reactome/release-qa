@@ -54,6 +54,9 @@ public class PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQACheck 
                 dba.fetchInstances(ReactomeJavaConstants.PhysicalEntity, dbIds);
         dba.loadInstanceAttributeValues(entities, LOAD_ATTS);
         for (GKInstance entity: entities) {
+            if (isEscaped(entity)) {
+                continue;
+            }
             // Only report complexes.
             if (!entity.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
                 continue;

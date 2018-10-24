@@ -29,8 +29,10 @@ import org.reactome.release.qa.common.QAReport;
 
 /**
  * This class is used to check if a one-hop circular reference existing between two instances. 
+ * 
+ * This check's escape list can include both preceding and following RLEs.
+
  * @author wug
- *
  */
 @GraphQATest
 @SuppressWarnings("unchecked")
@@ -126,8 +128,14 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
         while (rs.next()) {
             Long dbId = new Long(rs.getLong(1));
             GKInstance instance = dba.fetchInstance(dbId);
+            if (isEscaped(instance)) {
+                continue;
+            }
             Long otherDbId = new Long(rs.getLong(2));
             GKInstance other = dba.fetchInstance(otherDbId);
+            if (isEscaped(other)) {
+                continue;
+            }
             report.addLine(dbId + "",
                            instance.getDisplayName(),
                            instance.getSchemClass().getName(),
