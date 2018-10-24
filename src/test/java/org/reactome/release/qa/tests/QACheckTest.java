@@ -8,7 +8,7 @@ import org.reactome.release.qa.check.*;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
-import org.reactome.release.qa.graph.CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex;
+import org.reactome.release.qa.graph.CatalystActivityComplexChecker;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
 import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
@@ -79,7 +79,7 @@ public class QACheckTest {
     
     @Test
     public void testCatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex() throws Exception {
-        CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex checker = new CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex();
+        AbstractQACheck checker = new CatalystActivityComplexChecker();
         runTest(checker);
     }
     

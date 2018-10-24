@@ -13,7 +13,7 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 @GraphQATest
-public class CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex extends AbstractQACheck {
+public class CatalystActivityComplexChecker extends AbstractQACheck {
     
     private static final List<String> HEADERS = Arrays.asList("DBID", "DisplayName", "MostRecentAuthor");
 
@@ -42,9 +42,11 @@ public class CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex exte
         while (rs.next()) {
             Long dbId = new Long(rs.getLong(1));
             GKInstance catAct = dba.fetchInstance(dbId);
-            report.addLine(catAct.getDBID().toString(), 
-                           catAct.getDisplayName(), 
-                           QACheckerHelper.getLastModificationAuthor(catAct));
+            if (!isEscaped(catAct)) {
+                report.addLine(catAct.getDBID().toString(), 
+                        catAct.getDisplayName(), 
+                        QACheckerHelper.getLastModificationAuthor(catAct));
+            }
         }
         rs.close();
         ps.close();
