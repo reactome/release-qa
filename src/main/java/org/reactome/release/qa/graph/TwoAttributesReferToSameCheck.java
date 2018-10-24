@@ -87,6 +87,9 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
         while (result.next()) {
             Long dbId = result.getLong(1);
             GKInstance inst = dba.fetchInstance(dbId);
+            if (isEscaped(inst)) {
+                continue;
+            }
             Long valueId = result.getLong(2);
             GKInstance value = dba.fetchInstance(valueId);
             if (value == null)

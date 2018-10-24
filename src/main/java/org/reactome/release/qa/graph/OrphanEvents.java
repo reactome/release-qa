@@ -21,7 +21,7 @@ public class OrphanEvents extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "OrphanEvents";
+        return "Orphan_Events";
     }
 
     @Override
@@ -41,6 +41,9 @@ public class OrphanEvents extends AbstractQACheck {
         dba.loadInstanceReverseAttributeValues(events, loadAtts);
         // Check for events which are not referenced by another event.
         for (GKInstance event: events) {
+            if (isEscaped(event)) {
+                continue;
+            }
             // A chimeric is used for inference, which doesn't need to be in the hierachy.
             if (QACheckerHelper.isChimeric(event))
                 continue;

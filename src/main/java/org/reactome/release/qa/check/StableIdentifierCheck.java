@@ -34,6 +34,9 @@ public class StableIdentifierCheck extends AbstractQACheck {
 	    dba.loadInstanceAttributeValues(stableIds, new String[] {ReactomeJavaConstants.identifier});
 	    Map<String, Set<GKInstance>> idToInsts = new HashMap<>();
 	    for (GKInstance stableId : stableIds) {
+	        if (isEscaped(stableId)) {
+	            continue;
+	        }
 	        String id = (String) stableId.getAttributeValue(ReactomeJavaConstants.identifier);
 	        if (id == null) {
 	            report.addLine(stableId.getDBID().toString(),
@@ -64,23 +67,25 @@ public class StableIdentifierCheck extends AbstractQACheck {
 	        }
 	    }
 	    
-	    idToInsts.forEach((key, set) -> {
-	        if (set.size() == 1)
-	            return;
-	        set.forEach(stableId -> {
-	            report.addLine(stableId.getDBID().toString(), 
-                        stableId.getDisplayName(), 
-                        "Duplicated identifier", 
-                        QACheckerHelper.getLastModificationAuthor(stableId));
-	        });
-	    });
+	    for (Collection<GKInstance> instances: idToInsts.values()) {
+	        if (instances.size() != 1) {
+	            for (GKInstance stableId: instances) {
+	                if (!isEscaped(stableId)) {
+	                    report.addLine(stableId.getDBID().toString(), 
+	                            stableId.getDisplayName(), 
+	                            "Duplicated identifier", 
+	                            QACheckerHelper.getLastModificationAuthor(stableId));
+	                } 
+	            }
+	        }
+	    }
 	    
 	    return report;
 	}
 
     @Override
     public String getDisplayName() {
-        return "StableIdentifier_Identifier";
+        return "StableIdentifier_Invalid";
     }
 
 }

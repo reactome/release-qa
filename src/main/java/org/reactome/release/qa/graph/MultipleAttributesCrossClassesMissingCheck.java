@@ -62,6 +62,9 @@ public class MultipleAttributesCrossClassesMissingCheck extends AbstractQACheck 
             dba.loadInstanceAttributeValues(instances, new String[]{attName});
         boolean isGood = false;
         for (GKInstance instance : instances) {
+            if (isEscaped(instance)) {
+                continue;
+            }
             isGood = false;
             for (String attName : config.attributes) {
                 Object value = instance.getAttributeValue(attName);

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
@@ -24,24 +25,43 @@ public class QACheckerHelper {
     
 	public static final String IS_NOT_NULL = "IS NOT NULL";
 	public static final String IS_NULL = "IS NULL";
-	
-	/**
-	 * Filter a list of GKInstance objects by the DB IDs in skipList.
-	 * @param skipList - the skipList.
-	 * @param instances - Objects from the database. Any object whose DB_ID is in skipList will *not* be in the output.
-	 * @return
-	 */
-	public static List<GKInstance> filterBySkipList(List<Long> skipList, List<GKInstance> instances)
-	{
-		if (skipList != null && !skipList.isEmpty())
-		{
-			return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
-		}
-		else
-		{
-			return instances;
-		}
-	}
+    
+    /**
+     * Filter a list of DB ids by the DB ids in skipList.
+     * Any object whose DB_ID is in skipList will *not* be in the output.
+     * 
+     * @param skipList the skipList
+     * @param dbIds thd DB ids to filter
+     * @return
+     */
+    public static Collection<Long> filterDbIdsBySkipList(Collection<Long> skipList, Collection<Long> dbIds)
+    {
+        if (skipList == null || skipList.isEmpty()) {
+            return dbIds;
+        } else {
+            return dbIds.parallelStream()
+                    .filter(dbId -> !skipList.contains(dbId))
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    /**
+     * Filter a list of GKInstance objects by the DB IDs in skipList.
+     * @param skipList - the skipList.
+     * @param instances - Objects from the database. Any object whose DB_ID is in skipList will *not* be in the output.
+     * @return
+     */
+    public static Collection<GKInstance> filterBySkipList(Collection<Long> skipList, Collection<GKInstance> instances)
+    {
+        if (skipList != null && !skipList.isEmpty())
+        {
+            return instances.parallelStream().filter(inst -> !skipList.contains(inst.getDBID())).collect(Collectors.toList());
+        }
+        else
+        {
+            return instances;
+        }
+    }
 	
     public static boolean isChimeric(GKInstance rle) throws Exception {
         if (!rle.getSchemClass().isValidAttribute(ReactomeJavaConstants.isChimeric))
@@ -138,6 +158,53 @@ public class QACheckerHelper {
 		
 		return mostRecentMod.getDisplayName();	
 	}
+    
+    public static GKInstance getLastModification(GKInstance instance)
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
+            if (modificationInstances.size() > 0)
+            {
+                for (int index = modificationInstances.size() - 1; index >= 0; index--)
+                {
+                    GKInstance modificationInstance = modificationInstances.get(index);
+                    GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
+                    // Skip modification instance for Solomon, Joel, or Guanming
+                    if (author == null || Arrays.asList("8939149", "1551959", "140537").contains(author.getDBID().toString()))
+                    {
+                        continue;
+                    }
+                    return modificationInstance;
+                }
+            }
+        }
+        catch (InvalidAttributeException e)
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        GKInstance created = null;
+        try
+        {
+            created = (GKInstance) instance.getAttributeValue("created");
+        }
+        catch (InvalidAttributeException e)
+        {
+            e.printStackTrace();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        return created == null ? null : created;
+    }
 	
 	public static int componentsHaveSpecies(GKInstance physicalEntity) throws Exception
 	{
@@ -179,18 +246,18 @@ public class QACheckerHelper {
 		}
 	}
 	
-	public static List<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList)
+	public static Collection<GKInstance> getInstancesWithNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, Collection<Long> skipList)
 	{
 		return getInstances(dba, schemaClass, attribute, IS_NULL, skipList);
 	}
 	
-	public static List<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, List<Long> skipList) 
+	public static Collection<GKInstance> getInstancesWithNonNullAttribute(MySQLAdaptor dba, String schemaClass, String attribute, Collection<Long> skipList) 
 	{
 		return getInstances(dba, schemaClass, attribute, IS_NOT_NULL, skipList);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, List<Long> skipList)
+	public static Collection<GKInstance> getInstances(MySQLAdaptor dba, String schemaClass, String attribute, String operator, Collection<Long> skipList)
 	{
 		List<GKInstance> instances = new ArrayList<GKInstance>();
 		try

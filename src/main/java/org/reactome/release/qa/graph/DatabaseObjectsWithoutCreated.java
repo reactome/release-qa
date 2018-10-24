@@ -59,12 +59,14 @@ public class DatabaseObjectsWithoutCreated extends AbstractQACheck {
             if (cls.getSuperClasses().contains(root) &&
                     !optional.stream().anyMatch(optCls -> cls.isa(optCls))) {
                 logger.info("Checking " + cls + "...");
-                List<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
+                Collection<GKInstance> invalid = QACheckerHelper.getInstancesWithNullAttribute(dba,
                         cls.getName(), 
                         ReactomeJavaConstants.created, 
                         null);
                 for (GKInstance instance: invalid) {
-                    addReportLine(report, instance);
+                    if (!isEscaped(instance)) {
+                        addReportLine(report, instance);
+                    }
                 }
             }
         }

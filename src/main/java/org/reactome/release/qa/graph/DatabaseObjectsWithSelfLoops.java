@@ -52,7 +52,9 @@ public class DatabaseObjectsWithSelfLoops extends AbstractQACheck {
                             while (rs.next()) {
                                 Long dbId = new Long(rs.getLong(1));
                                 GKInstance instance = dba.fetchInstance(dbId);
-                                addReportLine(report, instance, attName);
+                                if (!isEscaped(instance)) {
+                                    addReportLine(report, instance, attName);
+                                }
                             }
                             rs.close();
                             ps.close();

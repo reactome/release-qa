@@ -28,8 +28,10 @@ import org.reactome.release.qa.common.QAReport;
  * This class is used to check if two or more instances in the same class are duplicated. The implementation
  * of this check if based on the list of defined attributes listed in the schema, and is different from the
  * implementation from graph QA check in some cases (e.g. EntitySet duplication).
+ * 
+ * Note: a skip list is supported but not recommended for this check.
+ * 
  * @author wug
- *
  */
 @GraphQATest
 public class InstanceDuplicationCheck extends AbstractQACheck {
@@ -73,6 +75,9 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
         Map<String, Set<GKInstance>> keyToInsts = new HashMap<>();
         StringBuilder builder = new StringBuilder();
         for (GKInstance instance : instances) {
+            if (isEscaped(instance)) {
+                continue;
+            }
             builder.setLength(0);
             // Since the check may be run again subclass, which may have different
             // defined attributes as the super class, we need to get the defined attributes
@@ -93,15 +98,26 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             });
         }
         // Check duplication
-        for (String key : keyToInsts.keySet()) {
-            Set<GKInstance> insts = keyToInsts.get(key);
-            if (insts.size() == 1)
+        for (Set<GKInstance> duplicates : keyToInsts.values()) {
+            Collection<GKInstance> unescapedDups = new ArrayList<GKInstance>();
+            for (GKInstance duplicate: duplicates) {
+                if (!isEscaped(duplicate)) {
+                    unescapedDups.add(duplicate);
+                }
+            }
+            if (unescapedDups.size() < 2)
                 continue;
             // Create report
-            report.addLine(clsName,
-                           insts.stream().map(inst -> inst.getDBID() + "").collect(Collectors.joining("|")),
-                           insts.stream().map(inst -> inst.getDisplayName()).collect(Collectors.joining("|")),
-                           insts.stream().map(inst -> QACheckerHelper.getLastModificationAuthor(inst)).collect(Collectors.joining("|")));
+            String dbIds = unescapedDups.stream()
+                    .map(inst -> inst.getDBID() + "")
+                    .collect(Collectors.joining("|"));
+            String names = unescapedDups.stream()
+                    .map(inst -> inst.getDisplayName())
+                    .collect(Collectors.joining("|"));
+            String authors = unescapedDups.stream()
+                    .map(inst -> QACheckerHelper.getLastModificationAuthor(inst))
+                    .collect(Collectors.joining("|"));
+            report.addLine(clsName, dbIds, names, authors);
         }
     }
     

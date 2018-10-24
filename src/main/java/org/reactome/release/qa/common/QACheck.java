@@ -1,5 +1,6 @@
 package org.reactome.release.qa.common;
 
+import java.util.Date;
 import org.gk.persistence.MySQLAdaptor;
 
 /**
@@ -18,5 +19,7 @@ public interface QACheck {
 	 * @return
 	 */
 	public String getDisplayName();
+
+    public void setCutoffDate(Date cutoffDate);
 	
 }

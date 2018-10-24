@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,11 +49,14 @@ public class MultipleAttributesMissingCheck extends AbstractQACheck {
     }
     
     private void executeQACheck(String clsName, List<String> attNames, QAReport report) throws Exception {
-        List<GKInstance> instances = QACheckerHelper.getInstancesWithNullAttribute(dba,
-                                                                                   clsName,
-                                                                                   attNames.get(0),
-                                                                                   null);
+        Collection<GKInstance> instances = QACheckerHelper.getInstancesWithNullAttribute(dba,
+                                                                                         clsName,
+                                                                                         attNames.get(0),
+                                                                                         null);
         for (GKInstance instance: instances) {
+            if (isEscaped(instance)) {
+                continue;
+            }
             boolean isMissing = true;
             for (int i = 1; i < attNames.size(); i++) {
                 String attName = attNames.get(i);

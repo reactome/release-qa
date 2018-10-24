@@ -29,6 +29,9 @@ public class FindMismatchedStableIdentifierVersions extends AbstractQACheck impl
 
 		for (GKInstance gkCentralSTID : gkCentralSTIDs)
 		{
+		    if (isEscaped(gkCentralSTID)) {
+		        continue;
+		    }
 			String identifier = (String) gkCentralSTID.getAttributeValue(ReactomeJavaConstants.identifier);
 			String version = (String) gkCentralSTID.getAttributeValue(ReactomeJavaConstants.identifierVersion);
 			
