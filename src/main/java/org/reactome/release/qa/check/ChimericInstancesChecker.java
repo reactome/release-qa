@@ -44,7 +44,6 @@ public class ChimericInstancesChecker extends AbstractQACheck {
 
     protected void checkChimericInstances(QAReport report, String clsName) throws Exception {
         Collection<GKInstance> rles = dba.fetchInstancesByClass(clsName);
-        rles = QACheckerHelper.filterBySkipList(getEscapedDbIds(), rles);
         dba.loadInstanceAttributeValues(rles,
                                         new String[]{ReactomeJavaConstants.isChimeric, 
                                                      ReactomeJavaConstants.species,
