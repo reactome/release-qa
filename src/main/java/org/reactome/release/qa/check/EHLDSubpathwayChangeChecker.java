@@ -198,7 +198,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			this.pathway = pathway;
 			this.subPathways = retrieveSubPathways(pathway);
-			this.reactomeVersion = getReactomeVersion(pathway);
+			this.reactomeVersion = getReactomeVersionOfPathway(pathway);
 		}
 
 		public GKInstance getPathway() {
@@ -324,7 +324,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				.contains("electronic");
 		}
 
-		private Integer getReactomeVersion(GKInstance pathway) {
+		private Integer getReactomeVersionOfPathway(GKInstance pathway) {
 			try {
 				return ((MySQLAdaptor) pathway.getDbAdaptor()).getReleaseNumber();
 			} catch (Exception e) {
