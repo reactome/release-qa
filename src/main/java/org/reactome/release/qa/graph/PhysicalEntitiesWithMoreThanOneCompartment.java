@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.annotations.GraphQATest;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.JavaConstants;
@@ -27,7 +28,7 @@ public class PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQACheck 
 
     @Override
     public String getDisplayName() {
-        return "Entity_With_More_Than_One_Compartment";
+        return "Physical_Entities_With_More_Than_One_Compartment";
     }
 
     @Override
@@ -53,6 +54,10 @@ public class PhysicalEntitiesWithMoreThanOneCompartment extends AbstractQACheck 
                 dba.fetchInstances(ReactomeJavaConstants.PhysicalEntity, dbIds);
         dba.loadInstanceAttributeValues(entities, LOAD_ATTS);
         for (GKInstance entity: entities) {
+            // Only report complexes.
+            if (!entity.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
+                continue;
+            }
             GKInstance entityOnOtherCell = null;
             if (entity.getSchemClass().isValidAttribute(JavaConstants.entityOnOtherCell))
                 entityOnOtherCell = (GKInstance) entity.getAttributeValue(JavaConstants.entityOnOtherCell);

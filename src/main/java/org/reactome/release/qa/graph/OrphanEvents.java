@@ -31,7 +31,7 @@ public class OrphanEvents extends AbstractQACheck {
         
         //The top-level events.
         Set<GKInstance> tlps = getTopLevelPathways();
-        // Check for events which are not referenced by another event.
+        // Get the human events.
         GKInstance human = QACheckerHelper.getHuman(dba);
         Collection<GKInstance> events = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Event,
                         ReactomeJavaConstants.species,
@@ -39,6 +39,7 @@ public class OrphanEvents extends AbstractQACheck {
                         human);
         String[] loadAtts = { ReactomeJavaConstants.hasEvent }; 
         dba.loadInstanceReverseAttributeValues(events, loadAtts);
+        // Check for events which are not referenced by another event.
         for (GKInstance event: events) {
             Collection<GKInstance> referers = event.getReferers(ReactomeJavaConstants.hasEvent);
             if ((referers == null || referers.isEmpty()) && !tlps.contains(event)) {

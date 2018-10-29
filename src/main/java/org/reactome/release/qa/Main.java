@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,9 +63,18 @@ public class Main {
         @SuppressWarnings("unchecked")
         Collection<String> includes = (Collection<String>) cmdOpts.get(CHECKS_OPT);
         if (includes != null && !includes.isEmpty()) {
-            releaseQAs = releaseQAs
-                    .stream()
+            releaseQAs = releaseQAs.stream()
                     .filter(check -> includes.contains(check.getSimpleName()))
+                    .collect(Collectors.toSet());
+        }
+        
+        // Omit checks in the check skip list, if necessary.
+        File file = new File("resources/QASkipList.txt");
+        if (file.exists()) {
+            Set<String> skipList = Files.lines(Paths.get(file.getPath()))
+                    .collect(Collectors.toSet());
+            releaseQAs = releaseQAs.stream()
+                    .filter(check -> !skipList.contains(check.getSimpleName()))
                     .collect(Collectors.toSet());
         }
 
