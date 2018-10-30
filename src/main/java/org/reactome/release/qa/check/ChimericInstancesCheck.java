@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -21,8 +21,8 @@ import org.reactome.release.qa.common.QAReport;
  *
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class ChimericInstancesChecker extends AbstractQACheck {
+@SliceQACheck
+public class ChimericInstancesCheck extends AbstractQACheck {
 
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -142,11 +142,6 @@ public class ChimericInstancesChecker extends AbstractQACheck {
         if (species.size() > 1)
             return true;
         return false;
-    }
-    
-    @Override
-    public String getDisplayName() {
-        return "ReactionlikeEvent_Species_Chimeric";
     }
     
 }

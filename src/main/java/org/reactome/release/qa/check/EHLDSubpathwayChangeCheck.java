@@ -3,7 +3,7 @@ package org.reactome.release.qa.check;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.ReleaseQATest;
+import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
  * @author weiserj
  *
  */
-@ReleaseQATest
-public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements ChecksTwoDatabases
+@ReleaseQACheck
+public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 	final private String NOT_AVAILABLE = "N/A";
 	private MySQLAdaptor olderDatabase;
@@ -71,9 +71,6 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 		return report;
 	}
-
-	@Override
-	public String getDisplayName() { return "EHLD_Subpathway_Change_Check"; }
 
 	@Override
 	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
@@ -155,7 +152,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 					   .map(transform)
 					   .collect(Collectors.toList())
 				   ),
-				   EHLDSubpathwayChangeChecker.this.NOT_AVAILABLE
+				   EHLDSubpathwayChangeCheck.this.NOT_AVAILABLE
 			   );
 	}
 
@@ -299,7 +296,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				subPathways.addAll(
 					asGKInstanceCollection(pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
 					.stream()
-					.filter(EHLDSubpathwayChangeChecker.this::isPathway)
+					.filter(EHLDSubpathwayChangeCheck.this::isPathway)
 					.collect(Collectors.toList())
 				);
 			} catch (Exception e) {

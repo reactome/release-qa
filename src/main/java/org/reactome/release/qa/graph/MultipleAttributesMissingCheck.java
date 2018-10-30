@@ -13,12 +13,12 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
+@GraphQACheck
 public class MultipleAttributesMissingCheck extends AbstractQACheck { 
     private static Logger logger = Logger.getLogger(MultipleAttributesMissingCheck.class);
     

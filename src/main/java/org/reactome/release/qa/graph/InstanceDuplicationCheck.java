@@ -19,7 +19,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.schema.GKSchemaClass;
 import org.gk.schema.SchemaAttribute;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -33,7 +33,7 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author wug
  */
-@GraphQATest
+@GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
     private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
 

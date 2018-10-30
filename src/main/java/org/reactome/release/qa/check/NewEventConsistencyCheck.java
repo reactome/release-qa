@@ -11,7 +11,7 @@ import org.gk.persistence.MySQLAdaptor;
 import org.gk.persistence.MySQLAdaptor.AttributeQueryRequest;
 import org.gk.persistence.MySQLAdaptor.QueryRequestList;
 import org.gk.schema.InvalidAttributeException;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -19,17 +19,17 @@ import org.reactome.release.qa.common.QAReport;
 /** 
  * 
  * A set of QAs related to new ReactionLikeEvents, which are collected
- * based on inferredFrom = null and stableIdentifier is not null and its released
+ * based on inferredFrom is null and stableIdentifier is not null and its released
  * is null or false.
  *
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class NewEventChecker extends AbstractQACheck {
+@SliceQACheck
+public class NewEventConsistencyCheck extends AbstractQACheck {
     
 	@Override
     public String getDisplayName() {
-        return "New_Event_QA";
+        return "New_Event_Inconsistent";
     }
 
     /**

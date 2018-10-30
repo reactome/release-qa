@@ -13,7 +13,7 @@ import org.gk.model.GKInstance;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -22,12 +22,12 @@ import org.reactome.release.qa.common.QAReport;
  * This class is used to check several attributes across two or more classes to make sure
  * at least one attribute has a non-null value. For example, a ReactionlikeEvent instance
  * should have a value in inferredFrom, literatureReference, and its Summation's
- * literartureReference. The check is configured by MultipleAttributesCrossClassesMissingCheck.txt
- * in the resources folder.
+ * literartureReference. The check is configured by the corresponding <code>.txt</code>
+ * file in the resources folder.
+ * 
  * @author wug
- *
  */
-@GraphQATest
+@GraphQACheck
 public class MultipleAttributesCrossClassesMissingCheck extends AbstractQACheck { 
     private static Logger logger = Logger.getLogger(MultipleAttributesCrossClassesMissingCheck.class);
     

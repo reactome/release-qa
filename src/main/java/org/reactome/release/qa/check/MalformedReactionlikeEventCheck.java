@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -17,14 +17,14 @@ import org.reactome.release.qa.common.QAReport;
  * Consider to add some new attributes to avoid skip lists: e.g. allowInputNull etc. 
  *
  */
-@SliceQATest
-public class ReactionLikeEventChecker extends AbstractQACheck {
+@SliceQACheck
+public class MalformedReactionlikeEventCheck extends AbstractQACheck {
 	
 	private String rleCompartmentSkipList;
 	private String rleInputSkipList;
 	private String rleOutputSkipList;
 	
-	public ReactionLikeEventChecker() {
+	public MalformedReactionlikeEventCheck() {
 	    // Automatically load skip lists if they are in the resources folder
 	    File file = new File("resources/rleCompartmentSkipList.txt");
 	    if (file.exists())
@@ -130,10 +130,6 @@ public class ReactionLikeEventChecker extends AbstractQACheck {
 	    reactionLikeEventReport.addLines(getNormalReactionWithoutDiseaseReportLines(this.dba).getReportLines());
 	    reactionLikeEventReport.setColumnHeaders(Arrays.asList("DBID","DisplayName", "SchemaClass", "Issue", "MostRecentAuthor"));
 	    return reactionLikeEventReport;
-	}
-	
-	public String getDisplayName() {
-	    return "ReactionLikeEvent_Multiple_Check";
 	}
 
 }

@@ -8,13 +8,13 @@ import java.util.Set;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
-public class OrphanEvents extends AbstractQACheck {
+@GraphQACheck
+public class OrphanEventsCheck extends AbstractQACheck {
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");

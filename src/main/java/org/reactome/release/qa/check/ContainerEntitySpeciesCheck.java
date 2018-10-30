@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.gk.model.GKInstance;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -17,8 +17,8 @@ import org.reactome.release.qa.common.QAReport;
  * mandatory? Probably we cannot, since the use of species in SimpleEntity is optional.
  *
  */
-@SliceQATest
-public class PhysicalEntityChecker extends AbstractQACheck {
+@SliceQACheck
+public class ContainerEntitySpeciesCheck extends AbstractQACheck {
 	
 	@Override
     public String getDisplayName() {

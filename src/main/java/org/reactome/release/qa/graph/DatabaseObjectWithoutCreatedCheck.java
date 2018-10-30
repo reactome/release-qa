@@ -11,14 +11,14 @@ import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
-public class DatabaseObjectsWithoutCreated extends AbstractQACheck {
-    private final static Logger logger = Logger.getLogger(DatabaseObjectsWithoutCreated.class);
+@GraphQACheck
+public class DatabaseObjectWithoutCreatedCheck extends AbstractQACheck {
+    private final static Logger logger = Logger.getLogger(DatabaseObjectWithoutCreatedCheck.class);
 
     /**
      * The classes which don't required a created slot.

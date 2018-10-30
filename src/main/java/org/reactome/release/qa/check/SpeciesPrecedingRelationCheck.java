@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
 
@@ -18,10 +18,10 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class SpeciesInPrecedingRelationChecker extends AbstractQACheck {
+@SliceQACheck
+public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
 
-    public SpeciesInPrecedingRelationChecker() {
+    public SpeciesPrecedingRelationCheck() {
     }
     
     @Override

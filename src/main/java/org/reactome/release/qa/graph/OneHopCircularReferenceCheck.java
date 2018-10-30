@@ -22,7 +22,7 @@ import org.gk.schema.GKSchema;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -34,7 +34,7 @@ import org.reactome.release.qa.common.QAReport;
 
  * @author wug
  */
-@GraphQATest
+@GraphQACheck
 @SuppressWarnings("unchecked")
 public class OneHopCircularReferenceCheck extends AbstractQACheck {
     private final static Logger logger = Logger.getLogger(OneHopCircularReferenceCheck.class);

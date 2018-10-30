@@ -11,10 +11,10 @@ import org.gk.schema.GKSchema;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 
-@GraphQATest
-public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToSameCheck {
+@GraphQACheck
+public class OtherRelationsThatPointToTheSameEntryCheck extends TwoAttributesReferToSameCheck {
     
     //TODO: Need to check with Fred how the following list was created.
     private final static String[] SKIP_ATTS = {

@@ -13,15 +13,15 @@ import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
+@GraphQACheck
 @SuppressWarnings("unchecked")
-public class PrecedingEventOutputsNotUsedInReaction extends AbstractQACheck {
-    private static final Logger logger = Logger.getLogger(PrecedingEventOutputsNotUsedInReaction.class);
+public class PrecedingEventOutputsNotUsedInReactionCheck extends AbstractQACheck {
+    private static final Logger logger = Logger.getLogger(PrecedingEventOutputsNotUsedInReactionCheck.class);
 
     private static final String SQL =
             "SELECT DISTINCT ep.DB_ID, ep.precedingEvent" + 

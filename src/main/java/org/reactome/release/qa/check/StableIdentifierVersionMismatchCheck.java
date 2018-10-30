@@ -5,7 +5,7 @@ import java.util.Set;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.ReleaseQATest;
+import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
 
@@ -14,8 +14,8 @@ import org.reactome.release.qa.common.QAReport;
  * @author sshorser
  *
  */
-@ReleaseQATest
-public class FindMismatchedStableIdentifierVersions extends AbstractQACheck implements ChecksTwoDatabases
+@ReleaseQACheck
+public class StableIdentifierVersionMismatchCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 	private MySQLAdaptor otherAdaptor;
 

@@ -15,7 +15,7 @@ import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
 import org.gk.schema.InvalidAttributeException;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -25,12 +25,12 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
-@SliceQATest
-public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
+@SliceQACheck
+public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
 
-    private final static Logger logger = Logger.getLogger(PathwayDiagramRenderableTypeChecker.class);
+    private final static Logger logger = Logger.getLogger(DiagramRenderableTypeMismatchCheck.class);
     
-    public PathwayDiagramRenderableTypeChecker() {
+    public DiagramRenderableTypeMismatchCheck() {
     }
 
     @Override

@@ -19,7 +19,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.ReleaseQATest;
+import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
 
@@ -31,8 +31,8 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author sshorser
  */
-@ReleaseQATest
-public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTwoDatabases
+@ReleaseQACheck
+public class SpeciesInstanceCountCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -102,7 +102,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 						String note = (String) modified.getAttributeValue(ReactomeJavaConstants.note);
 						// If the note on the "Created" InstanceEdit has the correct text,
 						// then try the filter to exclude chimeric instances.
-						if (note != null && note.equals(CompareSpeciesByClasses.INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA))
+						if (note != null && note.equals(SpeciesInstanceCountCheck.INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA))
 						{
 							return filterToExcludeChimeras.test(inst);
 						}
