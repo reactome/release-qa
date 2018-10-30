@@ -15,8 +15,10 @@ import org.reactome.release.qa.common.QAReport;
 
 /**
  * This class is to check if duplications appears in an attribute.
+ * 
+ * Note: a skip list is supported but not recommended for this check.
+ * 
  * @author wug
- *
  */
 @GraphQATest
 public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCheck {
@@ -80,6 +82,9 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
                 }
                 Long valueDbId = rs.getLong(2);
                 GKInstance value = dba.fetchInstance(valueDbId);
+                if (isEscaped(value)) {
+                    continue;
+                }
                 report.addLine(instance.getDBID() + "",
                         instance.getDisplayName(),
                         instance.getSchemClass().getName(),

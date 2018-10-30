@@ -28,8 +28,10 @@ import org.reactome.release.qa.common.QAReport;
  * This class is used to check if two or more instances in the same class are duplicated. The implementation
  * of this check if based on the list of defined attributes listed in the schema, and is different from the
  * implementation from graph QA check in some cases (e.g. EntitySet duplication).
+ * 
+ * Note: a skip list is supported but not recommended for this check.
+ * 
  * @author wug
- *
  */
 @GraphQATest
 public class InstanceDuplicationCheck extends AbstractQACheck {

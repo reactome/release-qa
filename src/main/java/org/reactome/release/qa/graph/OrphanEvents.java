@@ -21,7 +21,7 @@ public class OrphanEvents extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "OrphanEvents";
+        return "Orphan_Events";
     }
 
     @Override

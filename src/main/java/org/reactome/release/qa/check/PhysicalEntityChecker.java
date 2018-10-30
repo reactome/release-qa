@@ -22,7 +22,7 @@ public class PhysicalEntityChecker extends AbstractQACheck {
 	
 	@Override
     public String getDisplayName() {
-        return "PhysicalEntity_Container_Species";
+        return "PhysicalEntity_Without_Species_Components_With_Species";
     }
 
     @Override
@@ -34,6 +34,9 @@ public class PhysicalEntityChecker extends AbstractQACheck {
 		}
 		
 		for (GKInstance physicalEntity : physicalEntities) {
+		    if (isEscaped(physicalEntity)) {
+		        continue;
+		    }
 			int numComponents = QACheckerHelper.componentsHaveSpecies(physicalEntity);
 			if(numComponents > 0) {
 				report.addLine(Arrays.asList());

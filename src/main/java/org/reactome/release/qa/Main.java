@@ -76,7 +76,7 @@ public class Main {
         }
         
         // Omit checks in the check skip list, if necessary.
-        File file = new File("resources/QASkipList.txt");
+        File file = new File("QASkipList/ExcludedChecks.txt");
         if (file.exists()) {
             Set<String> skipList = Files.lines(Paths.get(file.getPath()))
                     .collect(Collectors.toSet());
@@ -93,7 +93,8 @@ public class Main {
         if (cutoffDateStr != null) {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
             cutoffDate = df.parse(cutoffDateStr);
-        }
+            logger.info("Skip list cut-off date: " + cutoffDate);
+       }
         
         // Run the QA checks.
         for (Class<? extends QACheck> cls : releaseQAs) {
@@ -109,9 +110,7 @@ public class Main {
                 }
                 ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
             }
-            // Load escape DB ids and cut-off date.
-            Set<Long> escDbIds = getEscapedDbIds(cls);
-            check.setEscapedDbIds(escDbIds);
+            // Set the common skip list cut-off date.
             check.setCutoffDate(cutoffDate);
 
             QAReport qaReport = check.executeQACheck();
@@ -235,32 +234,6 @@ public class Main {
         if (file.exists())
             return file;
         throw new IllegalStateException("Make sure resources/qa.properties exists, which provides common QA settings");
-    }
-    
-    /**
-     * Opens the file consisting of escaped instance DB ids.
-     * @param class the QA class
-     * @throws IOException
-     */
-    private static Set<Long> getEscapedDbIds(Class<? extends QACheck> cls) throws IOException {
-        File file = new File("QA_SkipList" + File.separator + cls.getSimpleName() + ".txt");
-        HashSet<Long> escapedDbIds = new HashSet<Long>();
-        if (file.exists()) {
-            FileUtilities fu = new FileUtilities();
-            fu.setInput(file.getAbsolutePath());
-            String line = null;
-            while ((line = fu.readLine()) != null) {
-                if (line.startsWith("#"))
-                    continue; // Escape comment line
-                String[] tokens = line.split("\t");
-                // Make sure only number will be got
-                if (tokens[0].matches("\\d+"))
-                    escapedDbIds.add(new Long(tokens[0]));
-            }
-            fu.close();
-        }
-        
-        return escapedDbIds;
     }
   
 }

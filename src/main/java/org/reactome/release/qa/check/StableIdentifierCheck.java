@@ -85,7 +85,7 @@ public class StableIdentifierCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "StableIdentifier_Identifier";
+        return "StableIdentifier_Invalid";
     }
 
 }
