@@ -8,17 +8,17 @@ import org.reactome.release.qa.check.*;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
-import org.reactome.release.qa.graph.CatalystActivityComplexChecker;
+import org.reactome.release.qa.graph.CatalystActivityComplexCheck;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
 import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
 import org.reactome.release.qa.graph.OneHopCircularReferenceCheck;
-import org.reactome.release.qa.graph.OrphanEvents;
-import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntry;
-import org.reactome.release.qa.graph.PhysicalEntitiesWithMoreThanOneCompartment;
-import org.reactome.release.qa.graph.PrecedingEventOutputsNotUsedInReaction;
-import org.reactome.release.qa.graph.ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch;
+import org.reactome.release.qa.graph.OrphanEventsCheck;
+import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntryCheck;
+import org.reactome.release.qa.graph.PhysicalEntitiesWithMoreThanOneCompartmentCheck;
+import org.reactome.release.qa.graph.PrecedingEventOutputsNotUsedInReactionCheck;
+import org.reactome.release.qa.graph.ReactionsSingleInputOutputSchemaClassMismatchCheck;
 import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
@@ -61,37 +61,37 @@ public class QACheckTest {
     
     @Test
     public void testReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch() throws Exception {
-        ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch checker = new ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch();
+        ReactionsSingleInputOutputSchemaClassMismatchCheck checker = new ReactionsSingleInputOutputSchemaClassMismatchCheck();
         runTest(checker);
     }
     
     @Test
     public void testOrphanEvents() throws Exception {
-        OrphanEvents checker = new OrphanEvents();
+        OrphanEventsCheck checker = new OrphanEventsCheck();
         runTest(checker);
     }
     
     @Test
     public void testPrecedingEventOutputsNotUsedInReaction() throws Exception {
-        PrecedingEventOutputsNotUsedInReaction checker = new PrecedingEventOutputsNotUsedInReaction();
+        PrecedingEventOutputsNotUsedInReactionCheck checker = new PrecedingEventOutputsNotUsedInReactionCheck();
         runTest(checker);
     }
     
     @Test
     public void testCatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex() throws Exception {
-        AbstractQACheck checker = new CatalystActivityComplexChecker();
+        AbstractQACheck checker = new CatalystActivityComplexCheck();
         runTest(checker);
     }
     
     @Test
     public void testPhysicalEntitiesWithMoreThanOneCompartment() throws Exception {
-        PhysicalEntitiesWithMoreThanOneCompartment checker = new PhysicalEntitiesWithMoreThanOneCompartment();
+        PhysicalEntitiesWithMoreThanOneCompartmentCheck checker = new PhysicalEntitiesWithMoreThanOneCompartmentCheck();
         runTest(checker);
     }
     
     @Test
     public void testOtherRelationsThatPointToTheSameEntry() throws Exception {
-        OtherRelationsThatPointToTheSameEntry checker = new OtherRelationsThatPointToTheSameEntry();
+        OtherRelationsThatPointToTheSameEntryCheck checker = new OtherRelationsThatPointToTheSameEntryCheck();
         runTest(checker);
     }
     
@@ -145,37 +145,37 @@ public class QACheckTest {
     
     @Test
     public void testChimericInstancesChecker() throws Exception {
-        AbstractQACheck checker = new ChimericInstancesChecker();
+        AbstractQACheck checker = new ChimericInstancesCheck();
         runTest(checker);
     }
     
     @Test
     public void testHumanStableIdentifierChecker() throws Exception {
-        AbstractQACheck checker = new StableIdentifierCheck();
+        AbstractQACheck checker = new InvalidStableIdentifierCheck();
         runTest(checker);
     }
     
     @Test
     public void testSpeciesInPrecedingRelationChecker() throws Exception {
-        AbstractQACheck checker = new SpeciesInPrecedingRelationChecker();
+        AbstractQACheck checker = new SpeciesPrecedingRelationCheck();
         runTest(checker);
     }
     
     @Test
     public void testCompareSpeciesByClasses() throws Exception {
-        AbstractQACheck checker = new CompareSpeciesByClasses();
+        AbstractQACheck checker = new SpeciesInstanceCountCheck();
         runTest(checker);
     }
         
     @Test
     public void testPathwayDiagramRenderableTypeChecker() throws Exception {
-        AbstractQACheck checker = new PathwayDiagramRenderableTypeChecker();
+        AbstractQACheck checker = new DiagramRenderableTypeMismatchCheck();
         runTest(checker);
     }
 
     @Test
     public void testEHLDSubPathwayChangeChecker() throws Exception {
-        AbstractQACheck checker = new EHLDSubpathwayChangeChecker();
+        AbstractQACheck checker = new EHLDSubpathwayChangeCheck();
         runTest(checker);
     }
 }
