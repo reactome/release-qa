@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -16,25 +16,22 @@ import org.reactome.release.qa.common.QAReport;
  * This class reports FailedReactions that have output.
  * (Note: We may have to change the data model to enforce this!)
  */
-@SliceQATest
-public class FailedReactionOutputChecker extends AbstractQACheck {
+@SliceQACheck
+public class FailedReactionOutputCheck extends AbstractQACheck {
 
     private static final List<String> HEADERS =
             Arrays.asList("DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
 
 	@Override
     public String getDisplayName() {
-        return "FailedReaction_Output";
+        return "FailedReaction_Has_Output";
     }
 	
 	@Override
 	public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         report.setColumnHeaders(HEADERS);
-        List<List<String>> missingNormal = check(ReactomeJavaConstants.FailedReaction,
-                ReactomeJavaConstants.normalReaction, QACheckerHelper.IS_NULL);
-        report.addLines(missingNormal);
-        List<List<String>> hasOutput = check(ReactomeJavaConstants.FailedReaction,
+         List<List<String>> hasOutput = check(ReactomeJavaConstants.FailedReaction,
                 ReactomeJavaConstants.output, QACheckerHelper.IS_NOT_NULL);
         report.addLines(hasOutput);
 		

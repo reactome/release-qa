@@ -7,19 +7,19 @@ import java.util.Arrays;
 import java.util.List;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
-public class CatalystActivityComplexChecker extends AbstractQACheck {
+@GraphQACheck
+public class CatalystActivityComplexCheck extends AbstractQACheck {
     
     private static final List<String> HEADERS = Arrays.asList("DBID", "DisplayName", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return "CatalystActivity_PhysicalEntity_ActivityUnit_Refer_Same_Complex";
+        return "CatalystActivity_PhysicalEntity_ActivityUnit_Refers_To_Same_Complex";
     }
 
     @Override

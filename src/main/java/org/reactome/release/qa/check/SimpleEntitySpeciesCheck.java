@@ -5,17 +5,17 @@ import java.util.Collection;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * Not sure what this check is for.
+ * Checks for a SimpleEntity with a species.
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class SimpleEntityChecker extends AbstractQACheck {
+@SliceQACheck
+public class SimpleEntitySpeciesCheck extends AbstractQACheck {
 
 	@Override
 	public QAReport executeQACheck() throws Exception {
@@ -38,7 +38,7 @@ public class SimpleEntityChecker extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "SimpleEntity_With_Species";
+        return "SimpleEntity_Has_Species";
     }
 	
 }
