@@ -28,7 +28,7 @@ public class PhysicalEntitiesWithMoreThanOneCompartmentCheck extends AbstractQAC
 
     @Override
     public String getDisplayName() {
-        return "Physical_Entities_With_More_Than_One_Compartment";
+        return "PhysicalEntity_With_More_Than_One_Compartment";
     }
 
     @Override

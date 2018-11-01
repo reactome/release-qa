@@ -52,7 +52,7 @@ public class SpeciesInstanceCountCheck extends AbstractQACheck implements Checks
 	@Override
 	public String getDisplayName()
 	{
-		return "CompareSpeciesByClasses";
+		return "Species_Instance_Counts_Comparison";
 	}
 	
 	@Override
