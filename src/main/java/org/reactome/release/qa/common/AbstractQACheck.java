@@ -143,20 +143,28 @@ public abstract class AbstractQACheck implements QACheck {
      * @return the word array
      */
     private static List<String> splitCamelCase(String s) {
-        
         String[] caps = s.split("(?=\\p{Upper})");
         // Combine single-letter splits.
         List<String> words = new ArrayList<String>();
-        String word = "";
+        StringBuffer allCaps = new StringBuffer();
         for (String cap: caps) {
-            if (word.length() < 2) {
-                word += cap;
+            if (cap.length() == 1) {
+                // Build up the all caps word.
+                allCaps.append(cap);
             } else {
-                words.add(word);
-                word = cap;
+                // Flush the concatenated all caps word to the list.
+                if (allCaps.length() > 0) {
+                    words.add(allCaps.toString());
+                    allCaps.setLength(0);
+                }
+                // Add the current word.
+                words.add(cap);
             }
         }
-        words.add(word);
+        // Check for a final all caps word.
+        if (allCaps.length() > 0) {
+            words.add(allCaps.toString());
+        }
 
         return words;
     }
