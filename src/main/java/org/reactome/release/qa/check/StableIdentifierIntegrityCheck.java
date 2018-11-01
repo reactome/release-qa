@@ -20,9 +20,9 @@ import org.reactome.release.qa.common.QAReport;
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
-public class InvalidStableIdentifierCheck extends AbstractQACheck {
+public class StableIdentifierIntegrityCheck extends AbstractQACheck {
 
-	public InvalidStableIdentifierCheck() {
+	public StableIdentifierIntegrityCheck() {
     }
 	
 	@Override
@@ -41,7 +41,7 @@ public class InvalidStableIdentifierCheck extends AbstractQACheck {
 	        if (id == null) {
 	            report.addLine(stableId.getDBID().toString(),
 	                           stableId.getDisplayName(),
-	                           "Empty identifier",
+	                           "Missing identifier",
 	                           QACheckerHelper.getLastModificationAuthor(stableId));
 	            continue;
 	        }
