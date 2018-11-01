@@ -60,37 +60,37 @@ public class QACheckTest {
     }
     
     @Test
-    public void testReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch() throws Exception {
+    public void testReactionsSingleInputOutputSchemaClassMismatchCheck() throws Exception {
         ReactionsSingleInputOutputSchemaClassMismatchCheck checker = new ReactionsSingleInputOutputSchemaClassMismatchCheck();
         runTest(checker);
     }
     
     @Test
-    public void testOrphanEvents() throws Exception {
+    public void testOrphanEventsCheck() throws Exception {
         OrphanEventsCheck checker = new OrphanEventsCheck();
         runTest(checker);
     }
     
     @Test
-    public void testPrecedingEventOutputsNotUsedInReaction() throws Exception {
+    public void testPrecedingEventOutputsNotUsedInReactionCheck() throws Exception {
         PrecedingEventOutputsNotUsedInReactionCheck checker = new PrecedingEventOutputsNotUsedInReactionCheck();
         runTest(checker);
     }
     
     @Test
-    public void testCatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex() throws Exception {
+    public void testCatalystActivityComplexCheck() throws Exception {
         AbstractQACheck checker = new CatalystActivityComplexCheck();
         runTest(checker);
     }
     
     @Test
-    public void testPhysicalEntitiesWithMoreThanOneCompartment() throws Exception {
+    public void testPhysicalEntitiesWithMoreThanOneCompartmentCheck() throws Exception {
         PhysicalEntitiesWithMoreThanOneCompartmentCheck checker = new PhysicalEntitiesWithMoreThanOneCompartmentCheck();
         runTest(checker);
     }
     
     @Test
-    public void testOtherRelationsThatPointToTheSameEntry() throws Exception {
+    public void testOtherRelationsThatPointToTheSameEntryCheck() throws Exception {
         OtherRelationsThatPointToTheSameEntryCheck checker = new OtherRelationsThatPointToTheSameEntryCheck();
         runTest(checker);
     }
@@ -144,38 +144,44 @@ public class QACheckTest {
     }
     
     @Test
-    public void testChimericInstancesChecker() throws Exception {
+    public void testChimericInstancesCheck() throws Exception {
         AbstractQACheck checker = new ChimericInstancesCheck();
         runTest(checker);
     }
     
     @Test
-    public void testHumanStableIdentifierChecker() throws Exception {
-        AbstractQACheck checker = new InvalidStableIdentifierCheck();
+    public void testStableIdentifierIntegrityCheck() throws Exception {
+        AbstractQACheck checker = new StableIdentifierIntegrityCheck();
         runTest(checker);
     }
     
     @Test
-    public void testSpeciesInPrecedingRelationChecker() throws Exception {
+    public void testSpeciesPrecedingRelationCheck() throws Exception {
         AbstractQACheck checker = new SpeciesPrecedingRelationCheck();
         runTest(checker);
     }
     
     @Test
-    public void testCompareSpeciesByClasses() throws Exception {
+    public void testSpeciesInstanceCountCheck() throws Exception {
         AbstractQACheck checker = new SpeciesInstanceCountCheck();
         runTest(checker);
     }
         
     @Test
-    public void testPathwayDiagramRenderableTypeChecker() throws Exception {
+    public void testDiagramRenderableTypeMismatchCheck() throws Exception {
         AbstractQACheck checker = new DiagramRenderableTypeMismatchCheck();
         runTest(checker);
     }
 
     @Test
-    public void testEHLDSubPathwayChangeChecker() throws Exception {
+    public void testEHLDSubPathwayChangeCheck() throws Exception {
         AbstractQACheck checker = new EHLDSubpathwayChangeCheck();
+        runTest(checker);
+    }
+
+    @Test
+    public void testReactionlikeEventDiseaseCheck() throws Exception {
+        AbstractQACheck checker = new ReactionlikeEventDiseaseCheck();
         runTest(checker);
     }
 }
