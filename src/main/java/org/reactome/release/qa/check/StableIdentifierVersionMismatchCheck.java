@@ -53,12 +53,6 @@ public class StableIdentifierVersionMismatchCheck extends AbstractQACheck implem
 	}
 
 	@Override
-	public String getDisplayName()
-	{
-		return "Find_Mismatched_Stabled_Identifier_Versions";
-	}
-
-	@Override
 	public void setOtherDBAdaptor(MySQLAdaptor adaptor)
 	{
 		this.otherAdaptor = adaptor;
