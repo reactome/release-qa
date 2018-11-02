@@ -16,7 +16,7 @@ import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
 import org.reactome.release.qa.graph.OneHopCircularReferenceCheck;
 import org.reactome.release.qa.graph.OrphanEventsCheck;
-import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntryCheck;
+import org.reactome.release.qa.graph.RelationsReferToSameInstanceCheck;
 import org.reactome.release.qa.graph.PhysicalEntitiesWithMoreThanOneCompartmentCheck;
 import org.reactome.release.qa.graph.PrecedingEventOutputsNotUsedInReactionCheck;
 import org.reactome.release.qa.graph.ReactionsSingleInputOutputSchemaClassMismatchCheck;
@@ -92,7 +92,7 @@ public class QACheckTest {
     
     @Test
     public void testOtherRelationsThatPointToTheSameEntryCheck() throws Exception {
-        OtherRelationsThatPointToTheSameEntryCheck checker = new OtherRelationsThatPointToTheSameEntryCheck();
+        RelationsReferToSameInstanceCheck checker = new RelationsReferToSameInstanceCheck();
         runTest(checker);
     }
     
