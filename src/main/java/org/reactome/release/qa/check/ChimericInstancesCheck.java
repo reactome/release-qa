@@ -15,14 +15,27 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
+ * Reports ReactionlikeEvent and Complexes for which one of the following conditions hold:
+ * <ul>
+ * <li>Chimeric but less than two species</li>
+ * <li>Chimeric but not used for inference</li>
+ * <li>Not chimeric but more than one species</li>
+ * <li>Not chimeric but with chimeric participant</li>
+ * </ul>
+ * 
  * This class is ported from chimeric_qa.pl by Joel. However, the check here is expanded
  * for both ReactionlikeEvent and Complex, two classes that have isChimeric.
+ * 
  * @author wug
- *
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
 public class ChimericInstancesCheck extends AbstractQACheck {
+
+    @Override
+    public String getDisplayName() {
+        return "Chimerism_Reference_Constraints";
+    }
 
     @Override
     public QAReport executeQACheck() throws Exception {
