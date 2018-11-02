@@ -9,20 +9,33 @@ import java.util.stream.Collectors;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
+ * Reports ReactionlikeEvent and Complexes for which one of the following conditions hold:
+ * <ul>
+ * <li>Chimeric but less than two species</li>
+ * <li>Chimeric but not used for inference</li>
+ * <li>Not chimeric but more than one species</li>
+ * <li>Not chimeric but with chimeric participant</li>
+ * </ul>
+ * 
  * This class is ported from chimeric_qa.pl by Joel. However, the check here is expanded
  * for both ReactionlikeEvent and Complex, two classes that have isChimeric.
+ * 
  * @author wug
- *
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class ChimericInstancesChecker extends AbstractQACheck {
+@SliceQACheck
+public class ChimericInstancesCheck extends AbstractQACheck {
+
+    @Override
+    public String getDisplayName() {
+        return "Chimerism_Reference_Constraints";
+    }
 
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -53,6 +66,9 @@ public class ChimericInstancesChecker extends AbstractQACheck {
                                                      ReactomeJavaConstants.catalystActivity,
                                                      ReactomeJavaConstants.hasComponent});
         for (GKInstance rle : rles) {
+            if (isEscaped(rle)) {
+                continue;
+            }
             if (QACheckerHelper.isChimeric(rle)) {
                 if (!hasMultipleSpecies(rle))
                     report.addLine(rle.getDBID() + "",
@@ -139,11 +155,6 @@ public class ChimericInstancesChecker extends AbstractQACheck {
         if (species.size() > 1)
             return true;
         return false;
-    }
-    
-    @Override
-    public String getDisplayName() {
-        return "ReactionlikeEvent_Species_Chimeric";
     }
     
 }

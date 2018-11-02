@@ -6,12 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Use this annotation to mark classes that are converted from Graph QA.
- * @author Guanming Wu
+ * Use this annotation to mark classes that should be used for Slice QA.
+ * @author sshorser
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GraphQATest
+public @interface SliceQACheck
 {
-
 }

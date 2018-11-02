@@ -6,12 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Use this annotation to mark classes that should be used for Slice QA.
+ * Use this annotation to mark classes that should be used for Release QA, during the Release process.
  * @author sshorser
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SliceQATest
+public @interface ReleaseQACheck
 {
-
 }

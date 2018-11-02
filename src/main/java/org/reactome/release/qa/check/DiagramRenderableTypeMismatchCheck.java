@@ -14,7 +14,8 @@ import org.gk.render.ProcessNode;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.gk.schema.InvalidAttributeException;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -24,33 +25,26 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
-@SliceQATest
-public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
-    private final static Logger logger = Logger.getLogger(PathwayDiagramRenderableTypeChecker.class);
+@SliceQACheck
+public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
+
+    private final static Logger logger = Logger.getLogger(DiagramRenderableTypeMismatchCheck.class);
     
-    public PathwayDiagramRenderableTypeChecker() {
+    public DiagramRenderableTypeMismatchCheck() {
     }
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+        @SuppressWarnings("unchecked")
         Collection<GKInstance> pathwayDiagrams = dba.fetchInstancesByClass(ReactomeJavaConstants.PathwayDiagram);
         dba.loadInstanceAttributeValues(pathwayDiagrams, new String[]{ReactomeJavaConstants.representedPathway});
         DiagramGKBReader reader = new DiagramGKBReader();
         SearchDBTypeHelper typeHelper = new SearchDBTypeHelper();
         for (GKInstance diagram : pathwayDiagrams) {
-            boolean isHuman = false;
-            List<GKInstance> pathways = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
-            for (GKInstance pathway : pathways) {
-                GKInstance species = (GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.species);
-                if (species != null && species.getDisplayName().equals("Homo sapiens")) {
-                    isHuman = true;
-                    break;
-                }
+            if (!isEscaped(diagram) && isSomePathwayHuman(diagram)) {
+                checkPathwayDiagram(diagram, reader, typeHelper, report);
             }
-            if (!isHuman)
-                continue;
-            checkPathwayDiagram(diagram, reader, typeHelper, report);
         }
         report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
@@ -63,7 +57,9 @@ public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
         return report;
     }
     
-    private Class getRenderableType(GKInstance inst, SearchDBTypeHelper typeHelper) throws Exception {
+    @SuppressWarnings("unchecked")
+    private Class<? extends Renderable> getRenderableType(GKInstance inst, SearchDBTypeHelper typeHelper)
+            throws Exception {
         if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway))
             return ProcessNode.class;
         // In some cases GO_CellularComponent instances are used in drawing
@@ -72,13 +68,28 @@ public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
         return typeHelper.guessNodeType(inst);
     }
     
-    private void checkPathwayDiagram(GKInstance pathwayDiagram,
-            DiagramGKBReader reader,
-            SearchDBTypeHelper typeHelper,
-            QAReport report) throws Exception {
-        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
-        GKInstance pathwayInst = (GKInstance) pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
-        RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
+    private boolean isSomePathwayHuman(GKInstance diagram) throws Exception {
+        @SuppressWarnings("unchecked")
+        List<GKInstance> pathways = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
+        for (GKInstance pathway : pathways) {
+            GKInstance species = (GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.species);
+            if (species != null && species.getDisplayName().equals("Homo sapiens")) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private void checkPathwayDiagram(GKInstance diagram, DiagramGKBReader reader,
+            SearchDBTypeHelper typeHelper, QAReport report) throws Exception {
+        logger.info("Checking " + diagram.getDisplayName() + "...");
+        if (isEscaped(diagram)) {
+            logger.info("Pathway diagram is on the skip list: " + diagram.getDisplayName());
+            return;
+        }
+        GKInstance pathwayInst = (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
+        RenderablePathway pathway = reader.openDiagram(diagram);
+        @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
         if (components == null || components.size() == 0)
             return;
@@ -94,7 +105,7 @@ public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
                 logger.warn("Diagram references DB id not found in database: " + dbId);
                 continue;
             }
-            Class renderable = getRenderableType(dbInst, typeHelper);
+            Class<? extends Renderable> renderable = getRenderableType(dbInst, typeHelper);
             // There are two types of errors
             // The saved schemaClass and the actual schemaClass
             // Schema class is not saved in the database. There is no need to check it.
@@ -112,21 +123,21 @@ public class PathwayDiagramRenderableTypeChecker extends AbstractQACheck {
 //            }
             // Used Renderable object is not matched to the correct one
             if (r.getClass() != renderable) {
-                report.addLine(pathwayDiagram.getDBID().toString(),
+                report.addLine(diagram.getDBID().toString(),
                         pathwayInst.getDisplayName(),
                         pathwayInst.getDBID().toString(),
                         dbId.toString(),
                         dbInst.getDisplayName(),
                         renderable.getSimpleName(),
                         r.getClass().getSimpleName(),
-                        QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
+                        QACheckerHelper.getLastModificationAuthor(diagram));
             }
         }
     }
 
     @Override
     public String getDisplayName() {
-        return "Wrong_Renderables_In_Diagrams";
+        return "Wrong_Renderables_in_Diagrams";
     }
 
 }

@@ -11,7 +11,7 @@ import org.gk.persistence.MySQLAdaptor;
 import org.gk.persistence.MySQLAdaptor.AttributeQueryRequest;
 import org.gk.persistence.MySQLAdaptor.QueryRequestList;
 import org.gk.schema.InvalidAttributeException;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -19,17 +19,17 @@ import org.reactome.release.qa.common.QAReport;
 /** 
  * 
  * A set of QAs related to new ReactionLikeEvents, which are collected
- * based on inferredFrom = null and stableIdentifier is not null and its released
+ * based on inferredFrom is null and stableIdentifier is not null and its released
  * is null or false.
  *
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class NewEventChecker extends AbstractQACheck {
+@SliceQACheck
+public class NewEventConsistencyCheck extends AbstractQACheck {
     
 	@Override
     public String getDisplayName() {
-        return "New_Event_QA";
+        return "New_Event_Inconsistent";
     }
 
     /**
@@ -38,7 +38,7 @@ public class NewEventChecker extends AbstractQACheck {
 	 * @param skipList
 	 * @return
 	 */
-	private List<GKInstance> getNewEventsWithNoInferredFromAndNoLitRef(MySQLAdaptor dba, List<Long> skipList) throws Exception {
+	private Collection<GKInstance> getNewEventsWithNoInferredFromAndNoLitRef(MySQLAdaptor dba, List<Long> skipList) throws Exception {
 	    AttributeQueryRequest stIdIsNotNullRequest = dba.new AttributeQueryRequest(ReactomeJavaConstants.ReactionlikeEvent,
 	            "stableIdentifier",
 	            QACheckerHelper.IS_NOT_NULL,
@@ -92,7 +92,7 @@ public class NewEventChecker extends AbstractQACheck {
 	 * @param skipList - a skiplist to filter out results, if you want.
 	 * @return
 	 */
-	private List<GKInstance> getNewEventInstances(MySQLAdaptor dba,
+	private Collection<GKInstance> getNewEventInstances(MySQLAdaptor dba,
 	                                              String schemaClass,
 	                                              String attribute, 
 	                                              String operator, 
@@ -115,7 +115,7 @@ public class NewEventChecker extends AbstractQACheck {
 	public QAReport executeQACheck() throws Exception {
 		QAReport newEventReport = new QAReport();
 
-		List<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(dba,
+		Collection<GKInstance> reactionLikeEventsSummationIsNull = getNewEventInstances(dba,
 		                                                                          ReactomeJavaConstants.ReactionlikeEvent, 
 		                                                                          ReactomeJavaConstants.summation, 
 		                                                                          QACheckerHelper.IS_NULL, 
@@ -128,7 +128,7 @@ public class NewEventChecker extends AbstractQACheck {
 		                                         QACheckerHelper.getLastModificationAuthor(instance)));
 		}
 
-		List<GKInstance> noInferredFromAndNoLitRef = this.getNewEventsWithNoInferredFromAndNoLitRef(dba, null);
+		Collection<GKInstance> noInferredFromAndNoLitRef = this.getNewEventsWithNoInferredFromAndNoLitRef(dba, null);
 		for (GKInstance instance : noInferredFromAndNoLitRef) {
 			newEventReport.addLine(Arrays.asList(instance.getDBID().toString(),
 			        instance.getDisplayName(), 

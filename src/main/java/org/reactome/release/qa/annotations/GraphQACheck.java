@@ -6,12 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Use this annotation to mark classes that should be used for Release QA, during the Release process.
- * @author sshorser
+ * Use this annotation to mark classes that are converted from Graph QA.
+ * @author Guanming Wu
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ReleaseQATest
+public @interface GraphQACheck
 {
-
 }

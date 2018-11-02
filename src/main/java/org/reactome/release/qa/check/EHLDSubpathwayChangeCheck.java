@@ -3,8 +3,9 @@ package org.reactome.release.qa.check;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.ReleaseQATest;
+import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
+import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,9 +23,10 @@ import java.util.stream.Collectors;
  * @author weiserj
  *
  */
-@ReleaseQATest
-public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements ChecksTwoDatabases
+@ReleaseQACheck
+public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
+	final private String NOT_AVAILABLE = "N/A";
 	private MySQLAdaptor olderDatabase;
 
 	@Override
@@ -31,23 +34,37 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	{
 		QAReport report = new QAReport();
 		report.setColumnHeaders(
+			"EHLD Pathway Name",
 			"EHLD Pathway ID",
-			"HasEvent DB_IDs for " + this.dba.getDBName(),
-			"HasEvent DB_IDs for " + getOtherDBAdaptor().getDBName()
+			"Subpathway IDs added in " + this.dba.getDBName(),
+			"Subpathway Names added in " + this.dba.getDBName(),
+			"Subpathway IDs removed in " + this.dba.getDBName(),
+			"Subpathway Names removed in " + this.dba.getDBName()
 		);
-		
+
 		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
 		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, getOtherDBAdaptor());
 		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
 		for (EHLDPathway oldPathway : oldPathways) {
-			Optional<EHLDPathway> newPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
+		    if (isEscaped(oldPathway.getPathway())) {
+		        continue;
+		    }
+			Optional<EHLDPathway> potentialNewPathway = findEHLDPathway(newPathways, oldPathway.getDatabaseId());
 
-			if (oldPathway.subPathwaysAreDifferent(newPathway)) {
+			if (oldPathway.subPathwaysAreDifferent(potentialNewPathway)) {
+				List<GKInstance> addedSubPathways = potentialNewPathway
+					.map(newPathway -> newPathway.getSubPathwaysNotPresentIn(oldPathway))
+					.orElse(new ArrayList<>());
+				List<GKInstance> removedSubPathways = oldPathway.getSubPathwaysNotPresentIn(potentialNewPathway);
+
 				report.addLine(
+					oldPathway.getPathwayName(),
 					oldPathway.getDatabaseId().toString(),
-					newPathway.map(EHLDPathway::getSubPathwayIdsAsString).orElse(""),
-					oldPathway.getSubPathwayIdsAsString()
+					transformPathwaysToString(addedSubPathways, pathway -> pathway.getDBID().toString()),
+					transformPathwaysToString(addedSubPathways, GKInstance::getDisplayName),
+					transformPathwaysToString(removedSubPathways, pathway -> pathway.getDBID().toString()),
+					transformPathwaysToString(removedSubPathways, GKInstance::getDisplayName)
 				);
 			}
 		}
@@ -56,18 +73,16 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	}
 
 	@Override
-	public String getDisplayName() { return "EHLD_Subpathway_Change_Check"; }
-
-	@Override
 	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
 
 	public MySQLAdaptor getOtherDBAdaptor() { return this.olderDatabase; };
 
-	private List<Long> getPathwayIDsWithEHLD() {
+	private List<Long> getPathwayIDsWithEHLD() throws EHLDPathwayIDRetrievalException {
+		final String reactomeEHLDURL = "https://reactome.org/download/current/ehld/";
 		List<Long> pathwayIds = new ArrayList<>();
 		try {
 			BufferedReader ehldWebSource = new BufferedReader(
-				new InputStreamReader(new URL("https://reactome.org/download/current/ehld/").openStream())
+				new InputStreamReader(new URL(reactomeEHLDURL).openStream())
 			);
 
 			pathwayIds.addAll(parsePathwayIds(ehldWebSource));
@@ -76,6 +91,10 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			ehldWebSource.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		if (pathwayIds.isEmpty()) {
+			throw new EHLDPathwayIDRetrievalException("Unable to retrieve pathway ids from " + reactomeEHLDURL);
 		}
 
 		return pathwayIds;
@@ -119,10 +138,33 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 	}
 
 	private Optional<EHLDPathway> findEHLDPathway(List<EHLDPathway> pathways, Long databaseId) {
-		return pathways
+		return  pathways
 				.stream()
 				.filter(pathway -> pathway.getDatabaseId().equals(databaseId))
 				.findFirst();
+	}
+
+	private String transformPathwaysToString(List<GKInstance> pathways, Function<GKInstance, String> transform) {
+		return stringOrDefaultValue(
+				   asPipeDelimitedString(
+					   pathways
+					   .stream()
+					   .map(transform)
+					   .collect(Collectors.toList())
+				   ),
+				   EHLDSubpathwayChangeCheck.this.NOT_AVAILABLE
+			   );
+	}
+
+	private String asPipeDelimitedString(List<?> listElements) {
+		return listElements
+			   .stream()
+			   .map(String::valueOf)
+			   .collect(Collectors.joining("|"));
+	}
+
+	private String stringOrDefaultValue(String string, String defaultValue) {
+		return !string.isEmpty() ? string : defaultValue;
 	}
 
 	// Cast moved to its own method to restrict scope for suppression of unchecked warning
@@ -136,9 +178,16 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		return instance.getSchemClass().isa(ReactomeJavaConstants.Pathway);
 	}
 
+	private class EHLDPathwayIDRetrievalException extends Exception {
+		public EHLDPathwayIDRetrievalException(String retrievalError) {
+			super(retrievalError);
+		}
+	}
+
 	private class EHLDPathway {
-		private GKInstance pathway;
-		private List<GKInstance> subPathways;
+		final private GKInstance pathway;
+		final private List<GKInstance> subPathways;
+		final private Integer reactomeVersion;
 
 		public EHLDPathway(GKInstance pathway) {
 			if (pathway == null) {
@@ -150,6 +199,7 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 
 			this.pathway = pathway;
 			this.subPathways = retrieveSubPathways(pathway);
+			this.reactomeVersion = getReactomeVersionOfPathway(pathway);
 		}
 
 		public GKInstance getPathway() {
@@ -167,11 +217,29 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 					.collect(Collectors.toList());
 		}
 
-		private String getSubPathwayIdsAsString() {
-			return getSubPathwayIds()
-					.stream()
-					.map(String::valueOf)
-					.collect(Collectors.joining("|"));
+		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
+		public List<GKInstance> getSubPathwaysNotPresentIn(Optional<EHLDPathway> secondPathway) {
+			return secondPathway.map(this::getSubPathwaysNotPresentIn).orElse(new ArrayList<>());
+		}
+
+		public List<GKInstance> getSubPathwaysNotPresentIn(EHLDPathway secondPathway) {
+			Map<Long, GKInstance> firstSubPathways = getSubPathwayIdToGKInstanceMap();
+
+			return firstSubPathways
+				   .keySet()
+				   .stream()
+				   .filter(subPathwayId -> !secondPathway.getSubPathwayIds().contains(subPathwayId))
+				   .sorted()
+				   .map(firstSubPathways::get)
+				   .collect(Collectors.toList());
+		}
+
+		private Map<Long, GKInstance> getSubPathwayIdToGKInstanceMap() {
+			return getSubPathways()
+				   .stream()
+				   .collect(
+					   Collectors.toMap(GKInstance::getDBID, subPathway -> subPathway)
+				   );
 		}
 
 		public Long getDatabaseId() {
@@ -181,6 +249,8 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 		public String getPathwayName() {
 			return getPathway().getDisplayName();
 		}
+
+		public Integer getReactomeVersion() { return this.reactomeVersion; };
 
 		@SuppressWarnings({"OptionalUsedAsFieldOrParameterType"})
 		public boolean subPathwaysAreDifferent(Optional<EHLDPathway> secondPathway) {
@@ -204,24 +274,30 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			}
 
 			return Objects.equals(this.getDatabaseId(), ((EHLDPathway) obj).getDatabaseId()) &&
-					Objects.equals(this.getPathwayName(), ((EHLDPathway) obj).getPathwayName());
+					Objects.equals(this.getPathwayName(), ((EHLDPathway) obj).getPathwayName()) &&
+					Objects.equals(this.getReactomeVersion(), ((EHLDPathway) obj).getReactomeVersion());
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.getDatabaseId(), this.getPathwayName());
+			return Objects.hash(
+				this.getDatabaseId(),
+				this.getPathwayName(),
+				this.getReactomeVersion()
+			);
 		}
 
 		@Override
-		public String toString() {
-			return getPathway().toString();
-		}
+		public String toString() { return getPathway().toString(); }
 
 		private List<GKInstance> retrieveSubPathways(GKInstance pathway) {
 			List<GKInstance> subPathways = new ArrayList<>();
 			try {
 				subPathways.addAll(
 					asGKInstanceCollection(pathway.getAttributeValuesList(ReactomeJavaConstants.hasEvent))
+					.stream()
+					.filter(EHLDSubpathwayChangeCheck.this::isPathway)
+					.collect(Collectors.toList())
 				);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -231,12 +307,12 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 			return subPathways;
 		}
 
-		private boolean isElectronicallyInferred(GKInstance pathway) {
+		private boolean isElectronicallyInferred(GKInstance event) {
 			GKInstance evidenceType;
 			try {
-				evidenceType = ((GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.evidenceType));
+				evidenceType = ((GKInstance) event.getAttributeValue(ReactomeJavaConstants.evidenceType));
 			} catch (Exception e) {
-				throw new IllegalArgumentException("The GKInstance provided must be a pathway");
+				throw new IllegalArgumentException("The GKInstance provided must be an event (i.e. pathway or reaction like event)");
 			}
 
 			if (evidenceType == null) {
@@ -247,6 +323,14 @@ public class EHLDSubpathwayChangeChecker extends AbstractQACheck implements Chec
 				.getDisplayName()
 				.toLowerCase()
 				.contains("electronic");
+		}
+
+		private Integer getReactomeVersionOfPathway(GKInstance pathway) {
+			try {
+				return ((MySQLAdaptor) pathway.getDbAdaptor()).getReleaseNumber();
+			} catch (Exception e) {
+				return null;
+			}
 		}
 	}
 }

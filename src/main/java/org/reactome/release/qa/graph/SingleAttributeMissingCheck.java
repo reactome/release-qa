@@ -1,11 +1,12 @@
 package org.reactome.release.qa.graph;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -15,7 +16,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
-@GraphQATest
+@GraphQACheck
 public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck {
 
     public SingleAttributeMissingCheck() {
@@ -45,16 +46,20 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
     }
     
     protected void executeQACheck(String clsName, String attName, QAReport report) throws Exception {
-        List<GKInstance> instances = QACheckerHelper.getInstancesWithNullAttribute(dba,
+        Collection<GKInstance> instances = QACheckerHelper.getInstancesWithNullAttribute(dba,
                                                                                    clsName,
                                                                                    attName,
                                                                                    null);
-        for (GKInstance instance : instances)
+        for (GKInstance instance : instances) {
+            if (isEscaped(instance)) {
+                continue;
+            }
             report.addLine(instance.getDBID() + "",
                            instance.getDisplayName(),
                            instance.getSchemClass().getName(),
                            attName,
                            QACheckerHelper.getLastModificationAuthor(instance));
+        }
     }
 
     @Override

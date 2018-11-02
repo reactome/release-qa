@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -26,7 +26,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
-@GraphQATest
+@GraphQACheck
 public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     private static final Logger logger = Logger.getLogger(TwoAttributesReferToSameCheck.class);
 
@@ -87,6 +87,9 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
         while (result.next()) {
             Long dbId = result.getLong(1);
             GKInstance inst = dba.fetchInstance(dbId);
+            if (isEscaped(inst)) {
+                continue;
+            }
             Long valueId = result.getLong(2);
             GKInstance value = dba.fetchInstance(valueId);
             if (value == null)
@@ -105,7 +108,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Two_Attributes_Refer_Same_Instance";
+        return "Two_Attributes_Refer_To_Same_Instance";
     }
     
     protected List<CheckConfiguration> loadConfiguration() throws Exception {

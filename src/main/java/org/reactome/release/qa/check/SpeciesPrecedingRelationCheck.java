@@ -5,21 +5,28 @@ import java.util.List;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
 
 /**
  * This QA checks species used in two Event instances via preceding relationship:
  * they should share at least one species in either species or relatedSpecies slot.
+ * 
+ * This check's escape list can include both preceding and following RLEs.
+ * 
  * @author wug
- *
  */
 @SuppressWarnings("unchecked")
-@SliceQATest
-public class SpeciesInPrecedingRelationChecker extends AbstractQACheck {
+@SliceQACheck
+public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
 
-    public SpeciesInPrecedingRelationChecker() {
+    public SpeciesPrecedingRelationCheck() {
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Species_in_Preceding_Event";
     }
     
     @Override
@@ -32,6 +39,9 @@ public class SpeciesInPrecedingRelationChecker extends AbstractQACheck {
                                                             ReactomeJavaConstants.species,
                                                             "relatedSpecies"});
         for (GKInstance rle : rles) {
+            if (isEscaped(rle)) {
+                continue;
+            }
             List<GKInstance> precedingEvents = rle.getAttributeValuesList(ReactomeJavaConstants.precedingEvent);
             if (precedingEvents.size() == 0)
                 continue;
@@ -53,6 +63,10 @@ public class SpeciesInPrecedingRelationChecker extends AbstractQACheck {
              preRelatedSpecies.contains(rleSpecies.get(0)) ||
              rleRelatedSpecies.contains(preSpecies.get(0))))
             return; // There is nothing to be report. This is good!
+        // Either RLE can be escaped.
+        if (isEscaped(rle) || isEscaped(preRLE)) {
+            return;
+        }
         report.addLine(preRLE.getDBID().toString(),
                        preRLE.getDisplayName(),
                        join(preSpecies),
@@ -70,11 +84,6 @@ public class SpeciesInPrecedingRelationChecker extends AbstractQACheck {
         species.forEach(inst -> builder.append(inst.getDisplayName()).append("|"));
         builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Species_in_Preceding_Event";
     }
     
 }

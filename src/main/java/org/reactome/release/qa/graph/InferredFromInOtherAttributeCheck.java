@@ -8,7 +8,7 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 
 /**
  * An evidence used in the inferredFrom slot should not be used in other attributes semantically.
@@ -16,7 +16,7 @@ import org.reactome.release.qa.annotations.GraphQATest;
  * @author wug
  *
  */
-@GraphQATest
+@GraphQACheck
 public class InferredFromInOtherAttributeCheck extends TwoAttributesReferToSameCheck {
 
     public InferredFromInOtherAttributeCheck() {

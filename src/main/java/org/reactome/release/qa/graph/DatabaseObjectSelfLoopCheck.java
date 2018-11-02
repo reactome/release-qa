@@ -9,13 +9,13 @@ import java.util.List;
 import org.gk.model.GKInstance;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-@GraphQATest
-public class DatabaseObjectsWithSelfLoops extends AbstractQACheck {
+@GraphQACheck
+public class DatabaseObjectSelfLoopCheck extends AbstractQACheck {
     
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "Attribute", "MostRecentAuthor");
@@ -52,7 +52,9 @@ public class DatabaseObjectsWithSelfLoops extends AbstractQACheck {
                             while (rs.next()) {
                                 Long dbId = new Long(rs.getLong(1));
                                 GKInstance instance = dba.fetchInstance(dbId);
-                                addReportLine(report, instance, attName);
+                                if (!isEscaped(instance)) {
+                                    addReportLine(report, instance, attName);
+                                }
                             }
                             rs.close();
                             ps.close();

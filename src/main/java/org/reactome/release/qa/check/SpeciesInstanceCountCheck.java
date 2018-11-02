@@ -19,18 +19,20 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
-import org.reactome.release.qa.annotations.ReleaseQATest;
+import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
 
 /**
  * This will compare the number of instances for each species between two databases.
  * The counts are broken down by instance class.
+ * 
+ * Skip lists do not apply to this check.
+ * 
  * @author sshorser
- *
  */
-@ReleaseQATest
-public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTwoDatabases
+@ReleaseQACheck
+public class SpeciesInstanceCountCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 	private static final Logger logger = LogManager.getLogger();
 	
@@ -50,7 +52,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 	@Override
 	public String getDisplayName()
 	{
-		return "CompareSpeciesByClasses";
+		return "Species_Instance_Counts_Comparison";
 	}
 	
 	@Override
@@ -100,7 +102,7 @@ public class CompareSpeciesByClasses extends AbstractQACheck implements ChecksTw
 						String note = (String) modified.getAttributeValue(ReactomeJavaConstants.note);
 						// If the note on the "Created" InstanceEdit has the correct text,
 						// then try the filter to exclude chimeric instances.
-						if (note != null && note.equals(CompareSpeciesByClasses.INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA))
+						if (note != null && note.equals(SpeciesInstanceCountCheck.INFERRED_EVENTS_BASED_ON_ENSEMBL_COMPARA))
 						{
 							return filterToExcludeChimeras.test(inst);
 						}

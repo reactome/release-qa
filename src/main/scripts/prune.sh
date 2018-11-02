@@ -1,35 +1,70 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Prunes all but the n most recent slice databases
 # and reports, where n is the optional command argument
-# (default 2).
+# (default 4).
 #
 
-# The number of weekly reports to keep (default 2).
-n=$1
-if [ -z "$n" ]; then
-    n=2
+# See qa-check-weekly.sh for an explanation of the idiom below.
+here="${BASH_SOURCE[0]}"
+resolved="$here"
+while [ -h "$resolved" ]; do
+    resolved="$(readlink "$resolved")"
+done
+rel_bin_dir=`dirname $resolved`
+bin_dir=`(cd $rel_bin_dir; pwd)`
+qa_check_root=`dirname $bin_dir`
+
+# Displays the help message.
+usage() {
+    echo "Usage: $0 [-h|--help] [-d|--dry-run] [-n count] [--] [reports_dir]"
+}
+
+HELP=false     # Display help.
+DRY_RUN=false  # Display subcommands rather than running them.
+ECHO=""        # Precede subcommands with echo if and only if dry run is set.
+n=4            # The number of slices to prune.
+
+# The standard option parsing idiom.
+while true; do
+    case "$1" in
+        -h | --help )    HELP=true; shift ;;
+        -d | --dry-run ) DRY_RUN=true; shift ;;
+        -n ) n="$2"; shift; shift ;;
+        -- ) shift; break ;;
+        * ) break ;;
+    esac
+done
+
+# Display help if asked.
+if $HELP; then
+    usage
+    exit 0
 fi
 
-# This script is assumed to reside in the bin subdirectory
-# of the check location. BASH_SOURCE[0] followed by readlink
-# is preferred to $0 (cf. https://gist.github.com/olegch/1730673).
-here="${BASH_SOURCE[0]}"
-while [ -h "$here" ]; do
-    here="$(readlink "$here")"
-done
-bin_dir=`dirname $here`
-share=`(cd $bin_dir/..; pwd)`
+# If the dry run option is set, then echo commands
+# rather than running them.
+if $DRY_RUN; then
+    ECHO="echo"
+fi
 
-# The QA report location.
-reports_dir=$share/QAReports
+# Must have a valid count and at most one other argument.
+if [ -z "$n" ] || (("$#" > 1)); then
+    usage
+    exit 1
+fi
+if (( "$#" == 1 )); then
+    reports_dir=`(cd $1; pwd)`
+else
+    reports_dir="$qa_check_root/QAReports"
+fi
 if [ ! -e $reports_dir ]; then
-    (>&2 echo "Reports directorty not found: $v")
+    (>&2 echo "Reports directory not found: $reports_dir")
     exit 1
 fi
 
 # The Slicing Tool location.
-slicing_dir="$share/SlicingTool"
+slicing_dir="$qa_check_root/SlicingTool"
 # The Slicing Tool configuration file.
 slicing_prop_file="$slicing_dir/slicingTool.prop"
 if [ ! -e $slicing_prop_file ]; then
@@ -46,12 +81,13 @@ fi
 dates_cnt=`(cd $reports_dir; ls -d * | wc -w)`
 # If nothing to prune, then we are done.
 if (( $dates_cnt <= $n )); then
+    echo "No report slice subdirectories found to prune."
     exit 0
 fi
 # The number of reports and dbs to prune.
 prune_cnt=$(( $dates_cnt - $n ))
 # The dates to prune.
-dates=`(cd $reports_dir; ls -d * | grep -E '[[:digit:]]{8}' | head -n $prune_cnt)`
+dates=`ls $reports_dir | grep -E '[[:digit:]]{8}' | head -n $prune_cnt`
 
 # Extract the db user and password from the property file.
 # The sed command prints the the dbUser or dbPwd property
@@ -64,7 +100,11 @@ db_pswd=`sed -nE "s/^dbPwd[ ]*=[ ]*(.*)/\1/p" $slicing_prop_file`
 # and the reports subdirectory.
 for prune_date in $dates; do
     prune_db="test_slice_$prune_date"
-    mysql -u"$db_user" -p"$db_pswd" -e "DROP DATABASE IF EXISTS $prune_db" 2>&1 | \
+    echo "Dropping database $prune_db..."
+    drop_cmd="DROP DATABASE IF EXISTS $prune_db"
+    $ECHO mysql -u"$db_user" -p"$db_pswd" -e "$drop_cmd" 2>&1 | \
       grep -v "\[Warning\] Using a password"
-    rm -r $reports_dir/$prune_date
+    rpt_subdir="$reports_dir/$prune_date"
+    echo "Deleting report directory $rpt_subdir..."
+    $ECHO rm -r $rpt_subdir
 done
