@@ -23,6 +23,11 @@ public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
 
     public SpeciesPrecedingRelationCheck() {
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Species_in_Preceding_Event";
+    }
     
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -79,11 +84,6 @@ public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
         species.forEach(inst -> builder.append(inst.getDisplayName()).append("|"));
         builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Species_in_Preceding_Event";
     }
     
 }
