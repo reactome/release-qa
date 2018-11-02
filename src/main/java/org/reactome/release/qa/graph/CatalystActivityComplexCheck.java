@@ -13,6 +13,11 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 @GraphQACheck
+/**
+ * Reports CatalystActivities of which the physicalEntity and activeUnit refer to the same Complex.
+ *
+ * @author Fred Loney <loneyf@ohsu.edu>
+ */
 public class CatalystActivityComplexCheck extends AbstractQACheck {
     
     private static final List<String> HEADERS = Arrays.asList("DBID", "DisplayName", "MostRecentAuthor");
