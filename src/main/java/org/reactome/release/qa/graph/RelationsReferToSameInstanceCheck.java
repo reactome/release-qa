@@ -14,9 +14,15 @@ import org.gk.schema.SchemaClass;
 import org.reactome.release.qa.annotations.GraphQACheck;
 
 @GraphQACheck
-public class OtherRelationsThatPointToTheSameEntryCheck extends TwoAttributesReferToSameCheck {
+public class RelationsReferToSameInstanceCheck extends TwoAttributesReferToSameCheck {
     
-    //TODO: Need to check with Fred how the following list was created.
+    /**
+     * The attributes to ignore, as specified in the graph-qa
+     * T033_OtherRelationsThatPointToTheSameEntry Neo4j Cypher
+     * query.
+     * 
+     * TODO - can this check be subsumed by TwoAttributesReferToSameCheck?
+     */
     private final static String[] SKIP_ATTS = {
             "author",
             "created",
@@ -42,11 +48,6 @@ public class OtherRelationsThatPointToTheSameEntryCheck extends TwoAttributesRef
             "hasMember"
     };
     
-    @Override
-    public String getDisplayName() {
-        return "Other_Relations_Refer_Same_Instance";
-    }
-    
     @SuppressWarnings("unchecked")
     @Override
     protected List<CheckConfiguration> loadConfiguration() throws Exception {
@@ -67,7 +68,7 @@ public class OtherRelationsThatPointToTheSameEntryCheck extends TwoAttributesRef
                 if (!cls1.isa(cls2) && !cls2.isa(cls1))
                     continue; // att1 and att2 cannot be used in the same class
                 // Make sure the same types of instances can be used in these two attributes
-                if (!isCompatibleAttributes(att1, att2))
+                if (!isAttributesCompatible(att1, att2))
                     continue;
                 // Find which class should be used
                 CheckConfiguration config = new CheckConfiguration();
@@ -93,7 +94,7 @@ public class OtherRelationsThatPointToTheSameEntryCheck extends TwoAttributesRef
      * @return
      */
     @SuppressWarnings("unchecked")
-    private boolean isCompatibleAttributes(SchemaAttribute att1, SchemaAttribute att2) {
+    private boolean isAttributesCompatible(SchemaAttribute att1, SchemaAttribute att2) {
         Collection<SchemaClass> clses1 = att1.getAllowedClasses();
         Collection<SchemaClass> clses2 = att2.getAllowedClasses();
         for (SchemaClass cls1 : clses1) {
