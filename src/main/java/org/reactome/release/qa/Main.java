@@ -61,6 +61,13 @@ public class Main {
                                !Modifier.isAbstract(cls.getModifiers()) &&
                                !cls.isInterface())
                 .collect(Collectors.toSet());
+
+//        // Deployment aid:
+//        // Uncomment and run to print the class display names.
+//        for (Class<? extends QACheck> cls: instantiable) {
+//            System.out.println(cls.getSimpleName() + "," + cls.newInstance().getDisplayName());
+//        }
+//        System.exit(0);
         
         // The properties file.
         File qaPropsFile = getQAPropertiesFile();
