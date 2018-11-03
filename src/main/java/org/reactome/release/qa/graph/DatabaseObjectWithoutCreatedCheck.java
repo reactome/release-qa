@@ -28,6 +28,7 @@ public class DatabaseObjectWithoutCreatedCheck extends AbstractQACheck {
             ReactomeJavaConstants.DatabaseIdentifier,
             ReactomeJavaConstants.Taxon,
             ReactomeJavaConstants.Person,
+            ReactomeJavaConstants.ReactionCoordinates,
             ReactomeJavaConstants.ReferenceEntity
     };
 
