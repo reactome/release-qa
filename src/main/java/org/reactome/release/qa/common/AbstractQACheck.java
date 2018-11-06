@@ -26,7 +26,10 @@ public abstract class AbstractQACheck implements QACheck {
     private Set<Long> escDbIds;
 
     private Date cutoffDate;
-
+    
+    @Override
+    abstract public QAReport executeQACheck() throws Exception;
+    
     @Override
     public void setMySQLAdaptor(MySQLAdaptor dba) {
         this.dba = dba;
@@ -37,7 +40,7 @@ public abstract class AbstractQACheck implements QACheck {
         this.cutoffDate = cutoffDate;
     }
 
-    public File getConfigurationFile() {
+    protected File getConfigurationFile() {
         String fileName = "resources" + File.separator + getClass().getSimpleName() + ".txt";
         File file = new File(fileName);
         if (!file.exists()) {
@@ -48,7 +51,7 @@ public abstract class AbstractQACheck implements QACheck {
         }
         return file;
     }
-   
+    
     @Override
     /**
      * The default display name is the simple class name with
@@ -59,7 +62,7 @@ public abstract class AbstractQACheck implements QACheck {
         List<String> words = splitCamelCase(baseName);
         return String.join("_", words);
     }
-
+    
     /**
      * Determines whether the given instance should not be reported.
      * Returns true if both of the following conditions hold:
@@ -104,7 +107,7 @@ public abstract class AbstractQACheck implements QACheck {
         Date ieDate = df.parse(ieDateValue);
         return !ieDate.after(cutoffDate);
     }
-   
+    
     /**
      * Opens the file consisting of escaped instance DB ids.
      * @param class the QA class
