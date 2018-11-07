@@ -2,9 +2,5 @@
 # Make sure one class has one line only. Otherwise, the previous lines will be overwritten.
 # It is tab delimited. The first token is the class name. After the first token, attributes are listed.
 # Multiple attributes may be listed and will be checked sequentially.
-PhysicalEntity	stableIdentifier
-Event	stableIdentifier
-InstanceEdit	author
 BlackBoxEvent	output	input
-OpenSet	referenceEntity
 
