@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
@@ -20,6 +22,8 @@ import org.gk.util.FileUtilities;
 public abstract class AbstractQACheck implements QACheck {
 
     private final static Logger logger = Logger.getLogger(AbstractQACheck.class);
+
+    private static final Pattern CHECK_SUFFIX_PAT = Pattern.compile("Check(er)?$");
 
     protected MySQLAdaptor dba;
 
@@ -58,7 +62,8 @@ public abstract class AbstractQACheck implements QACheck {
      * capitalized words delimited by underscore.
      */
     public String getDisplayName() {
-        String baseName = getClass().getSimpleName().replace("Check(er)?$", "");
+        Matcher match = CHECK_SUFFIX_PAT.matcher(getClass().getSimpleName());
+        String baseName = match.replaceAll("");
         List<String> words = splitCamelCase(baseName);
         return String.join("_", words);
     }
