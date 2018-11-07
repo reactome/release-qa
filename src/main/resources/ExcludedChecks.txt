@@ -1,0 +1,4 @@
+DatabaseObjectWithoutCreatedCheck
+PhysicalEntitiesWithMoreThanOneCompartmentCheck
+PrecedingEventOutputsNotUsedInReactionCheck
+SingleAttributeDuplicationCheck
