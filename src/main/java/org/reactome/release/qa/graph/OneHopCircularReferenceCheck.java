@@ -149,12 +149,6 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
         }
         rs.close();
         ps.close();
-        
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "One_Hop_Circular_Reference";
     }
 
     private Set<String[]> loadEscapedAttributes() throws IOException {

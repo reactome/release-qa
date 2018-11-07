@@ -20,11 +20,6 @@ public class OrphanEventsCheck extends AbstractQACheck {
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
     @Override
-    public String getDisplayName() {
-        return "Orphan_Events";
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();

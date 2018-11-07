@@ -149,10 +149,5 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             return names;
         }
     }
-
-    @Override
-    public String getDisplayName() {
-        return "Instance_Duplication";
-    }
     
 }

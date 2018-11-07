@@ -34,7 +34,7 @@ public class ChimericInstancesCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Chimerism_Reference_Constraints";
+        return "Chimerism_Reference_Constraint_Violations";
     }
 
     @Override

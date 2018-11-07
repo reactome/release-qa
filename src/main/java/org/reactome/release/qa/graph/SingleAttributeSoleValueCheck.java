@@ -70,9 +70,4 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
         ps.close();
     }
 
-    @Override
-    public String getDisplayName() {
-        return "Single_Attribute_Sole_Value";
-    }
-
 }

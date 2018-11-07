@@ -61,10 +61,5 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
                            QACheckerHelper.getLastModificationAuthor(instance));
         }
     }
-
-    @Override
-    public String getDisplayName() {
-        return "Single_Attribute_Missing";
-    }
     
 }

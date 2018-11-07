@@ -26,7 +26,7 @@ public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Species_in_Preceding_Event";
+        return "Species_In_Preceding_Event";
     }
     
     @Override

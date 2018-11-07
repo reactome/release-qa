@@ -36,11 +36,6 @@ public class DatabaseObjectWithoutCreatedCheck extends AbstractQACheck {
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
 
     @Override
-    public String getDisplayName() {
-        return "DatabaseObject_Without_Created";
-    }
-
-    @Override
     public QAReport executeQACheck() throws Exception {
         // The root class.
         Schema schema = dba.getSchema();

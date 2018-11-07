@@ -13,6 +13,10 @@ import org.reactome.release.qa.common.QAReport;
 
 /**
  * Reports non-failed RLEs with a normalReaction value but without a disease value.
+ * 
+ * This check replaces the disease aspect of the former ReactionLikeEventChecker.java.
+ * 
+ * @author Fred Loney <loneyf@ohsu.edu>
  */
 @SliceQACheck
 public class ReactionlikeEventDiseaseCheck extends AbstractQACheck {
