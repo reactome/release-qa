@@ -34,10 +34,12 @@ import org.reflections.Reflections;
  *
  */
 public class Main {
-    
-    private static final String CHECKS_OPT = "checks";
 
     private static final Logger logger = LogManager.getLogger();
+    
+    private static final String QA_PROP_FILE = "resources/qa.properties";
+
+    private static final String CHECKS_OPT = "checks";
     
     public static void main(String[] args) throws Exception {
         // Parse command line arguments.
@@ -70,9 +72,11 @@ public class Main {
 //        System.exit(0);
         
         // The properties file.
-        File qaPropsFile = getQAPropertiesFile();
         Properties qaProps = new Properties();
-        qaProps.load(new FileInputStream(qaPropsFile));
+        File qaPropsFile = new File(QA_PROP_FILE);
+        if (qaPropsFile.exists()) {
+            qaProps.load(new FileInputStream(qaPropsFile));
+        }
         // The instance escape cut-off date.
         String cutoffDateStr = qaProps.getProperty("cutoffDate");
         Date cutoffDate = null;
@@ -287,13 +291,6 @@ public class Main {
         }
         
         return cmdOpts;
-    }
-    
-    private static File getQAPropertiesFile() {
-        File file = new File("resources/qa.properties");
-        if (file.exists())
-            return file;
-        throw new IllegalStateException("Make sure resources/qa.properties exists, which provides common QA settings");
     }
   
 }
