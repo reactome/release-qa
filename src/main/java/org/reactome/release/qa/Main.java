@@ -155,9 +155,9 @@ public class Main {
                 continue;
             }
             else {
-                String fileName = check.getDisplayName();
-                qaReport.output(fileName + ".txt", output.getAbsolutePath());
-                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + ".txt for report details.");
+                String fileName = check.getFileName();
+                qaReport.output(fileName, output.getAbsolutePath());
+                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + " for report details.");
             }
         }
     }

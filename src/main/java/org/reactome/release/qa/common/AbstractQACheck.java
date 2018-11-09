@@ -67,7 +67,7 @@ public abstract class AbstractQACheck implements QACheck {
         List<String> words = splitCamelCase(baseName);
         return String.join("_", words);
     }
-    
+
     /**
      * Determines whether the given instance should not be reported.
      * Returns true if both of the following conditions hold:
