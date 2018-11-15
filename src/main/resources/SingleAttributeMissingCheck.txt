@@ -3,4 +3,3 @@
 # It is tab delimited. The first token is the class name. After the first token, attributes are listed.
 # Multiple attributes may be listed and will be checked sequentially.
 BlackBoxEvent	output	input
-
