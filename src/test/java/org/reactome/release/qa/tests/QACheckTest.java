@@ -173,6 +173,12 @@ public class QACheckTest {
         AbstractQACheck checker = new DiagramRenderableTypeMismatchCheck();
         runTest(checker);
     }
+    
+    @Test
+    public void testDiagramEmptyCheck() throws Exception {
+        AbstractQACheck checker = new DiagramEmptyCheck();
+        runTest(checker);
+    }
 
     @Test
     public void testEHLDSubPathwayChangeCheck() throws Exception {
