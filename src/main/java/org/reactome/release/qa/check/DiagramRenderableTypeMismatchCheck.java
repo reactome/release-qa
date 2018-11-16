@@ -21,9 +21,11 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the implementation of Antonio's DT102 for object consistence checking in pathway diagrams.
+ * This is the implementation of the diagram-converter DT105 check for
+ * diagram renderable class consistency with the represented object's
+ * schema class.
+ * 
  * @author wug
- *
  */
 @SliceQACheck
 public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
@@ -82,7 +84,7 @@ public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
     
     private void checkPathwayDiagram(GKInstance diagram, DiagramGKBReader reader,
             SearchDBTypeHelper typeHelper, QAReport report) throws Exception {
-        logger.info("Checking " + diagram.getDisplayName() + "...");
+        logger.debug("Checking " + diagram.getDisplayName() + "...");
         if (isEscaped(diagram)) {
             logger.info("Pathway diagram is on the skip list: " + diagram.getDisplayName());
             return;
