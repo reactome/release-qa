@@ -5,16 +5,16 @@ import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
 import org.reactome.release.qa.check.ChecksTwoDatabases;
-import org.reactome.release.qa.check.ChimericInstancesChecker;
-import org.reactome.release.qa.check.CompareSpeciesByClasses;
-import org.reactome.release.qa.check.EHLDSubpathwayChangeChecker;
-import org.reactome.release.qa.check.HumanEventNotInHierarchyChecker;
-import org.reactome.release.qa.check.SpeciesInPrecedingRelationChecker;
-import org.reactome.release.qa.check.StableIdentifierCheck;
-import org.reactome.release.qa.check.diagram.DiagramDuplicateReactionParticipantsChecker;
-import org.reactome.release.qa.check.diagram.DiagramEmptyChecker;
-import org.reactome.release.qa.check.diagram.DiagramExtraParticipantChecker;
-import org.reactome.release.qa.check.diagram.DiagramRenderableTypeChecker;
+import org.reactome.release.qa.check.ChimericInstancesCheck;
+import org.reactome.release.qa.check.diagram.DiagramRenderableTypeMismatchCheck;
+import org.reactome.release.qa.check.EHLDSubpathwayChangeCheck;
+import org.reactome.release.qa.check.ReactionlikeEventDiseaseCheck;
+import org.reactome.release.qa.check.SpeciesInstanceCountCheck;
+import org.reactome.release.qa.check.SpeciesPrecedingRelationCheck;
+import org.reactome.release.qa.check.StableIdentifierIntegrityCheck;
+import org.reactome.release.qa.check.diagram.DiagramDuplicateReactionParticipantsCheck;
+import org.reactome.release.qa.check.diagram.DiagramEmptyCheck;
+import org.reactome.release.qa.check.diagram.DiagramExtraParticipantCheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
@@ -189,33 +189,22 @@ public class QACheckTest {
         AbstractQACheck checker = new DiagramEmptyCheck();
         runTest(checker);
     }
+    
+    @Test
+    public void testDiagramDuplicateReactionParticipantsCheck() throws Exception {
+        AbstractQACheck checker = new DiagramDuplicateReactionParticipantsCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramExtraParticipantCheck() throws Exception {
+        AbstractQACheck checker = new DiagramExtraParticipantCheck();
+        runTest(checker);
+    }
 
     @Test
-<<<<<<< HEAD
     public void testEHLDSubPathwayChangeCheck() throws Exception {
         AbstractQACheck checker = new EHLDSubpathwayChangeCheck();
-=======
-    public void testDiagramRenderableTypeChecker() throws Exception {
-        AbstractQACheck checker = new DiagramRenderableTypeChecker();
-        runTest(checker);
-    }
-    
-    @Test
-    public void testDiagramEmptyChecker() throws Exception {
-        AbstractQACheck checker = new DiagramEmptyChecker();
-        runTest(checker);
-    }
-    
-    @Test
-    public void testDiagramDuplicateReactionParticipantsChecker() throws Exception {
-        AbstractQACheck checker = new DiagramDuplicateReactionParticipantsChecker();
-        runTest(checker);
-    }
-    
-    @Test
-    public void testDiagramExtraParticipantChecker() throws Exception {
-        AbstractQACheck checker = new DiagramExtraParticipantChecker();
->>>>>>> Pull common diagram checker methods into abstract superclass.
         runTest(checker);
     }
 
