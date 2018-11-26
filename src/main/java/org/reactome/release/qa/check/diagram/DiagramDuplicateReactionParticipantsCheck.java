@@ -13,7 +13,7 @@ import org.gk.render.Node;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -23,8 +23,8 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
-@SliceQATest
-public class DiagramDuplicateReactionParticipantsChecker extends DiagramQACheck {
+@SliceQACheck
+public class DiagramDuplicateReactionParticipantsCheck extends DiagramQACheck {
     
     @Override
     public QAReport executeQACheck() throws Exception {

@@ -6,16 +6,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
-import org.gk.property.SearchDBTypeHelper;
-import org.gk.render.Node;
-import org.gk.render.ProcessNode;
 import org.gk.render.Renderable;
-import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
-import org.gk.schema.InvalidAttributeException;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -25,12 +19,12 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
-@SliceQATest
-public class DiagramEmptyChecker extends DiagramQACheck {
+@SliceQACheck
+public class DiagramEmptyCheck extends DiagramQACheck {
 
-    private final static Logger logger = Logger.getLogger(DiagramEmptyChecker.class);
+    private final static Logger logger = Logger.getLogger(DiagramEmptyCheck.class);
 
-    public DiagramEmptyChecker() {
+    public DiagramEmptyCheck() {
     }
 
     @Override
