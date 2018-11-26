@@ -18,8 +18,8 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the slice QA adaptation of the diagram-converter T101 empty
- * pathway diagram check.
+ * This is the slice QA adaptation of the diagram-converter T104 duplicate
+ * participants diagram check.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
