@@ -1,6 +1,5 @@
 package org.reactome.release.qa.common;
 
-import java.util.Date;
 import org.gk.persistence.MySQLAdaptor;
 
 /**
@@ -25,7 +24,5 @@ public interface QACheck {
     default public String getFileName() {
         return getDisplayName() + ".tsv";
     }
-
-    public void setCutoffDate(Date cutoffDate);
 	
 }

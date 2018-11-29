@@ -1,21 +1,16 @@
 package org.reactome.release.qa;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
@@ -37,8 +32,6 @@ public class Main {
 
     private static final Logger logger = LogManager.getLogger();
     
-    private static final String QA_PROP_FILE = "resources/qa.properties";
-
     private static final String CHECKS_OPT = "checks";
     
     public static void main(String[] args) throws Exception {
@@ -70,21 +63,6 @@ public class Main {
 //            System.out.println(cls.getSimpleName() + "," + cls.newInstance().getDisplayName());
 //        }
 //        System.exit(0);
-        
-        // The properties file.
-        Properties qaProps = new Properties();
-        File qaPropsFile = new File(QA_PROP_FILE);
-        if (qaPropsFile.exists()) {
-            qaProps.load(new FileInputStream(qaPropsFile));
-        }
-        // The instance escape cut-off date.
-        String cutoffDateStr = qaProps.getProperty("cutoffDate");
-        Date cutoffDate = null;
-        if (cutoffDateStr != null) {
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            cutoffDate = df.parse(cutoffDateStr);
-            logger.info("Skip list cut-off date: " + cutoffDate);
-        }
         
         // The optional QA checks to include.
         final Set<String> includes;
@@ -146,8 +124,6 @@ public class Main {
                 }
                 ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
             }
-            // Set the common skip list cut-off date.
-            check.setCutoffDate(cutoffDate);
 
             QAReport qaReport = check.executeQACheck();
             if (qaReport.isEmpty()) {

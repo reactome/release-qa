@@ -25,11 +25,11 @@ public abstract class AbstractQACheck implements QACheck {
 
     private static final Pattern CHECK_SUFFIX_PAT = Pattern.compile("Check(er)?$");
 
+    private static final Date CUTOFF_DATE = QACheckProperties.getCutoffDate();
+
     protected MySQLAdaptor dba;
 
     private Set<Long> escDbIds;
-
-    private Date cutoffDate;
     
     @Override
     abstract public QAReport executeQACheck() throws Exception;
@@ -38,12 +38,7 @@ public abstract class AbstractQACheck implements QACheck {
     public void setMySQLAdaptor(MySQLAdaptor dba) {
         this.dba = dba;
     }
-    
-    @Override
-    public void setCutoffDate(Date cutoffDate) {
-        this.cutoffDate = cutoffDate;
-    }
-
+ 
     protected File getConfigurationFile() {
         String fileName = "resources" + File.separator + getClass().getSimpleName() + ".txt";
         File file = new File(fileName);
@@ -56,11 +51,11 @@ public abstract class AbstractQACheck implements QACheck {
         return file;
     }
     
-    @Override
     /**
      * The default display name is the simple class name with
      * capitalized words delimited by underscore.
      */
+    @Override
     public String getDisplayName() {
         Matcher match = CHECK_SUFFIX_PAT.matcher(getClass().getSimpleName());
         String baseName = match.replaceAll("");
@@ -94,7 +89,7 @@ public abstract class AbstractQACheck implements QACheck {
         }
         // Second check: if there is a cut-off date, then the instance
         // was most recently modified on or before the cut-off date.
-        if (cutoffDate == null) {
+        if (CUTOFF_DATE == null) {
             return true;
         }
         GKInstance ie = InstanceUtilities.getLatestIEFromInstance(instance);
@@ -110,7 +105,7 @@ public abstract class AbstractQACheck implements QACheck {
         }
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
         Date ieDate = df.parse(ieDateValue);
-        return !ieDate.after(cutoffDate);
+        return !ieDate.after(CUTOFF_DATE);
     }
     
     /**
