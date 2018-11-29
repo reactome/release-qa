@@ -29,7 +29,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
             return true;
         }
         if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway) && 
-            attName.equals(ReactomeJavaConstants.hasEvent)) {
+                attName.equals(ReactomeJavaConstants.hasEvent)) {
             GKInstance disease = (GKInstance) inst.getAttributeValue(ReactomeJavaConstants.disease);
             if (disease != null)
                 return true;
