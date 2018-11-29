@@ -6,18 +6,19 @@ import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
 import org.reactome.release.qa.check.ChecksTwoDatabases;
 import org.reactome.release.qa.check.ChimericInstancesCheck;
-import org.reactome.release.qa.check.diagram.DiagramRenderableTypeMismatchCheck;
 import org.reactome.release.qa.check.EHLDSubpathwayChangeCheck;
 import org.reactome.release.qa.check.ReactionlikeEventDiseaseCheck;
 import org.reactome.release.qa.check.SpeciesInstanceCountCheck;
 import org.reactome.release.qa.check.SpeciesPrecedingRelationCheck;
 import org.reactome.release.qa.check.StableIdentifierIntegrityCheck;
-import org.reactome.release.qa.check.diagram.DiagramDuplicateReactionParticipantsCheck;
-import org.reactome.release.qa.check.diagram.DiagramEmptyCheck;
-import org.reactome.release.qa.check.diagram.DiagramExtraParticipantCheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.diagram.DiagramDuplicateReactionParticipantsCheck;
+import org.reactome.release.qa.diagram.DiagramEmptyCheck;
+import org.reactome.release.qa.diagram.DiagramExtraParticipantCheck;
+import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
+import org.reactome.release.qa.diagram.DiagramRenderableTypeMismatchCheck;
 import org.reactome.release.qa.graph.CatalystActivityComplexCheck;
 import org.reactome.release.qa.graph.FailedReactionMissingNormalCheck;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
@@ -199,6 +200,12 @@ public class QACheckTest {
     @Test
     public void testDiagramExtraParticipantCheck() throws Exception {
         AbstractQACheck checker = new DiagramExtraParticipantCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramOverlappingEntityCheck() throws Exception {
+        AbstractQACheck checker = new DiagramOverlappingEntityCheck();
         runTest(checker);
     }
 
