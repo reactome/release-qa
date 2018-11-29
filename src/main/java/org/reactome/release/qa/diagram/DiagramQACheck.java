@@ -1,4 +1,4 @@
-package org.reactome.release.qa.check.diagram;
+package org.reactome.release.qa.diagram;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,16 +11,13 @@ import org.reactome.release.qa.common.AbstractQACheck;
 
 public abstract class DiagramQACheck extends AbstractQACheck {
 
-    protected static final String REPRESENTED_PATHWAY_ATT =
-            ReactomeJavaConstants.representedPathway;
-    
     protected static final String[] REPRESENTED_PATHWAY_ATTS = {
-            REPRESENTED_PATHWAY_ATT
+            ReactomeJavaConstants.representedPathway
     };
 
     protected boolean isHuman(GKInstance diagram) throws Exception {
         @SuppressWarnings("unchecked")
-        List<GKInstance> pathways = diagram.getAttributeValuesList(REPRESENTED_PATHWAY_ATT);
+        List<GKInstance> pathways = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
         for (GKInstance pathway : pathways) {
             GKInstance species = (GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.species);
             if (species != null && species.getDisplayName().equals("Homo sapiens")) {
@@ -43,7 +40,7 @@ public abstract class DiagramQACheck extends AbstractQACheck {
     }
     
     protected String getPathwayDiagramXML(GKInstance diagram) throws Exception {
-        GKInstance pathway = (GKInstance) diagram.getAttributeValue(REPRESENTED_PATHWAY_ATT);
+        GKInstance pathway = (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         PathwayDiagramXMLGenerator xmlGenerator = new PathwayDiagramXMLGenerator();
         
         return xmlGenerator.generateXMLForPathwayDiagram(diagram, pathway);

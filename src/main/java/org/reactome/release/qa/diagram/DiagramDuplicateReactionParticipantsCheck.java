@@ -1,4 +1,4 @@
-package org.reactome.release.qa.check.diagram;
+package org.reactome.release.qa.diagram;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
+import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Node;
 import org.gk.render.Renderable;
@@ -70,7 +71,7 @@ public class DiagramDuplicateReactionParticipantsCheck extends DiagramQACheck {
                 .collect(Collectors.toSet());
         if (!dups.isEmpty()) {
             GKInstance pathway =
-                    (GKInstance) diagram.getAttributeValue(REPRESENTED_PATHWAY_ATT);
+                    (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
             for (Renderable dup: dups) {
                 report.addLine(diagram.getDBID().toString(),
                         pathway.getDisplayName(),

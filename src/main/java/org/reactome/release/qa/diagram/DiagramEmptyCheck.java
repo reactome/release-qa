@@ -1,4 +1,4 @@
-package org.reactome.release.qa.check.diagram;
+package org.reactome.release.qa.diagram;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
+import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
@@ -53,17 +54,12 @@ public class DiagramEmptyCheck extends DiagramQACheck {
         List<Renderable> components = pathway.getComponents();
         if (components == null || components.size() == 0) {
             GKInstance pathwayInst =
-                    (GKInstance) pathwayDiagram.getAttributeValue(REPRESENTED_PATHWAY_ATT);
+                    (GKInstance) pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
             report.addLine(pathwayDiagram.getDBID().toString(),
                     pathwayInst.getDisplayName(),
                     pathwayInst.getDBID().toString(),
                     QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
         }
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Pathway_Diagram_Empty";
     }
 
 }

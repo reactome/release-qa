@@ -1,4 +1,4 @@
-package org.reactome.release.qa.check.diagram;
+package org.reactome.release.qa.diagram;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +61,7 @@ public class DiagramExtraParticipantCheck extends DiagramQACheck {
         Collection<GKInstance> pathwayDiagrams = getPathwayDiagrams();
         Collection<GKInstance> diagrammed = new HashSet<GKInstance>(pathwayDiagrams.size());
         for (GKInstance pd: pathwayDiagrams) {
-            diagrammed.add((GKInstance) pd.getAttributeValue(REPRESENTED_PATHWAY_ATT));
+            diagrammed.add((GKInstance) pd.getAttributeValue(ReactomeJavaConstants.representedPathway));
         }
         DiagramGKBReader reader = new DiagramGKBReader();
         for (GKInstance diagram : pathwayDiagrams) {
@@ -77,7 +77,7 @@ public class DiagramExtraParticipantCheck extends DiagramQACheck {
             DiagramGKBReader reader, QAReport report) throws Exception {
         RenderablePathway pathway = reader.openDiagram(diagram);
         GKInstance pathwayInst =
-                (GKInstance) diagram.getAttributeValue(REPRESENTED_PATHWAY_ATT);
+                (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         Set<Long> allowed = getPathwayParticipantDbIds(pathwayInst, diagrammed);
         Set<Long> actual = getRenderableParticipantDbIds(pathway);
         Set<Long> invalid = new HashSet<Long>(actual);
