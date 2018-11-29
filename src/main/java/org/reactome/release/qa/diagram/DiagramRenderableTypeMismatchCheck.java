@@ -1,4 +1,4 @@
-package org.reactome.release.qa.check.diagram;
+package org.reactome.release.qa.diagram;
 
 import java.util.Arrays;
 import java.util.Collection;
