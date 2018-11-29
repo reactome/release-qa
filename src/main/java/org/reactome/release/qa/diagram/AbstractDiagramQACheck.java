@@ -9,7 +9,7 @@ import org.gk.pathwaylayout.DiagramGeneratorFromDB;
 import org.gk.pathwaylayout.PathwayDiagramXMLGenerator;
 import org.reactome.release.qa.common.AbstractQACheck;
 
-public abstract class DiagramQACheck extends AbstractQACheck {
+public abstract class AbstractDiagramQACheck extends AbstractQACheck {
 
     protected static final String[] REPRESENTED_PATHWAY_ATTS = {
             ReactomeJavaConstants.representedPathway

@@ -29,21 +29,21 @@ import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the slice QA adaptation of the diagram-converter T110 overlaping
- * entity check.
+ * This is the slice QA adaptation of the diagram-converter T109 overlaping
+ * reaction check.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @DiagramQACheck
-public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
+public class DiagramOverlappingReactionCheck extends AbstractDiagramQACheck {
     
-    private final static Logger logger = Logger.getLogger(DiagramOverlappingEntityCheck.class);
+    private final static Logger logger = Logger.getLogger(DiagramOverlappingReactionCheck.class);
 
-    private static final String TOLERANCE_PROP = "diagram.entity.overlap.tolerance";
+    private static final String TOLERANCE_PROP = "diagram.reaction.overlap.tolerance";
 
     private final static Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
     
-    public DiagramOverlappingEntityCheck() {
+    public DiagramOverlappingReactionCheck() {
     }
 
     @Override
@@ -59,8 +59,21 @@ public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
                 "Pathway_DBID",
                 "Overlapping_DBIDs",
                 "Overlapping_DisplayNames",
+                "Overlapping_Classes",
                 "MostRecentAuthor"));
         return report;
+    }
+
+    private boolean isDisease(GKInstance diagram) throws Exception {
+        @SuppressWarnings("unchecked")
+        List<GKInstance> pathways = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
+        for (GKInstance pathway : pathways) {
+            GKInstance normal = (GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.normalPathway);
+            if (normal != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void checkPathwayDiagram(GKInstance pathwayDiagram,
@@ -97,9 +110,20 @@ public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
                     String overlapDisplayNames = overlaps.stream()
                             .map(Renderable::getDisplayName)
                             .collect(Collectors.joining("|"));
+                    String overlapClasses = overlaps.stream()
+                            .map(Object::getClass)
+                            .map(Class::getSimpleName)
+                            .collect(Collectors.joining("|"));
+                    // The first pathway.
+                    // TODO - Can be null - why?
+                    //GKInstance pathwayInst =
+                    //        (GKInstance) pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
                     report.addLine(pathwayDiagram.getDBID().toString(),
+                            //pathwayInst.getDisplayName(),
+                            //pathwayInst.getDBID().toString(),
                             overlapIds,
                             overlapDisplayNames,
+                            overlapClasses,
                             QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
                 }
             }

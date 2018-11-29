@@ -17,7 +17,7 @@ import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
 import org.gk.schema.InvalidAttributeException;
-import org.reactome.release.qa.annotations.SliceQACheck;
+import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -27,8 +27,8 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
-@SliceQACheck
-public class DiagramExtraParticipantCheck extends DiagramQACheck {
+@DiagramQACheck
+public class DiagramExtraParticipantCheck extends AbstractDiagramQACheck {
     
     private static final List<String> HEADERS = Arrays.asList(
             "PathwayDiagram_DBID",

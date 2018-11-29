@@ -10,7 +10,7 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
-import org.reactome.release.qa.annotations.SliceQACheck;
+import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -20,8 +20,8 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
-@SliceQACheck
-public class DiagramEmptyCheck extends DiagramQACheck {
+@DiagramQACheck
+public class DiagramEmptyCheck extends AbstractDiagramQACheck {
 
     private final static Logger logger = Logger.getLogger(DiagramEmptyCheck.class);
 
