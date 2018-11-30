@@ -2,3 +2,5 @@ DatabaseObjectWithoutCreatedCheck
 PhysicalEntitiesWithMoreThanOneCompartmentCheck
 PrecedingEventOutputsNotUsedInReactionCheck
 SingleAttributeDuplicationCheck
+Diagram Overlapping Entities
+Diagram Overlapping Reactions

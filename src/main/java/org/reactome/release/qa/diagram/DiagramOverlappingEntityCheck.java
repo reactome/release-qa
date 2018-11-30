@@ -4,25 +4,17 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.ContainerNode;
-import org.gk.render.ReactionNode;
+import org.gk.render.HyperEdge;
 import org.gk.render.Renderable;
-import org.gk.render.RenderableCompartment;
-import org.gk.render.RenderableComplex;
 import org.gk.render.RenderablePathway;
-import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QACheckProperties;
@@ -44,6 +36,11 @@ public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
     private final static Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
     
     public DiagramOverlappingEntityCheck() {
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Diagram_Overlapping_Entities";
     }
 
     @Override
@@ -72,36 +69,34 @@ public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
         List<Renderable> components = pathway.getComponents();
         Predicate<? super Renderable> skip =
                 cmpnt -> cmpnt.getReactomeId() == null ||
-                        cmpnt instanceof RenderableReaction ||
+                        cmpnt instanceof HyperEdge ||
                         cmpnt instanceof ContainerNode;
         List<Renderable> filtered = components.stream()
                 .filter(skip.negate())
                 .collect(Collectors.toList());
-        if (filtered != null) {
-            List<Renderable> overlaps = new ArrayList<Renderable>();
-            for (int i = 0; i < filtered.size(); i++) {
-                Renderable renderable = filtered.get(i);
-                overlaps.clear();
-                for (int j = i + 1; j < filtered.size(); j++) {
-                    Renderable other = filtered.get(j);
-                    if (isOverlapping(renderable, other)) {
-                        overlaps.add(other);
-                    }
+        List<Renderable> overlaps = new ArrayList<Renderable>();
+        for (int i = 0; i < filtered.size(); i++) {
+            Renderable renderable = filtered.get(i);
+            overlaps.clear();
+            for (int j = i + 1; j < filtered.size(); j++) {
+                Renderable other = filtered.get(j);
+                if (isOverlapping(renderable, other)) {
+                    overlaps.add(other);
                 }
-                if (!overlaps.isEmpty()) {
-                    overlaps.add(0, renderable);
-                    String overlapIds = overlaps.stream()
-                            .map(Renderable::getReactomeId)
-                            .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
-                            .collect(Collectors.joining("|"));
-                    String overlapDisplayNames = overlaps.stream()
-                            .map(Renderable::getDisplayName)
-                            .collect(Collectors.joining("|"));
-                    report.addLine(pathwayDiagram.getDBID().toString(),
-                            overlapIds,
-                            overlapDisplayNames,
-                            QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
-                }
+            }
+            if (!overlaps.isEmpty()) {
+                overlaps.add(0, renderable);
+                String overlapIds = overlaps.stream()
+                        .map(Renderable::getReactomeId)
+                        .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
+                        .collect(Collectors.joining("|"));
+                String overlapDisplayNames = overlaps.stream()
+                        .map(Renderable::getDisplayName)
+                        .collect(Collectors.joining("|"));
+                report.addLine(pathwayDiagram.getDBID().toString(),
+                        overlapIds,
+                        overlapDisplayNames,
+                        QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
             }
         }
     }
@@ -123,7 +118,6 @@ public class DiagramOverlappingEntityCheck extends AbstractDiagramQACheck {
         }
         
         return false;
-        
     }
 
 }

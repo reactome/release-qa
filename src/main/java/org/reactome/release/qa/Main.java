@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
+import org.gk.util.FileUtilities;
 import org.gk.util.GKApplicationUtilities;
 import org.reactome.release.qa.check.ChecksTwoDatabases;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
@@ -31,7 +32,19 @@ import org.reflections.Reflections;
 public class Main {
 
     private static final Logger logger = LogManager.getLogger();
+
+    // TODO - on QA check refactoring, get the summary constants
+    // below from a common class.
     
+    private static final String SUMMARY_DELIMITER = "\t";
+
+    private static final String SUMMARY_FILE_NM = "summary.tsv";
+
+    /** The summary file headings. */
+    private static final String[] SUMMARY_HDGS = {
+            "Report", "Issue Count"
+    };
+
     private static final String CHECKS_OPT = "checks";
     
     public static void main(String[] args) throws Exception {
@@ -99,6 +112,10 @@ public class Main {
                         .collect(Collectors.toSet());
         }
         
+        File summaryFile = new File(output.getAbsolutePath(), SUMMARY_FILE_NM);
+        FileUtilities summary = new FileUtilities();
+        summary.setOutput(summaryFile.getPath());
+        summary.printLine(String.join(SUMMARY_DELIMITER, SUMMARY_HDGS));
         // Run the QA checks.
         for (Class<? extends QACheck> cls : selected) {
             QACheck check;
@@ -125,17 +142,21 @@ public class Main {
                 ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
             }
 
-            QAReport qaReport = check.executeQACheck();
-            if (qaReport.isEmpty()) {
+            QAReport report = check.executeQACheck();
+            String title = check.getDisplayName().replace('_', ' ');
+            String summaryLine = String.join(SUMMARY_DELIMITER, title,
+                    Integer.toString(report.getReportLines().size()));
+            summary.printLine(summaryLine);
+            if (report.isEmpty()) {
                 logger.info("Nothing to report!");
                 continue;
-            }
-            else {
+            } else {
                 String fileName = check.getFileName();
-                qaReport.output(fileName, output.getAbsolutePath());
+                report.output(fileName, output.getAbsolutePath());
                 logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + " for report details.");
             }
         }
+        summary.close();
     }
 
     private static Set<String> getIncludedQAs() throws IOException {

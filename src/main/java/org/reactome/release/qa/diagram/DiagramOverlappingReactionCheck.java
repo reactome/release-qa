@@ -4,23 +4,16 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.ContainerNode;
-import org.gk.render.ReactionNode;
+import org.gk.render.HyperEdge;
 import org.gk.render.Renderable;
-import org.gk.render.RenderableCompartment;
-import org.gk.render.RenderableComplex;
 import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.DiagramQACheck;
@@ -47,6 +40,11 @@ public class DiagramOverlappingReactionCheck extends AbstractDiagramQACheck {
     }
 
     @Override
+    public String getDisplayName() {
+        return "Diagram_Overlapping_Reactions";
+    }
+
+    @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         Collection<GKInstance> pathwayDiagrams = getPathwayDiagrams();
@@ -59,21 +57,8 @@ public class DiagramOverlappingReactionCheck extends AbstractDiagramQACheck {
                 "Pathway_DBID",
                 "Overlapping_DBIDs",
                 "Overlapping_DisplayNames",
-                "Overlapping_Classes",
                 "MostRecentAuthor"));
         return report;
-    }
-
-    private boolean isDisease(GKInstance diagram) throws Exception {
-        @SuppressWarnings("unchecked")
-        List<GKInstance> pathways = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
-        for (GKInstance pathway : pathways) {
-            GKInstance normal = (GKInstance) pathway.getAttributeValue(ReactomeJavaConstants.normalPathway);
-            if (normal != null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void checkPathwayDiagram(GKInstance pathwayDiagram,
@@ -83,56 +68,39 @@ public class DiagramOverlappingReactionCheck extends AbstractDiagramQACheck {
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
-        Predicate<? super Renderable> skip =
-                cmpnt -> cmpnt.getReactomeId() == null ||
-                        cmpnt instanceof RenderableReaction ||
-                        cmpnt instanceof ContainerNode;
         List<Renderable> filtered = components.stream()
-                .filter(skip.negate())
+                .filter(cmpnt -> cmpnt instanceof RenderableReaction)
                 .collect(Collectors.toList());
-        if (filtered != null) {
-            List<Renderable> overlaps = new ArrayList<Renderable>();
-            for (int i = 0; i < filtered.size(); i++) {
-                Renderable renderable = filtered.get(i);
-                overlaps.clear();
-                for (int j = i + 1; j < filtered.size(); j++) {
-                    Renderable other = filtered.get(j);
-                    if (isOverlapping(renderable, other)) {
-                        overlaps.add(other);
-                    }
+        List<RenderableReaction> overlaps = new ArrayList<RenderableReaction>();
+        for (int i = 0; i < filtered.size(); i++) {
+            RenderableReaction renderable = (RenderableReaction) filtered.get(i);
+            overlaps.clear();
+            for (int j = i + 1; j < filtered.size(); j++) {
+                RenderableReaction other = (RenderableReaction) filtered.get(j);
+                if (isOverlapping(renderable, other)) {
+                    overlaps.add(other);
                 }
-                if (!overlaps.isEmpty()) {
-                    overlaps.add(0, renderable);
-                    String overlapIds = overlaps.stream()
-                            .map(Renderable::getReactomeId)
-                            .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
-                            .collect(Collectors.joining("|"));
-                    String overlapDisplayNames = overlaps.stream()
-                            .map(Renderable::getDisplayName)
-                            .collect(Collectors.joining("|"));
-                    String overlapClasses = overlaps.stream()
-                            .map(Object::getClass)
-                            .map(Class::getSimpleName)
-                            .collect(Collectors.joining("|"));
-                    // The first pathway.
-                    // TODO - Can be null - why?
-                    //GKInstance pathwayInst =
-                    //        (GKInstance) pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
-                    report.addLine(pathwayDiagram.getDBID().toString(),
-                            //pathwayInst.getDisplayName(),
-                            //pathwayInst.getDBID().toString(),
-                            overlapIds,
-                            overlapDisplayNames,
-                            overlapClasses,
-                            QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
-                }
+            }
+            if (!overlaps.isEmpty()) {
+                overlaps.add(0, renderable);
+                String overlapIds = overlaps.stream()
+                        .map(Renderable::getReactomeId)
+                        .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
+                        .collect(Collectors.joining("|"));
+                String overlapDisplayNames = overlaps.stream()
+                        .map(Renderable::getDisplayName)
+                        .collect(Collectors.joining("|"));
+                report.addLine(pathwayDiagram.getDBID().toString(),
+                        overlapIds,
+                        overlapDisplayNames,
+                        QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
             }
         }
     }
 
-    private boolean isOverlapping(Renderable renderable, Renderable other) {
-        Rectangle bounds = renderable.getBounds();
-        Rectangle otherBounds = other.getBounds();
+    private boolean isOverlapping(RenderableReaction renderable, RenderableReaction other) {
+        Rectangle bounds = renderable.generateReactionNode().getBounds();
+        Rectangle otherBounds = other.generateReactionNode().getBounds();
 
         if (bounds.intersects(otherBounds)) {
             if (TOLERANCE == null) {
@@ -147,7 +115,6 @@ public class DiagramOverlappingReactionCheck extends AbstractDiagramQACheck {
         }
         
         return false;
-        
     }
 
 }
