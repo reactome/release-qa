@@ -57,8 +57,10 @@ public class Main {
         MySQLAdaptor altDBA = null;
         
         // Get the list of QAs from packages
-        Reflections reflections = new Reflections("org.reactome.release.qa.check",
-                                                  "org.reactome.release.qa.graph");
+        Reflections reflections = new Reflections(
+                "org.reactome.release.qa.check",
+                "org.reactome.release.qa.diagram",
+                "org.reactome.release.qa.graph");
 
         // The QA checks to run must have at least one annotation and
         // be instantiable. Every runnable QA check must have an annotation
@@ -69,13 +71,6 @@ public class Main {
                                !Modifier.isAbstract(cls.getModifiers()) &&
                                !cls.isInterface())
                 .collect(Collectors.toSet());
-
-//        // Deployment aid:
-//        // Uncomment and run to print the class display names.
-//        for (Class<? extends QACheck> cls: instantiable) {
-//            System.out.println(cls.getSimpleName() + "," + cls.newInstance().getDisplayName());
-//        }
-//        System.exit(0);
         
         // The optional QA checks to include.
         final Set<String> includes;
