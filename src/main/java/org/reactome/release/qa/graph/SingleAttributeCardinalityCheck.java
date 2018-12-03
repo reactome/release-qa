@@ -17,15 +17,41 @@ import org.reactome.release.qa.common.QAReport;
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 abstract public class SingleAttributeCardinalityCheck extends SingleAttributeMissingCheck {
+
     private static final Logger logger = Logger.getLogger(SingleAttributeCardinalityCheck.class);
+
+    /**
+     * The default report column headers
+     */
+    private static final String[] DUPLICATE_COL_HDRS = {
+            "DB_ID",
+            "DisplayName",
+            "Class",
+            "Duplication_Attribute",
+            "Duplication_DBID",
+            "Duplication_DisplayName",
+            "MostRecentAuthor"
+    };
     
     private String comparison;
+
+    private boolean isDuplicateCheck;
     
     /**
-     * @param comparison the count comparison SQL clause, e.g. <code>= 1</code>.
+     * @param comparison the count comparison SQL clause, e.g. <code>= 1</code>
      */
     protected SingleAttributeCardinalityCheck(String comparison) {
+        this(comparison, false);
+    }
+    
+    /**
+     * @param comparison the count comparison SQL clause, e.g. <code>= 1</code>
+     * @param isDuplicateCheck flag indicating whether the comparison checks for
+     *   a duplicate value (i.e. stoichiometry) rather than simple cardinality
+     */
+    protected SingleAttributeCardinalityCheck(String comparison, boolean isDuplicateCheck) {
         this.comparison = comparison;
+        this.isDuplicateCheck = isDuplicateCheck;
     }
     
     /**
@@ -55,8 +81,9 @@ abstract public class SingleAttributeCardinalityCheck extends SingleAttributeMis
                     clsName + "." + attName + " is single-valued.");
             return;
         }
-        String query = "SELECT DB_ID FROM " + tableName +
-                " GROUP BY DB_ID HAVING COUNT(*) " + comparison;
+        String atts = isDuplicateCheck ? "DB_ID, " + attName : "DB_ID";
+        String query = "SELECT " + atts + " FROM " + tableName +
+                " GROUP BY " + atts + " HAVING COUNT(*) " + comparison;
         Connection conn = dba.getConnection();
         PreparedStatement ps = conn.prepareStatement(query);
         ResultSet rs = ps.executeQuery();
@@ -71,14 +98,51 @@ abstract public class SingleAttributeCardinalityCheck extends SingleAttributeMis
             // Escape the special case
             if (isEscaped(instance, attName))
                 continue;
-            report.addLine(instance.getDBID() + "",
-                           instance.getDisplayName(),
-                           clsName,
-                           attName,
-                           QACheckerHelper.getLastModificationAuthor(instance));
+            if (isDuplicateCheck) {
+                Long dupDbId = rs.getLong(2);
+                GKInstance duplicate = dba.fetchInstance(dupDbId);
+                if (!isEscaped(duplicate)) {
+                    addDuplicateReportLine(report, instance, clsName, attName, duplicate);
+                }
+            } else {
+                addReportLine(report, instance, clsName, attName);
+            }
         }
         rs.close();
         ps.close();
+    }
+    
+    @Override
+    /**
+     * If this is a duplicate value check, then the column headers augments
+     * the standard headers with duplication db id and display name columns.
+     * Otherwise, this method delegates to the superclass.
+     * 
+     * returns the column headers
+     */
+    protected String[] getColumnHeaders() {
+        return isDuplicateCheck ? DUPLICATE_COL_HDRS : super.getColumnHeaders();
+    }
+
+    protected void addReportLine(QAReport report, GKInstance instance, String clsName,
+            String attName) {
+        report.addLine(instance.getDBID() + "",
+                       instance.getDisplayName(),
+                       clsName,
+                       attName,
+                       QACheckerHelper.getLastModificationAuthor(instance));
+    }
+
+    private void addDuplicateReportLine(QAReport report, GKInstance instance, String clsName,
+            String attName, GKInstance duplicate) {
+        
+        report.addLine(instance.getDBID() + "",
+                instance.getDisplayName(),
+                clsName,
+                attName,
+                duplicate.getDBID().toString(),
+                duplicate.getDisplayName(),
+                QACheckerHelper.getLastModificationAuthor(instance));
     }
 
 }

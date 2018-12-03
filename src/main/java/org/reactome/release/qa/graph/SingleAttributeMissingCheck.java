@@ -19,6 +19,17 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQACheck
 public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck {
 
+    /**
+     * The default report column headers
+     */
+    private static final String[] DEF_COL_HDRS = {
+            "DB_ID",
+            "DisplayName",
+            "Class",
+            "Attribute",
+            "MostRecentAuthor"
+    };
+    
     public SingleAttributeMissingCheck() {
     }
     
@@ -36,13 +47,21 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
                 executeQACheck(cls, att, report);
         }
         
-        report.setColumnHeaders("DB_ID",
-                "DisplayName",
-                "Class",
-                "Attribute",
-                "MostRecentAuthor");
+        report.setColumnHeaders(getColumnHeaders());
         
         return report;
+    }
+
+    /**
+     * This base implementation returns the standard column headers
+     * <code>
+     *   ["DB_ID", "DisplayName", "Class", "Attribute", "MostRecentAuthor"]
+     * </code>
+     * 
+     * @return the report column headers
+     */
+    protected String[] getColumnHeaders() {
+        return DEF_COL_HDRS;
     }
     
     protected void executeQACheck(String clsName, String attName, QAReport report) throws Exception {
