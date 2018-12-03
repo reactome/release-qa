@@ -4,7 +4,10 @@
 # of EntitySet. There is one line per class with tab-separated tokens.
 # The first token is the class name. The remaining tokens are the
 # attributes. Each attribute is checked separately.
-DatabaseObject	modified
+#
+# DatabaseObject.modified is the predominant issue reported. It is disabled since
+# the duplicate is generated programmatically and is not correctible by a curator.
+#DatabaseObject modified
 EntitySet	hasMember
 Pathway	hasEvent
 Event	summation
@@ -12,5 +15,4 @@ PhysicalEntity	summation
 CandidateSet	hasCandidate
 Regulation	summation
 ReplacedResidue	psiMod
-TranslationalModification	psiMod
 
