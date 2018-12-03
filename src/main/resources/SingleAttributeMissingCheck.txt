@@ -1,5 +1,6 @@
-# This configuration is used to list classes and their attributes
-# Make sure one class has one line only. Otherwise, the previous lines will be overwritten.
-# It is tab delimited. The first token is the class name. After the first token, attributes are listed.
-# Multiple attributes may be listed and will be checked sequentially.
+# Configuration for running the SingleAttributeMissingCheck to list
+# instances not having a value in the configured attributes. There is
+# one line per class with tab-separated tokens. The first token is the
+# class name. The remaining tokens are the attributes. Each attribute
+# is checked separately.
 BlackBoxEvent	output	input
