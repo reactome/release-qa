@@ -1,0 +1,6 @@
+# Configuration for running the SingleAttributeNotSoleValueCheck to list
+# instances not having exactly one value in the configured attributes.
+# There is one line per class with tab-separated tokens. The first token
+# is the class name. The remaining tokens are the attributes. Each attribute
+# is checked separately.
+Complex	compartment
