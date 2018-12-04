@@ -5,13 +5,14 @@ import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.GraphQACheck;
 
 /**
- * This check reports instances with exactly one value in a specified attribute.
- * For example, hasMember in DefinedSet or hasComponent in Complex should have
- * more than one value. Checking for no value is either enforced in the schema
- * for mandatory attributes or can be done in the
+ * This check reports instances with exactly one value in a specified
+ * attribute. For example, hasMember in DefinedSet or hasComponent in
+ * Complex should have more than one value. Checking for no value of a
+ * non-mandatory attribute can be done in the
  * {@link SingleAttributeMissingCheck}.
  *
- * The attributes are specified in the resources file corresponding to this class.
+ * The attributes are specified in the resources file corresponding to
+ * this class.
  * 
  * @author wug
  */

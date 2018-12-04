@@ -6,8 +6,8 @@ import org.reactome.release.qa.annotations.GraphQACheck;
  * This check reports instances which have more than one value
  * in a specified attribute. For example, a Complex should not
  * be assigned to multiple Compartments. Checking for no value
- * is either enforced in the schema for mandatory attributes
- * or can be done in the {@link SingleAttributeMissingCheck}.
+ * of a non-mandatory attribute can be done in the
+ * {@link SingleAttributeMissingCheck}.
  * 
  * The attributes are specified in the resources file corresponding
  * to this class.
