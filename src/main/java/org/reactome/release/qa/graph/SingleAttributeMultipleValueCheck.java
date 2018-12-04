@@ -3,17 +3,22 @@ package org.reactome.release.qa.graph;
 import org.reactome.release.qa.annotations.GraphQACheck;
 
 /**
- * This check is to make sure there is exactly one value provided in a
- * specific attribute. For example, a Complex should be assigned to one
- * and only one Compartment.
+ * This check reports instances which have more than one value
+ * in a specified attribute. For example, a Complex should not
+ * be assigned to multiple Compartments. Checking for no value
+ * is either enforced in the schema for mandatory attributes
+ * or can be done in the {@link SingleAttributeMissingCheck}.
+ * 
+ * The attributes are specified in the resources file corresponding
+ * to this class.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @GraphQACheck
-public class SingleAttributeNotSoleValueCheck extends SingleAttributeCardinalityCheck {
+public class SingleAttributeMultipleValueCheck extends SingleAttributeCardinalityCheck {
     
-    public SingleAttributeNotSoleValueCheck() {
-        super(" <> 1");
+    public SingleAttributeMultipleValueCheck() {
+        super("> 1");
     }
 
     @Override

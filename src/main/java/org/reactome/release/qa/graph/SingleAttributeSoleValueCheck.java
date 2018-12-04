@@ -5,18 +5,26 @@ import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.GraphQACheck;
 
 /**
- * This check is to make sure more than one value should be provided in a specific attribute.
- * For example, hasMember in DefinedSet or hasComponent in Complex should have more than one value.
- * @author wug
+ * This check reports instances with exactly one value in a specified attribute.
+ * For example, hasMember in DefinedSet or hasComponent in Complex should have
+ * more than one value. Checking for no value is either enforced in the schema
+ * for mandatory attributes or can be done in the
+ * {@link SingleAttributeMissingCheck}.
  *
+ * The attributes are specified in the resources file corresponding to this class.
+ * 
+ * @author wug
  */
 @GraphQACheck
 public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityCheck {
     
     public SingleAttributeSoleValueCheck() {
-        super(" = 1");
+        super("= 1");
     }
     
+    /**
+     * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
+     */
     @Override
     protected boolean isEscaped(GKInstance inst, String attName) throws Exception {
         if (super.isEscaped(inst, attName)) {

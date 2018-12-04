@@ -14,6 +14,9 @@ import org.reactome.release.qa.common.QAReport;
  * The subclass is responsible for providing a count comparison
  * condition right-hand side clause, e.g. "= 1".
  * 
+ * An instance is reported if and only if it satisfies the count
+ * comparison condition.
+ * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 abstract public class SingleAttributeCardinalityCheck extends SingleAttributeMissingCheck {
