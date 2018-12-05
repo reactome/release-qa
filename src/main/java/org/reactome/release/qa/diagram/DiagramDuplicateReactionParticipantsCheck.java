@@ -87,7 +87,7 @@ public class DiagramDuplicateReactionParticipantsCheck extends AbstractDiagramQA
 
     @Override
     public String getDisplayName() {
-        return "Duplicate_Reaction_Participants";
+        return "Diagram_Duplicate_Reaction_Participants";
     }
 
 }
