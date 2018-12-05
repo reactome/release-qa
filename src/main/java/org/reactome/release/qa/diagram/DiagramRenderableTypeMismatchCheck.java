@@ -53,7 +53,7 @@ public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
                 "Entity_DBID",
                 "Entity_DisplayName",
                 "Correct Renderable",
-                "Wrong Renderable",
+                "Found Renderable",
                 "MostRecentAuthor"));
         return report;
     }
