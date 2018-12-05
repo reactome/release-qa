@@ -1,4 +1,3 @@
 DatabaseObjectWithoutCreatedCheck
 PhysicalEntitiesWithMoreThanOneCompartmentCheck
 PrecedingEventOutputsNotUsedInReactionCheck
-SingleAttributeDuplicationCheck

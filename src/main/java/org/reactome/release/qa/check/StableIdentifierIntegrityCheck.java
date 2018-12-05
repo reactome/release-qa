@@ -28,7 +28,7 @@ public class StableIdentifierIntegrityCheck extends AbstractQACheck {
 	@Override
 	public QAReport executeQACheck() throws Exception {
 	    QAReport report = new QAReport();
-	    report.setColumnHeaders("DB_ID", "DisplayName", "Issue", "LastAuthor");
+	    report.setColumnHeaders("DBID", "DisplayName", "Issue", "LastAuthor");
 	    
 	    Collection<GKInstance> stableIds = dba.fetchInstancesByClass(ReactomeJavaConstants.StableIdentifier);
 	    dba.loadInstanceAttributeValues(stableIds, new String[] {ReactomeJavaConstants.identifier});

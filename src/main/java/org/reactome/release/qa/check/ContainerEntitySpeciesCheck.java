@@ -47,7 +47,7 @@ public class ContainerEntitySpeciesCheck extends AbstractQACheck {
 				        QACheckerHelper.getLastModificationAuthor(physicalEntity)));
 			}
 		}
-		report.setColumnHeaders(Arrays.asList("DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor"));
+		report.setColumnHeaders("DBID", "DisplayName", "SchemaClass", "Issue", "MostRecentAuthor");
 		return report;
 	}
 

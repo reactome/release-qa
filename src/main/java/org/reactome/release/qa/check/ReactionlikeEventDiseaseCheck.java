@@ -58,7 +58,7 @@ public class ReactionlikeEventDiseaseCheck extends AbstractQACheck {
                 }
 	        }
 	    }
-	    report.setColumnHeaders(Arrays.asList("DB_ID","DisplayName", "Class", "MostRecentAuthor"));
+	    report.setColumnHeaders("DBID","DisplayName", "Class", "MostRecentAuthor");
 	    
 	    return report;
 	}

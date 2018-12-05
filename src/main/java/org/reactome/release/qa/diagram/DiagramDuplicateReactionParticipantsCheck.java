@@ -14,7 +14,7 @@ import org.gk.render.Node;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
-import org.reactome.release.qa.annotations.SliceQACheck;
+import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -24,8 +24,8 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
-@SliceQACheck
-public class DiagramDuplicateReactionParticipantsCheck extends DiagramQACheck {
+@DiagramQACheck
+public class DiagramDuplicateReactionParticipantsCheck extends AbstractDiagramQACheck {
     
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -35,14 +35,14 @@ public class DiagramDuplicateReactionParticipantsCheck extends DiagramQACheck {
         for (GKInstance diagram : pathwayDiagrams) {
             checkPathwayDiagram(diagram, reader, report);
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
+        report.setColumnHeaders("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
                 "Pathway_DBID",
                 "Reaction_DBID",
                 "Reaction_DisplayName",
                 "Entity_DBID",
                 "Entity_DisplayName",
-                "MostRecentAuthor"));
+                "MostRecentAuthor");
         
         return report;
     }

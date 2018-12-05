@@ -14,7 +14,7 @@ import org.gk.render.ProcessNode;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
-import org.reactome.release.qa.annotations.SliceQACheck;
+import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -26,7 +26,7 @@ import org.reactome.release.qa.common.QAReport;
  * 
  * @author wug
  */
-@SliceQACheck
+@DiagramQACheck
 public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
 
     private final static Logger logger = Logger.getLogger(DiagramRenderableTypeMismatchCheck.class);
@@ -47,14 +47,14 @@ public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
                 checkPathwayDiagram(diagram, reader, typeHelper, report);
             }
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
+        report.setColumnHeaders("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
                 "Pathway_DBID",
                 "Entity_DBID",
                 "Entity_DisplayName",
                 "Correct Renderable",
-                "Wrong Renderable",
-                "MostRecentAuthor"));
+                "Found Renderable",
+                "MostRecentAuthor");
         return report;
     }
     

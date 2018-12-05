@@ -1,6 +1,10 @@
-# A simple text file to provide classes and attributes that are subject to multiple attribute missing simultaneously check.
-# It is tab delimited. One line for one class. The first token is the class name. Tokens after the first are attribute names.
-# Currently there is only one check. However, more classes and attributes can be added here and will be loaded automatically.
+# Configuration for running the MultipleAttributesMissingCheck to list
+# instances not having a value in any of the configured attributes.
+# For example, a Person should have a firstname and/or an initial.
+# There is one line per class with tab-separated tokens. The first
+# token is the class name. The remaining tokens are the attributes.
+# The attributes are checked jointly, i.e. an instance is checked
+# for a value in at least one of the attributes.
 Person	firstname	initial
 ReferenceDatabase	accessUrl	url
 # This is just a test and should not be checked in the future

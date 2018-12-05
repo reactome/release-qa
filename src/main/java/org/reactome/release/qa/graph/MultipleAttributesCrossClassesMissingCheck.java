@@ -46,7 +46,7 @@ public class MultipleAttributesCrossClassesMissingCheck extends AbstractQACheck 
             logger.info("Check " + config.clsName + " for " + config.toString() + "...");
             executeQACheck(config, report);
         }
-        report.setColumnHeaders("DB_ID",
+        report.setColumnHeaders("DBID",
                 "DisplayName",
                 "Class",
                 "Attributes",

@@ -32,8 +32,8 @@ public class SpeciesPrecedingRelationCheck extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        report.setColumnHeaders("Preceding Event DB_ID", "Preceding Event DisplayName", "Preceding Event Species", "Preceding Event Related Species",
-                                "Following Event DB_ID", "Following Event DisplayName", "Following Event Species", "Following Event Related Species");
+        report.setColumnHeaders("Preceding Event DBID", "Preceding Event DisplayName", "Preceding Event Species", "Preceding Event Related Species",
+                                "Following Event DBID", "Following Event DisplayName", "Following Event Species", "Following Event Related Species");
         Collection<GKInstance> rles = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         dba.loadInstanceAttributeValues(rles, new String[] {ReactomeJavaConstants.precedingEvent,
                                                             ReactomeJavaConstants.species,

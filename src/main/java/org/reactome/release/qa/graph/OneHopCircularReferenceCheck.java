@@ -68,12 +68,12 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
             }
         }
         
-        report.setColumnHeaders("DB_ID_1",
+        report.setColumnHeaders("DBID_1",
                 "DisplayName_1",
                 "Class_1",
                 "Attribute_1",
                 "MostRecentAuthor_1",
-                "DB_ID_2",
+                "DBID_2",
                 "DisplayName_2",
                 "Class_2",
                 "Attribute_2",

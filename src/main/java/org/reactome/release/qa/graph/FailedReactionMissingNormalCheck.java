@@ -36,7 +36,7 @@ public class FailedReactionMissingNormalCheck extends AbstractQACheck {
                         QACheckerHelper.getLastModificationAuthor(instance));
             }
         }
-        report.setColumnHeaders("DB_ID",
+        report.setColumnHeaders("DBID",
                 "DisplayName",
                 "MostRecentAuthor");
         

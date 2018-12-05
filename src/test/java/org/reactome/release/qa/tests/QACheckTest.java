@@ -18,6 +18,7 @@ import org.reactome.release.qa.diagram.DiagramDuplicateReactionParticipantsCheck
 import org.reactome.release.qa.diagram.DiagramEmptyCheck;
 import org.reactome.release.qa.diagram.DiagramExtraParticipantCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
+import org.reactome.release.qa.diagram.DiagramOverlappingReactionCheck;
 import org.reactome.release.qa.diagram.DiagramRenderableTypeMismatchCheck;
 import org.reactome.release.qa.graph.CatalystActivityComplexCheck;
 import org.reactome.release.qa.graph.FailedReactionMissingNormalCheck;
@@ -206,6 +207,12 @@ public class QACheckTest {
     @Test
     public void testDiagramOverlappingEntityCheck() throws Exception {
         AbstractQACheck checker = new DiagramOverlappingEntityCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramOverlappingReactionCheck() throws Exception {
+        AbstractQACheck checker = new DiagramOverlappingReactionCheck();
         runTest(checker);
     }
 
