@@ -53,8 +53,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
             checkPathwayDiagram(diagram, reader, report);
         }
         report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
-                "Pathway_DisplayName",
-                "Pathway_DBID",
+                "Pathway_Diagram_DisplayName",
                 "Overlapping_DBIDs",
                 "Overlapping_DisplayNames",
                 "MostRecentAuthor"));
@@ -92,6 +91,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
                                 .map(Renderable::getDisplayName)
                                 .collect(Collectors.joining("|"));
                         report.addLine(pathwayDiagram.getDBID().toString(),
+                                pathwayDiagram.getDisplayName(),
                                 overlapIds,
                                 overlapDisplayNames,
                                 QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
