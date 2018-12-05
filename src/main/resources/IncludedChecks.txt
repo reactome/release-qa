@@ -1,3 +1,8 @@
 SliceQACheck
 GraphQACheck
-DiagramQACheck
+# The enabled diagram checks are listed separately for now.
+# When completed, replace these individual lines with the
+# following:
+# DiagramQACheck
+DiagramDuplicateReactionParticipantsCheck
+DiagramRenderableTypeMismatchCheck
