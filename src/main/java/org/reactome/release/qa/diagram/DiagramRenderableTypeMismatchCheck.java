@@ -1,6 +1,5 @@
 package org.reactome.release.qa.diagram;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -138,7 +137,7 @@ public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Wrong_Renderables_in_Diagrams";
+        return "Diagram_Wrong_Renderable_Class";
     }
 
 }
