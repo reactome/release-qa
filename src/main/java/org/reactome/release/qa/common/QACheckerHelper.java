@@ -106,18 +106,17 @@ public class QACheckerHelper {
 			List<GKInstance> modificationInstances = (List<GKInstance>) instance.getAttributeValuesList("modified");
 			if (modificationInstances.size() > 0)
 			{
+                List<Long> developers = QACheckProperties.getDeveloperDbIds();
 				for (int index = modificationInstances.size() - 1; index >= 0; index--)
 				{
 					GKInstance modificationInstance = modificationInstances.get(index);
 					GKInstance author = (GKInstance) modificationInstance.getAttributeValue("author");
 					// Skip modification instance for developers.
-					List<Long> developers = QACheckProperties.getDeveloperDbIds();
-					if (author == null || developers.contains(author.getDBID()))
+					if (author != null && !developers.contains(author.getDBID()))
 					{
-						continue;
+	                    mostRecentMod = modificationInstance;
+	                    break;
 					}
-					mostRecentMod = modificationInstance;
-					break;
 				}
 			}
 		}
