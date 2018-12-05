@@ -39,7 +39,7 @@ public class MultipleAttributesMissingCheck extends AbstractQACheck {
             executeQACheck(cls, attributes, report);
         }
         
-        report.setColumnHeaders("DB_ID",
+        report.setColumnHeaders("DBID",
                 "DisplayName",
                 "Class",
                 "Attributes",

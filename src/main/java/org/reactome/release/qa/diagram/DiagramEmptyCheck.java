@@ -38,10 +38,10 @@ public class DiagramEmptyCheck extends AbstractDiagramQACheck {
                 checkPathwayDiagram(diagram, reader, report);
             }
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
+        report.setColumnHeaders("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
                 "Pathway_DBID",
-                "MostRecentAuthor"));
+                "MostRecentAuthor");
         return report;
     }
 

@@ -27,7 +27,7 @@ abstract public class SingleAttributeCardinalityCheck extends SingleAttributeMis
      * The default report column headers
      */
     private static final String[] DUPLICATE_COL_HDRS = {
-            "DB_ID",
+            "DBID",
             "DisplayName",
             "Class",
             "Duplication_Attribute",

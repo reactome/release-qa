@@ -47,7 +47,7 @@ public class ChimericInstancesCheck extends AbstractQACheck {
             checkChimericInstances(report, cls);
         }
         
-        report.setColumnHeaders("DB_ID",
+        report.setColumnHeaders("DBID",
                                 "DisplayName",
                                 "Class",
                                 "Issue",

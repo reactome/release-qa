@@ -35,14 +35,14 @@ public class DiagramDuplicateReactionParticipantsCheck extends AbstractDiagramQA
         for (GKInstance diagram : pathwayDiagrams) {
             checkPathwayDiagram(diagram, reader, report);
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
+        report.setColumnHeaders("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
                 "Pathway_DBID",
                 "Reaction_DBID",
                 "Reaction_DisplayName",
                 "Entity_DBID",
                 "Entity_DisplayName",
-                "MostRecentAuthor"));
+                "MostRecentAuthor");
         
         return report;
     }

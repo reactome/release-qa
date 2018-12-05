@@ -47,14 +47,14 @@ public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
                 checkPathwayDiagram(diagram, reader, typeHelper, report);
             }
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
+        report.setColumnHeaders("PathwayDiagram_DBID",
                 "Pathway_DisplayName",
                 "Pathway_DBID",
                 "Entity_DBID",
                 "Entity_DisplayName",
                 "Correct Renderable",
                 "Found Renderable",
-                "MostRecentAuthor"));
+                "MostRecentAuthor");
         return report;
     }
     

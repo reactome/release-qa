@@ -136,8 +136,7 @@ public class NewEventConsistencyCheck extends AbstractQACheck {
 			        "Attributes \"inferredFrom\" and \"literatureReferences\" are NULL", 
 			        QACheckerHelper.getLastModificationAuthor(instance)));
 		}
-		
-		newEventReport.setColumnHeaders(Arrays.asList("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor"));
+		newEventReport.setColumnHeaders("DBID","DisplayName","SchemaClass","Issue","MostRecentAuthor");
 		
 		return newEventReport;
 	}

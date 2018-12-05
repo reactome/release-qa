@@ -52,11 +52,12 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         for (GKInstance diagram : pathwayDiagrams) {
             checkPathwayDiagram(diagram, reader, report);
         }
-        report.setColumnHeaders(Arrays.asList("PathwayDiagram_DBID",
-                "Pathway_Diagram_DisplayName",
+        report.setColumnHeaders("PathwayDiagram_DBID",
+                "PathwayDiagram_DisplayName",
                 "Overlapping_DBIDs",
                 "Overlapping_DisplayNames",
-                "MostRecentAuthor"));
+                "MostRecentAuthor");
+        
         return report;
     }
 

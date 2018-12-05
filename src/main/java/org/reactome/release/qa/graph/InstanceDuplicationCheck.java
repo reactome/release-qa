@@ -50,11 +50,10 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             logger.info("Check " + cls + "...");
             executeQACheck(cls, report);
         }
-        
         report.setColumnHeaders("Class",
-                                "DuplicatedDBIDs",
-                                "DuplicatedDisplayNames",
-                                "DuplicatedMostRecentAuthor");
+                                "Duplicated_DBIDs",
+                                "Duplicated_DisplayNames",
+                                "MostRecentAuthor");
         
         return report;
     }

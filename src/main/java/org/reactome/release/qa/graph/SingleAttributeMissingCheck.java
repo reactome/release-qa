@@ -23,7 +23,7 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
      * The default report column headers
      */
     private static final String[] DEF_COL_HDRS = {
-            "DB_ID",
+            "DBID",
             "DisplayName",
             "Class",
             "Attribute",
@@ -55,7 +55,7 @@ public class SingleAttributeMissingCheck extends MultipleAttributesMissingCheck 
     /**
      * This base implementation returns the standard column headers
      * <code>
-     *   ["DB_ID", "DisplayName", "Class", "Attribute", "MostRecentAuthor"]
+     *   ["DBID", "DisplayName", "Class", "Attribute", "MostRecentAuthor"]
      * </code>
      * 
      * @return the report column headers
