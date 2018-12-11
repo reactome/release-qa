@@ -45,6 +45,11 @@ public class QACheckProperties {
         return  value == null ? null : DATE_FORMAT.parse(value);
     }
 
+    public static Integer getInteger(String key) {
+        String value = getProperty(key);
+        return value == null ? null : Integer.parseInt(value);
+    }
+
     public static Float getFloat(String key) {
         String value = getProperty(key);
         return value == null ? null : Float.parseFloat(value);
