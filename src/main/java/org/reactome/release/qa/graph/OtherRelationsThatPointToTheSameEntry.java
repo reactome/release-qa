@@ -30,6 +30,7 @@ public class OtherRelationsThatPointToTheSameEntry extends TwoAttributesReferToS
             "hasComponent",
             "requiredInputComponent",
             "physicalEntity",
+            "diseaseEntity",
             "activeUnit",
             "reverseReaction",
             "precedingEvent",
