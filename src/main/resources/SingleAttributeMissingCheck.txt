@@ -4,3 +4,4 @@
 # class name. The remaining tokens are the attributes. Each attribute
 # is checked separately.
 BlackBoxEvent	output	input
+FailedReaction disease
