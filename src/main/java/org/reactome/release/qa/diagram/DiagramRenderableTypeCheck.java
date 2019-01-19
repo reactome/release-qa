@@ -19,18 +19,18 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the implementation of the diagram-converter DT105 check for
+ * This is the implementation of the diagram-converter T105 check for
  * diagram renderable class consistency with the represented object's
  * schema class.
  * 
  * @author wug
  */
 @DiagramQACheck
-public class DiagramRenderableTypeMismatchCheck extends AbstractQACheck {
+public class DiagramRenderableTypeCheck extends AbstractQACheck {
 
-    private final static Logger logger = Logger.getLogger(DiagramRenderableTypeMismatchCheck.class);
+    private final static Logger logger = Logger.getLogger(DiagramRenderableTypeCheck.class);
     
-    public DiagramRenderableTypeMismatchCheck() {
+    public DiagramRenderableTypeCheck() {
     }
 
     @Override
