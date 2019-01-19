@@ -64,40 +64,40 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
 
     private void checkPathwayDiagram(GKInstance pathwayDiagram, DiagramGKBReader reader, QAReport report)
             throws Exception {
-                logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
-                RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
-                @SuppressWarnings("unchecked")
-                List<Renderable> components = pathway.getComponents();
-                List<Renderable> filtered = components.stream()
-                        .filter(filter)
-                        .collect(Collectors.toList());
-                List<Renderable> overlaps = new ArrayList<Renderable>();
-                for (int i = 0; i < filtered.size(); i++) {
-                    Renderable renderable = filtered.get(i);
-                    overlaps.clear();
-                    for (int j = i + 1; j < filtered.size(); j++) {
-                        Renderable other = filtered.get(j);
-                        if (isOverlapping(renderable, other)) {
-                            overlaps.add(other);
-                        }
-                    }
-                    if (!overlaps.isEmpty()) {
-                        overlaps.add(0, renderable);
-                        String overlapIds = overlaps.stream()
-                                .map(Renderable::getReactomeId)
-                                .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
-                                .collect(Collectors.joining("|"));
-                        String overlapDisplayNames = overlaps.stream()
-                                .map(Renderable::getDisplayName)
-                                .collect(Collectors.joining("|"));
-                        report.addLine(pathwayDiagram.getDBID().toString(),
-                                pathwayDiagram.getDisplayName(),
-                                overlapIds,
-                                overlapDisplayNames,
-                                QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
-                    }
+        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
+        RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
+        @SuppressWarnings("unchecked")
+        List<Renderable> components = pathway.getComponents();
+        List<Renderable> filtered = components.stream()
+                .filter(filter)
+                .collect(Collectors.toList());
+        List<Renderable> overlaps = new ArrayList<Renderable>();
+        for (int i = 0; i < filtered.size(); i++) {
+            Renderable renderable = filtered.get(i);
+            overlaps.clear();
+            for (int j = i + 1; j < filtered.size(); j++) {
+                Renderable other = filtered.get(j);
+                if (isOverlapping(renderable, other)) {
+                    overlaps.add(other);
                 }
             }
+            if (!overlaps.isEmpty()) {
+                overlaps.add(0, renderable);
+                String overlapIds = overlaps.stream()
+                        .map(Renderable::getReactomeId)
+                        .map(dbId -> dbId == null ? "unknown" :  dbId.toString())
+                        .collect(Collectors.joining("|"));
+                String overlapDisplayNames = overlaps.stream()
+                        .map(Renderable::getDisplayName)
+                        .collect(Collectors.joining("|"));
+                report.addLine(pathwayDiagram.getDBID().toString(),
+                        pathwayDiagram.getDisplayName(),
+                        overlapIds,
+                        overlapDisplayNames,
+                        QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
+            }
+        }
+    }
 
     private boolean isOverlapping(Renderable renderable, Renderable other) {
         Rectangle bounds = getBounds(renderable);
