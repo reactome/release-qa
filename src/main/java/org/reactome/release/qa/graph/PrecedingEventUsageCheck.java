@@ -20,8 +20,8 @@ import org.reactome.release.qa.common.QAReport;
 
 @GraphQACheck
 @SuppressWarnings("unchecked")
-public class PrecedingEventOutputsNotUsedInReactionCheck extends AbstractQACheck {
-    private static final Logger logger = Logger.getLogger(PrecedingEventOutputsNotUsedInReactionCheck.class);
+public class PrecedingEventUsageCheck extends AbstractQACheck {
+    private static final Logger logger = Logger.getLogger(PrecedingEventUsageCheck.class);
 
     private static final String SQL =
             "SELECT DISTINCT ep.DB_ID, ep.precedingEvent" + 
