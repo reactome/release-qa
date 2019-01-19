@@ -9,7 +9,7 @@ import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckProperties;
 
 /**
- * This is the slice QA adaptation of the diagram-converter T109 overlaping
+ * This is the slice QA adaptation of the diagram-converter T109 overlapping
  * reaction check.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
@@ -20,7 +20,7 @@ public class DiagramOverlappingReactionCheck extends DiagramOverlapCheck {
     private static final String TOLERANCE_PROP = "diagram.reaction.overlap.tolerance";
 
     private final static Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
-     
+    
     public DiagramOverlappingReactionCheck() {
         super(cmpnt -> cmpnt instanceof RenderableReaction, TOLERANCE);
     }
