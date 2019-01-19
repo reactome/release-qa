@@ -23,7 +23,10 @@ import org.reactome.release.qa.common.QAReport;
 
 /**
  * This is the slice QA adaptation of the diagram-converter T103 extra
- * reaction participant diagram check.
+ * reaction participant diagram check. This check reports db ids which
+ * are represented as a reaction participant in a diagram but are not
+ * a participant in the database pathway event hierarchy, exclusive of
+ * subpathways which have there own diagram.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
@@ -182,7 +185,7 @@ public class DiagramExtraParticipantCheck extends AbstractDiagramQACheck {
         }
     }
 
-    protected void collectPathwayParticipantDbIds(List<GKInstance> pathways,
+    private void collectPathwayParticipantDbIds(List<GKInstance> pathways,
             Collection<GKInstance> diagrammed, Collection<Long> dbIds) throws Exception {
         // Recurse to the undiagrammed subpathways.
         List<GKInstance> undiagrammed = pathways.stream()
@@ -196,7 +199,7 @@ public class DiagramExtraParticipantCheck extends AbstractDiagramQACheck {
     }
 
     @SuppressWarnings("unchecked")
-    protected void collectRLEParticipantDbIds(List<GKInstance> group, Collection<Long> dbIds)
+    private void collectRLEParticipantDbIds(List<GKInstance> group, Collection<Long> dbIds)
             throws Exception, InvalidAttributeException {
         // Add the participant ids.
         dba.loadInstanceAttributeValues(group, REACTION_PARTICIPANT_ATTS);
@@ -216,7 +219,7 @@ public class DiagramExtraParticipantCheck extends AbstractDiagramQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Diagram_Extra_Participant_In_Diagram";
+        return "Diagram_Extra_Participants";
     }
 
 }
