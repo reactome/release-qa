@@ -1,5 +1,7 @@
 package org.reactome.release.qa.diagram;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -9,19 +11,24 @@ import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
 import org.gk.render.RenderablePathway;
+import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.DiagramQACheck;
+import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the implementation of the diagram-converter DT112 check for
- * diagram Compartment nodes whose displayName is missing.
+ * Check for diagram Compartment nodes whose label is significantly
+ * occluded by another node.
  * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @DiagramQACheck
-public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck {
+public class DiagramCompartmentLabelOccludedCheck extends AbstractDiagramQACheck {
 
+    private static final String TOLERANCE_PROP = "diagram.compartment.overlap.tolerance";
+
+    private final static Integer TOLERANCE = QACheckProperties.getInteger(TOLERANCE_PROP);
     
     private static final List<String> HEADERS = Arrays.asList(
             "PathwayDiagram_DBID",
@@ -29,11 +36,13 @@ public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck 
             "Pathway_DBID",
             "Compartment_DBID",
             "Compartment_DisplayName",
+            "Overlap_DBID",
+            "Overlap_DisplayName",
             "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
-        return "Diagram_Compartment_Label_Missing";
+        return "Diagram_Compartment_Label_Missing_Or_Occluded";
     }
 
     @Override
@@ -68,15 +77,62 @@ public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck 
                     continue;
                 }
                 if (cmpnt.getDisplayName() == null) {
+                    // This is covered by another check.
+                    continue;
+                }
+                Renderable overlap = findTextOcclusion(cmpnt, cmpnts);
+                if (overlap != null) {
                     String mod = QACheckerHelper.getLastModificationAuthor(diagram);
+                    String overlapDbIdStr = "";
+                    String overlapDisplayNm = "";
+                    if (overlap != null) {
+                        Long overlapDbId = overlap.getReactomeId();
+                        if (overlapDbId != null) {
+                            overlapDbIdStr = overlapDbId.toString();
+                            GKInstance overlapInst = dba.fetchInstance(overlap.getReactomeId());
+                            overlapDisplayNm = overlapInst.getDisplayName();
+                        }
+                    }
                     report.addLine(diagram.getDBID().toString(),
                             pathwayInst.getDisplayName(),
                             pathwayInst.getDBID().toString(),
                             cmpntInst.getDBID().toString(),
                             cmpntInst.getDisplayName(),
+                            overlapDbIdStr,
+                            overlapDisplayNm,
                             mod);
                 }
             }
         }
     }
+    
+    /**
+     * @param cmpnt the diagram component to check
+     * @param cmpnts all of the diagram components
+     * @return a component that occludes the text, or null if none
+     */
+    private Renderable findTextOcclusion(Renderable cmpnt, List<Renderable> cmpnts) {
+        int tolerance = TOLERANCE == null ? 0 : TOLERANCE;
+        Rectangle bnds = cmpnt.getBounds();
+        Rectangle textBnds = cmpnt.getTextBounds();
+        Point textOrigin = new Point((int)textBnds.getX() + tolerance, (int)textBnds.getY() + tolerance);
+        for (Renderable other : cmpnts) {
+            if (other == cmpnt || other.getReactomeId() == null || other instanceof RenderableReaction) {
+                continue;
+            }
+            if (other instanceof RenderableCompartment) {
+                if (!bnds.contains(other.getBounds()) || other.getReactomeId().equals(cmpnt.getReactomeId())) {
+                    continue;
+                }
+            }
+            if (other.getBounds().contains(textOrigin)) {
+                if (other.getReactomeId() == 9009912L) {
+                    System.out.println(">>");
+                }
+                return other;
+            }
+        }
+        return null;
+    }
+
 }
