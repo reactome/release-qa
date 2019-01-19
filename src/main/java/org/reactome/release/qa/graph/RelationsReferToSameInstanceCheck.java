@@ -75,7 +75,7 @@ public class RelationsReferToSameInstanceCheck extends TwoAttributesReferToSameC
                 if (cls1.isa(cls2))
                     config.clsName = cls1.getName(); // Should use the lower class since 
                                                      // an attribute in the lower class may not
-                                                     // be valid in an supper class
+                                                     // be valid in an upper class
                 else
                     config.clsName = cls2.getName();
                 config.attName1 = att1.getName();
@@ -88,7 +88,7 @@ public class RelationsReferToSameInstanceCheck extends TwoAttributesReferToSameC
     
     /**
      * Check if two attributes can use the same type of instances so that it is possible
-     * they may refer to the same instance or creating circular reference.
+     * they may refer to the same instance or have a circular reference.
      * @param att1
      * @param att2
      * @return
