@@ -16,7 +16,7 @@ import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
 import org.reactome.release.qa.diagram.DiagramDuplicateReactionParticipantsCheck;
 import org.reactome.release.qa.diagram.DiagramEmptyCheck;
-import org.reactome.release.qa.diagram.DiagramExtraParticipantCheck;
+import org.reactome.release.qa.diagram.DiagramExtraReactionlikeEventsCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingReactionCheck;
 import org.reactome.release.qa.diagram.DiagramReactionShapeCheck;
@@ -202,7 +202,7 @@ public class QACheckTest {
     
     @Test
     public void testDiagramExtraParticipantCheck() throws Exception {
-        AbstractQACheck checker = new DiagramExtraParticipantCheck();
+        AbstractQACheck checker = new DiagramExtraReactionlikeEventsCheck();
         runTest(checker);
     }
     

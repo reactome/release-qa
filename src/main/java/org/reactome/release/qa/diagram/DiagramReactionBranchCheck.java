@@ -15,6 +15,7 @@ import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckProperties;
+import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
@@ -69,7 +70,7 @@ public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
         GKInstance instance = (GKInstance)
                 pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         GKInstance created = (GKInstance) pathwayDiagram.getAttributeValue("created");
-        GKInstance modified = InstanceUtilities.getLatestCuratorIEFromInstance(pathwayDiagram);
+        GKInstance modified = QACheckerHelper.getLastModification(pathwayDiagram);
         for (RenderableReaction rxn: rxns) {
             // Report the overlaps.
             if (isOverlapping(rxn)) {
