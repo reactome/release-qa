@@ -36,6 +36,7 @@ public class RelationsReferToSameInstanceCheck extends TwoAttributesReferToSameC
             "hasComponent",
             "requiredInputComponent",
             "physicalEntity",
+            "diseaseEntity",
             "activeUnit",
             "reverseReaction",
             "precedingEvent",
