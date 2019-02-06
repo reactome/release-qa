@@ -64,7 +64,7 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
                                      QAReport report) throws Exception {
         RenderablePathway pathway = reader.openDiagram(diagram);
         List<GKInstance> pathwayInsts = diagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
-        Set<Long> drawnIds = getRenderableParticipantDbIds(pathway);
+        Set<Long> drawnIds = getRenderableReactionDbIds(pathway);
         checkPathwayDiagram(pathwayInsts, drawnIds);
         String modDate = QACheckerHelper.getLastModificationAuthor(diagram);
         for (Long dbId: drawnIds) {
@@ -106,7 +106,7 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
         // If we still have anything left, they will be extra
     }
 
-    private Set<Long> getRenderableParticipantDbIds(RenderablePathway pathway) {
+    private Set<Long> getRenderableReactionDbIds(RenderablePathway pathway) {
         List<Renderable> components = (List<Renderable>) pathway.getComponents();
         Set<Long> dbIds = components.stream()
                 .filter(r -> r.getReactomeId() != null)
