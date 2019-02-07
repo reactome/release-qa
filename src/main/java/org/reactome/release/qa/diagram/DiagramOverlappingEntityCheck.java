@@ -6,6 +6,8 @@ import java.util.function.Predicate;
 import org.gk.render.ContainerNode;
 import org.gk.render.HyperEdge;
 import org.gk.render.Renderable;
+import org.gk.render.RenderableCompartment;
+import org.gk.render.RenderablePathway;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckProperties;
 
@@ -25,8 +27,9 @@ public class DiagramOverlappingEntityCheck extends DiagramOverlapCheck {
     private static Predicate<? super Renderable> createFilter() {
         Predicate<? super Renderable> skip =
                 cmpnt -> cmpnt.getReactomeId() == null ||
-                        cmpnt instanceof HyperEdge ||
-                        cmpnt instanceof ContainerNode;
+                         cmpnt instanceof HyperEdge ||
+                         cmpnt instanceof RenderableCompartment || // We want to check complexes too
+                         cmpnt instanceof RenderablePathway;
         return skip.negate();
     }
      
