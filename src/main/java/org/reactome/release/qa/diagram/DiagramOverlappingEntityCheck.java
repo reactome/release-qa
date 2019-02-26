@@ -20,7 +20,7 @@ public class DiagramOverlappingEntityCheck extends DiagramOverlapCheck {
     
     private static final String TOLERANCE_PROP = "diagram.entity.overlap.tolerance";
     
-    private static final Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
+    protected static final Double TOLERANCE = QACheckProperties.getDouble(TOLERANCE_PROP);
     
     private static Predicate<? super Renderable> createFilter() {
         Predicate<? super Renderable> skip =

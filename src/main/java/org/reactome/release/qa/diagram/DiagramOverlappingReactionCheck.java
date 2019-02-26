@@ -19,7 +19,7 @@ public class DiagramOverlappingReactionCheck extends DiagramOverlapCheck {
 
     private static final String TOLERANCE_PROP = "diagram.reaction.overlap.tolerance";
 
-    private final static Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
+    private final static Double TOLERANCE = QACheckProperties.getDouble(TOLERANCE_PROP);
     
     public DiagramOverlappingReactionCheck() {
         super(cmpnt -> cmpnt instanceof RenderableReaction, TOLERANCE);

@@ -50,9 +50,9 @@ public class QACheckProperties {
         return value == null ? null : Integer.parseInt(value);
     }
 
-    public static Float getFloat(String key) {
+    public static Double getDouble(String key) {
         String value = getProperty(key);
-        return value == null ? null : Float.parseFloat(value);
+        return value == null ? null : Double.parseDouble(value);
     }
 
     public static Date getCutoffDate() {
