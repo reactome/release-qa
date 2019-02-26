@@ -1,6 +1,6 @@
-# Attributes listed here should not be checked. Two attributes, listed alphabetically and delimited by tab,
-# per line. Not class is needed
-# Used in class InterChainCrosslinkedResidue.
+# Attributes listed here should not be checked by OneHopCircularReferenceCheck.
+# Each line consists of two attributes in alphabetical sort order and delimited
+# by tab. The attribute class is not needed.
 equivalentTo	equivalentTo
 reverseReaction	reverseReaction
 precedingEvent	precedingEvent
