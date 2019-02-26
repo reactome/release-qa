@@ -7,31 +7,47 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
+import org.gk.render.ReactionType;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
 import org.gk.render.RenderableReaction;
+import org.gk.util.DrawUtilities;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This is the slice QA adaptation of the diagram-converter T107
- * reaction branch participant/hub overlap check.
+ * This QA check is a variation of the diagram-converter T107 check.
+ * The T107 check detects an exact reaction participant/hub overlap.
+ * This slice QA check detects overlaps within a tolerance which
+ * would obfuscate the display. As of 01/2019, T107 reports issues
+ * from the following diagram-converter bug:
+ *
+ * When there is only one output entity and no output hub different
+ * from the reaction hub, CuratorTool formats the reaction type
+ * symbol (e.g. association circle) at the midpoint of the input
+ * hub-to-entity line segment, whereas diagram-converter abuts the
+ * symbol against the output entity, thereby overlapping the output
+ * arrow.
+ * 
+ * This bug is tracked as https://reactome.atlassian.net/browse/DEV-1788.
  *
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @DiagramQACheck
 public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
 
+    /** The association/dissociation circle symbol radius. */
+    private static final int CIRCLE_RADIUS = 2;
+
     private static final Logger logger = Logger.getLogger(DiagramOverlappingEntityCheck.class);
 
     private static final String TOLERANCE_PROP = "diagram.reaction.participant.hub.min.distance";
 
-    private final static Float TOLERANCE = QACheckProperties.getFloat(TOLERANCE_PROP);
+    private final static Integer TOLERANCE = QACheckProperties.getInteger(TOLERANCE_PROP);
 
     @Override
     public String getDisplayName() {
@@ -67,7 +83,7 @@ public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
                 .filter(cmpnt -> cmpnt instanceof RenderableReaction)
                 .map(renderable -> (RenderableReaction)renderable)
                 .collect(Collectors.toList());
-        GKInstance instance = (GKInstance)
+        GKInstance pathwayInst = (GKInstance)
                 pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         GKInstance created = (GKInstance) pathwayDiagram.getAttributeValue("created");
         GKInstance modified = QACheckerHelper.getLastModification(pathwayDiagram);
@@ -75,8 +91,8 @@ public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
             // Report the overlaps.
             if (isOverlapping(rxn)) {
                 report.addLine(pathwayDiagram.getDBID().toString(),
-                        instance.getDisplayName(),
-                        instance.getDBID().toString(),
+                        pathwayInst.getDisplayName(),
+                        pathwayInst.getDBID().toString(),
                         rxn.getReactomeId().toString(),
                         rxn.getDisplayName(),
                         created.getDisplayName(),
@@ -86,22 +102,56 @@ public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
     }
 
     private boolean isOverlapping(RenderableReaction rxn) {
-        return isOverlapping(rxn.getInputHub(), rxn.getInputPoints()) ||
-                isOverlapping(rxn.getOutputHub(), rxn.getOutputPoints()) ||
+        return isInputOverlapping(rxn) ||
+                isOutputOverlapping(rxn) ||
                 isOverlapping(rxn.getPosition(), rxn.getActivatorPoints()) ||
                 isOverlapping(rxn.getPosition(), rxn.getInhibitorPoints());
     }
 
-    private boolean isOverlapping(Point hub, List<List<Point>> branches) {
-        return branches != null &&
-                branches.stream().anyMatch(branch -> isOverlapping(hub, branch.get(0)));
+    private boolean isInputOverlapping(RenderableReaction rxn) {
+        int tolerance = TOLERANCE == null ? 0 : TOLERANCE;
+        if (isReactionTypeSymbolDrawn(rxn)) {
+            tolerance += CIRCLE_RADIUS;
+            if (rxn.isNeedInputArrow()) {
+                tolerance += DrawUtilities.ARROW_LENGTH;
+            }
+        }
+        
+        return isOverlapping(rxn.getInputHub(), rxn.getInputPoints(), tolerance);
     }
 
-    private boolean isOverlapping(Point hub, Point point) {
-        if (TOLERANCE == null) {
+    private boolean isOutputOverlapping(RenderableReaction rxn) {
+        int tolerance = TOLERANCE == null ? 0 : TOLERANCE;
+        if (isReactionTypeSymbolDrawn(rxn)) {
+            tolerance += CIRCLE_RADIUS;
+            if (rxn.isNeedOutputArrow()) {
+                tolerance += DrawUtilities.ARROW_LENGTH;
+            }
+        }
+        
+        return isOverlapping(rxn.getOutputHub(), rxn.getOutputPoints(), tolerance);
+    }
+
+    private boolean isReactionTypeSymbolDrawn(RenderableReaction rxn) {
+        ReactionType rxnType = rxn.getReactionType();
+        return rxnType == ReactionType.ASSOCIATION || rxnType == ReactionType.DISSOCIATION;
+    }
+
+    private boolean isOverlapping(Point hub, List<List<Point>> branches) {
+        return isOverlapping(hub, branches, TOLERANCE);
+    }
+
+    private boolean isOverlapping(Point hub, List<List<Point>> branches, Integer tolerance) {
+        return branches != null &&
+                branches.stream().anyMatch(branch -> isOverlapping(hub, branch.get(0), tolerance));
+    }
+
+    private boolean isOverlapping(Point hub, Point point, Integer tolerance) {
+        if (tolerance == null) {
             return hub.equals(point);
         } else {
-            return hub.distance(point) <= TOLERANCE;
+            double distance = hub.distance(point);
+            return distance <= tolerance;
         }
     }
 
