@@ -42,7 +42,7 @@ public class DiagramCompartmentLabelOccludedCheck extends AbstractDiagramQACheck
 
     @Override
     public String getDisplayName() {
-        return "Diagram_Compartment_Label_Missing_Or_Occluded";
+        return "Diagram_Compartment_Label_Occluded";
     }
 
     @Override
