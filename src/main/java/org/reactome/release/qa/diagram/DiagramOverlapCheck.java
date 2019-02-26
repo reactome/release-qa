@@ -9,9 +9,11 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
+import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
+import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -32,9 +34,9 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
     
     private Predicate<? super Renderable> filter;
 
-    private Float tolerance;
+    private Double tolerance;
     
-    protected DiagramOverlapCheck(Predicate<? super Renderable> filter, Float tolerance) {
+    protected DiagramOverlapCheck(Predicate<? super Renderable> filter, Double tolerance) {
         this.filter = filter;
         this.tolerance = tolerance;
     }
@@ -52,10 +54,12 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
             checkPathwayDiagram(diagram, reader, report);
         }
         report.setColumnHeaders("PathwayDiagram_DBID",
-                "PathwayDiagram_DisplayName",
+                "Pathway_DisplayName",
+                "Pathway_DBID",
                 "Overlapping_DBIDs",
                 "Overlapping_DisplayNames",
-                "MostRecentAuthor");
+                "Created",
+                "Modified");
         
         return report;
     }
@@ -64,7 +68,20 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
 
     private void checkPathwayDiagram(GKInstance pathwayDiagram, DiagramGKBReader reader, QAReport report)
             throws Exception {
-        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
+        // Skip disease pathways.
+        @SuppressWarnings("unchecked")
+        List<GKInstance> pathwayInsts = (List<GKInstance>)
+                pathwayDiagram.getAttributeValuesList(ReactomeJavaConstants.representedPathway);
+        for (GKInstance pathwayInst: pathwayInsts) {
+            GKInstance normal =
+                    (GKInstance) pathwayInst.getAttributeValue(ReactomeJavaConstants.normalPathway);
+            if (normal != null) {
+                return;
+            }
+        }
+        // Not a disease pathway; take the first pathway as representative.
+        GKInstance pathwayInst = pathwayInsts.get(0);
+        logger.debug("Checking " + pathwayDiagram.getDisplayName() + "...");
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
@@ -90,11 +107,15 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
                 String overlapDisplayNames = overlaps.stream()
                         .map(Renderable::getDisplayName)
                         .collect(Collectors.joining("|"));
+                GKInstance created = (GKInstance) pathwayDiagram.getAttributeValue("created");
+                GKInstance modified = QACheckerHelper.getLastModification(pathwayDiagram);
                 report.addLine(pathwayDiagram.getDBID().toString(),
-                        pathwayDiagram.getDisplayName(),
+                        pathwayInst.getDisplayName(),
+                        pathwayInst.getDBID().toString(),
                         overlapIds,
                         overlapDisplayNames,
-                        QACheckerHelper.getLastModificationAuthor(pathwayDiagram));
+                        created.getDisplayName(),
+                        modified.getDisplayName());
             }
         }
     }
