@@ -20,9 +20,9 @@ import org.reactome.release.qa.common.QAReport;
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
-public class StableIdentifierIntegrityCheck extends AbstractQACheck {
+public class StableIdentifierCheck extends AbstractQACheck {
 
-	public StableIdentifierIntegrityCheck() {
+	public StableIdentifierCheck() {
     }
 	
 	@Override
