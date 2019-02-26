@@ -15,10 +15,10 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 @GraphQACheck
-public class ReactionsSingleInputOutputSchemaClassMismatchCheck extends AbstractQACheck {
+public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck {
 
     private static final Logger logger =
-            Logger.getLogger(ReactionsSingleInputOutputSchemaClassMismatchCheck.class);
+            Logger.getLogger(ReactionsSingleInputOutputSchemaClassCheck.class);
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
@@ -82,7 +82,7 @@ public class ReactionsSingleInputOutputSchemaClassMismatchCheck extends Abstract
                                     inputSchemaCls + " and " + outputSchemaCls);
                             continue;
                         }
-                        addReportLine(report, rle);
+                        addReportLine(report, rle, inputSchemaCls, outputSchemaCls);
                     }
                 }
             }
@@ -93,12 +93,13 @@ public class ReactionsSingleInputOutputSchemaClassMismatchCheck extends Abstract
         return report;
     }
 
-    private void addReportLine(QAReport report, GKInstance instance) {
+    private void addReportLine(QAReport report, GKInstance rle, SchemaClass inputSchemaCls, SchemaClass outputSchemaCls) {
         report.addLine(
-                Arrays.asList(instance.getDBID().toString(), 
-                        instance.getDisplayName(), 
-                        instance.getSchemClass().getName(), 
-                        QACheckerHelper.getLastModificationAuthor(instance)));
+                Arrays.asList(rle.getDBID().toString(),
+                        rle.getDisplayName(),
+                        inputSchemaCls.getName(),
+                        outputSchemaCls.getName(),
+                        QACheckerHelper.getLastModificationAuthor(rle)));
     }
 
 }
