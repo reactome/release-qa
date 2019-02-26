@@ -28,7 +28,9 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This class is used to check if a one-hop circular reference existing between two instances. 
+ * This QA check reports one-hop circular references between two instances.
+ * The check corresponds to the graph-qa T027_EntriesWithOtherCyclicRelations
+ * check.
  * 
  * This check's escape list can include both preceding and following RLEs.
 
