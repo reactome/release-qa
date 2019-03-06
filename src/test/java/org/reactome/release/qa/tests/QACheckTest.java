@@ -19,7 +19,6 @@ import org.reactome.release.qa.diagram.DiagramEmptyCheck;
 import org.reactome.release.qa.diagram.DiagramExtraReactionlikeEventsCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingReactionCheck;
-import org.reactome.release.qa.diagram.DiagramReactionShapeCheck;
 import org.reactome.release.qa.diagram.DiagramRenderableTypeCheck;
 import org.reactome.release.qa.diagram.DiagramReactionBranchCheck;
 import org.reactome.release.qa.diagram.DiagramCompartmentCheck;
@@ -233,12 +232,6 @@ public class QACheckTest {
     @Test
     public void testDiagramCompartmentCheck() throws Exception {
         AbstractQACheck checker = new DiagramCompartmentCheck();
-        runTest(checker);
-    }
-    
-    @Test
-    public void testDiagramReactionShapeCheck() throws Exception {
-        AbstractQACheck checker = new DiagramReactionShapeCheck();
         runTest(checker);
     }
 
