@@ -21,7 +21,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
             Logger.getLogger(ReactionsSingleInputOutputSchemaClassCheck.class);
 
     private static final List<String> HEADERS = Arrays.asList(
-            "DBID", "DisplayName", "SchemaClass", "MostRecentAuthor");
+            "DBID", "DisplayName", "Input_Schema_Class", "Output_Schema_Class", "MostRecentAuthor");
 
     @Override
     public String getDisplayName() {
