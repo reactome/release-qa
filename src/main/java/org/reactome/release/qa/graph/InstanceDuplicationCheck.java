@@ -83,7 +83,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             // directly from instance
             GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
             Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
-            for (SchemaAttribute att : instDefinedAttributes) {
+            for (SchemaAttribute att : instDefinedAttributes.stream().sorted().collect(Collectors.toList())) {
                 // att may be defined in the superclass and should not be used for query
                 List<?> values = instance.getAttributeValuesList(att.getName());
                 generateKeyFromValues(values, att, builder);
