@@ -25,9 +25,10 @@ import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This class is used to check if two or more instances in the same class are duplicated. The implementation
- * of this check if based on the list of defined attributes listed in the schema, and is different from the
- * implementation from graph QA check in some cases (e.g. EntitySet duplication).
+ * This class is used to check if two or more instances in the same class are duplicated.
+ * The implementation of this check is based on the list of defined attributes listed
+ * in the schema, and is different from the implementation from graph QA check in some
+ * cases (e.g. EntitySet duplication).
  * 
  * Note: a skip list is supported but not recommended for this check.
  * 
@@ -106,14 +107,18 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             }
             if (unescapedDups.size() < 2)
                 continue;
+            // Sort dups by db id.
+            List<GKInstance> sortedDups = unescapedDups.stream()
+                    .sorted((inst1, inst2) -> inst1.getDBID().compareTo(inst2.getDBID()))
+                    .collect(Collectors.toList());
             // Create report
-            String dbIds = unescapedDups.stream()
+            String dbIds = sortedDups.stream()
                     .map(inst -> inst.getDBID() + "")
                     .collect(Collectors.joining("|"));
-            String names = unescapedDups.stream()
+            String names = sortedDups.stream()
                     .map(inst -> inst.getDisplayName())
                     .collect(Collectors.joining("|"));
-            String authors = unescapedDups.stream()
+            String authors = sortedDups.stream()
                     .map(inst -> QACheckerHelper.getLastModificationAuthor(inst))
                     .collect(Collectors.joining("|"));
             report.addLine(clsName, dbIds, names, authors);
