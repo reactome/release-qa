@@ -126,9 +126,6 @@ public class DiagramCompartmentLabelOccludedCheck extends AbstractDiagramQACheck
                 }
             }
             if (other.getBounds().contains(textOrigin)) {
-                if (other.getReactomeId() == 9009912L) {
-                    System.out.println(">>");
-                }
                 return other;
             }
         }
