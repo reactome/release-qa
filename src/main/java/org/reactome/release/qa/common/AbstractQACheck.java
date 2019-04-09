@@ -43,7 +43,7 @@ public abstract class AbstractQACheck implements QACheck {
         String fileName = "resources" + File.separator + getClass().getSimpleName() + ".txt";
         File file = new File(fileName);
         if (!file.exists()) {
-            logger.warn("This is no configuration file available for " + 
+            logger.warn("There is no configuration file available for " +
                          getClass().getSimpleName() + 
                         ": " + file.getAbsolutePath());
             return null;
