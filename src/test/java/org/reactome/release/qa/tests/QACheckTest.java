@@ -37,6 +37,7 @@ import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
 import org.reactome.release.qa.graph.TwoAttributesReferToSameCheck;
+import org.reactome.release.qa.graph.UniquenessCheck;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
@@ -148,6 +149,12 @@ public class QACheckTest {
     @Test
     public void testSingleAttributeMissingCheck() throws Exception {
         AbstractQACheck checker = new SingleAttributeMissingCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testUniquenessCheck() throws Exception {
+        AbstractQACheck checker = new UniquenessCheck();
         runTest(checker);
     }
     
