@@ -39,7 +39,6 @@ public class ContainerEntitySpeciesCheck extends AbstractQACheck {
 		    }
 			int numComponents = QACheckerHelper.componentsHaveSpecies(physicalEntity);
 			if(numComponents > 0) {
-				report.addLine(Arrays.asList());
 				report.addLine(Arrays.asList(physicalEntity.getDBID().toString(), 
 				        physicalEntity.getDisplayName(), 
 				        physicalEntity.getSchemClass().getName(), 
