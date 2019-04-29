@@ -39,10 +39,12 @@ public class ContainerEntitySpeciesCheck extends AbstractQACheck {
 		    }
 			int numComponents = QACheckerHelper.componentsHaveSpecies(physicalEntity);
 			if(numComponents > 0) {
-				report.addLine(Arrays.asList(physicalEntity.getDBID().toString(), 
+				String componentsClause = numComponents == 1 ?
+				        " component has a species" : " components have species";
+                report.addLine(Arrays.asList(physicalEntity.getDBID().toString(),
 				        physicalEntity.getDisplayName(), 
 				        physicalEntity.getSchemClass().getName(), 
-				        "NULL species but " + numComponents + " components have species",  
+				        "No parent entity species but " + numComponents + componentsClause,
 				        QACheckerHelper.getLastModificationAuthor(physicalEntity)));
 			}
 		}
