@@ -3,10 +3,10 @@ package org.reactome.release.qa.diagram;
 import java.awt.Rectangle;
 import java.util.function.Predicate;
 
-import org.gk.render.ContainerNode;
 import org.gk.render.HyperEdge;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableCompartment;
+import org.gk.render.RenderableGene;
 import org.gk.render.RenderablePathway;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckProperties;
@@ -45,6 +45,27 @@ public class DiagramOverlappingEntityCheck extends DiagramOverlapCheck {
     @Override
     protected Rectangle getBounds(Renderable renderable) {
         Rectangle bounds = renderable.getBounds();
+        // Genes have a peculiar shape such that most of the
+        // bounding box above the text is empty. Therefore,
+        // only check the text area. Reverse-engineering
+        // DefaultGeneRenderer.drawGeneSymbol(), the empty
+        // portion (i.e., the ullage) extends upward by half
+        // of the gene symbol width. Note that "symbol" in
+        // that method refers to the glyph drawn to represent
+        // the gene, not the gene name. Note also that the
+        // method's bounds parameter height is not the gene
+        // symbol bounds height. The bounds height is not used
+        // in the method. Rather, the ullage described above is
+        // the true gene symbol height. The text label is drawn
+        // below the gene symbol. Therefore, the text bounds
+        // are what is left over from the bounds after the ullage
+        // is removed.
+        if (renderable instanceof RenderableGene) {
+            int ullage = (int) (RenderableGene.GENE_SYMBOL_WIDTH / 2.0);
+            int height = bounds.height - ullage;
+            return new Rectangle(bounds.x, bounds.y, bounds.width, height);
+        }
+
         return bounds;
     }
 
