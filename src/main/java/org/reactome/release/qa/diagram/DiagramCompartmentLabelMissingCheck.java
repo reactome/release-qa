@@ -20,7 +20,7 @@ import org.reactome.release.qa.common.QAReport;
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @DiagramQACheck
-public class DiagramCompartmentCheck extends AbstractDiagramQACheck {
+public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck {
 
     
     private static final List<String> HEADERS = Arrays.asList(
