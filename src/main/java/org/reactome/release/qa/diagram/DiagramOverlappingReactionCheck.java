@@ -1,5 +1,6 @@
 package org.reactome.release.qa.diagram;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import org.gk.render.DefaultRenderConstants;
