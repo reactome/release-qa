@@ -13,7 +13,6 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.Renderable;
 import org.gk.render.RenderablePathway;
-import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
@@ -30,7 +29,7 @@ import org.reactome.release.qa.common.QAReport;
  */
 public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
 
-    private static final Logger logger = Logger.getLogger(DiagramOverlappingEntityCheck.class);
+    private static final Logger logger = Logger.getLogger(DiagramOverlapCheck.class);
     
     private Predicate<? super Renderable> filter;
 
@@ -75,7 +74,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         for (GKInstance pathwayInst: pathwayInsts) {
             GKInstance normal =
                     (GKInstance) pathwayInst.getAttributeValue(ReactomeJavaConstants.normalPathway);
-            if (normal != null) {
+            if (normal != null || isEscaped(pathwayDiagram)) {
                 return;
             }
         }
@@ -88,6 +87,8 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         List<Renderable> filtered = components.stream()
                 .filter(filter)
                 .collect(Collectors.toList());
+        
+        // Check for overlaps.
         List<Renderable> overlaps = new ArrayList<Renderable>();
         for (int i = 0; i < filtered.size(); i++) {
             Renderable renderable = filtered.get(i);
