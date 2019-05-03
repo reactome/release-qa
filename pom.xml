@@ -12,6 +12,7 @@
         <opencsv.version>4.2</opencsv.version>
         <log4j2.version>2.11.0</log4j2.version>
         <javax.mail.version>1.4</javax.mail.version>
+        <reactome.base.version>1.2.20</reactome.base.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -198,7 +199,7 @@
         <dependency>
             <groupId>org.reactome.base</groupId>
             <artifactId>reactome-base</artifactId>
-            <version>1.2.17</version>
+            <version>${reactome.base.version}</version>
             <!-- exclude old log4j 1.x libraries - log4j 1.x has not been 
                 supported for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces 
                 ) -->
