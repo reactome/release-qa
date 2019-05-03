@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.util.FileUtilities;
@@ -92,7 +91,7 @@ public abstract class AbstractQACheck implements QACheck {
         if (CUTOFF_DATE == null) {
             return true;
         }
-        GKInstance ie = InstanceUtilities.getLatestIEFromInstance(instance);
+        GKInstance ie = QACheckUtilities.getLatestCuratorIEFromInstance(instance);
         if (ie == null) {
             // Probably an error, but the error should be detected
             // elsewhere and the most reasonable interpretation here
