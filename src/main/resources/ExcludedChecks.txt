@@ -1,5 +1,3 @@
 DatabaseObjectWithoutCreatedCheck
-DiagramReactionShapeMismatchCheck
-PhysicalEntitiesCompartmentCheck
+PhysicalEntitiesWithMoreThanOneCompartmentCheck
 PrecedingEventUsageCheck
-UniquenessCheck
