@@ -21,7 +21,8 @@ import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
 import org.reactome.release.qa.diagram.DiagramOverlappingReactionCheck;
 import org.reactome.release.qa.diagram.DiagramRenderableTypeCheck;
 import org.reactome.release.qa.diagram.DiagramReactionBranchCheck;
-import org.reactome.release.qa.diagram.DiagramCompartmentCheck;
+import org.reactome.release.qa.diagram.DiagramCompartmentLabelMissingCheck;
+import org.reactome.release.qa.diagram.DiagramCompartmentLabelOccludedCheck;
 import org.reactome.release.qa.graph.CatalystActivityComplexCheck;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
@@ -214,7 +215,7 @@ public class QACheckTest {
     
     @Test
     public void testDiagramUnlabeledCompartmentCheck() throws Exception {
-        AbstractQACheck checker = new DiagramCompartmentCheck();
+        AbstractQACheck checker = new DiagramCompartmentLabelMissingCheck();
         runTest(checker);
     }
     
@@ -238,10 +239,16 @@ public class QACheckTest {
     
     @Test
     public void testDiagramCompartmentCheck() throws Exception {
-        AbstractQACheck checker = new DiagramCompartmentCheck();
+        AbstractQACheck checker = new DiagramCompartmentLabelMissingCheck();
         runTest(checker);
     }
-
+    
+    @Test
+    public void testDiagramCompartmentLabelOccludedCheck() throws Exception {
+        AbstractQACheck checker = new DiagramCompartmentLabelOccludedCheck();
+        runTest(checker);
+    }
+    
     @Test
     public void testEHLDSubPathwayChangeCheck() throws Exception {
         AbstractQACheck checker = new EHLDSubpathwayChangeCheck();
