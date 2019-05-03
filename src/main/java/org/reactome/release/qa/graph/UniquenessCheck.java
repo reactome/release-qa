@@ -15,10 +15,10 @@ import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
-import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
+import org.reactome.release.qa.common.QACheckUtilities;
 import org.reactome.release.qa.common.QAReport;
 
 @SliceQACheck
@@ -82,7 +82,7 @@ public class UniquenessCheck extends AbstractQACheck {
                 GKInstance latest = null;
                 String latestModDateValue = null;
                 for (GKInstance valInst: valInsts) {
-                    GKInstance modified = InstanceUtilities.getLatestCuratorIEFromInstance(valInst);
+                    GKInstance modified = QACheckUtilities.getLatestCuratorIEFromInstance(valInst);
                     String modDateValue =
                             (String) modified.getAttributeValue(ReactomeJavaConstants.dateTime);
                     if (modDateValue == null) {
@@ -99,7 +99,7 @@ public class UniquenessCheck extends AbstractQACheck {
                         .map(Object::toString)
                         .collect(Collectors.joining(", "));
                 GKInstance created = (GKInstance) instance.getAttributeValue(ReactomeJavaConstants.created);
-                GKInstance modified = InstanceUtilities.getLatestCuratorIEFromInstance(instance);
+                GKInstance modified = QACheckUtilities.getLatestCuratorIEFromInstance(instance);
                 report.addLine(instance.getDBID().toString(),
                         instance.getDisplayName(),
                         instance.getSchemClass().getName(),
