@@ -73,9 +73,7 @@ public class MySQLAdaptorManager {
     }
     
     private void initAlternateDBA() throws Exception {
-        InputStream is = getAuthConfig();
-        Properties prop = new Properties();
-        prop.load(is);
+        Properties prop = getAuthProperties();
         if (cmdOpts != null) {
             prop.putAll(cmdOpts);
         }
