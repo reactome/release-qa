@@ -1,3 +1,4 @@
 DatabaseObjectWithoutCreatedCheck
+DiagramCompartmentLabelOccludedCheck
 PhysicalEntitiesWithMoreThanOneCompartmentCheck
 PrecedingEventUsageCheck

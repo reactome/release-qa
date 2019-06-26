@@ -33,6 +33,31 @@ import org.reactome.release.qa.common.QAReport;
  * in B or if A and B are different nodes for the same database
  * compartment object.
  * 
+ * <em>Note</em>: as of 07/2019, this QA check is disabled in the
+ * ExcludedChecks list, since it reports labels that overlap but
+ * are sufficiently readable or are too difficult for crators to
+ * identify or correct, e.g. the
+ * <code>Other responses of Mtb to phagocytosis</code> diagram:
+ * <p>
+ * If you look at the full diagram, you will notice that Host cell
+ * cytosol is distinguished from Bacteria cell cytosol by changing
+ * the label. In the case of Bacteria cell cytosol, the text Bacteria
+ * cell is prepended to the standard label cytosol. That is not a
+ * problem with the QA check. However, in the case of the host cell,
+ * the standard label cytosol is placed in the middle of the compartment
+ * but buried beneath other entities to obscure it. Then the free-form
+ * text Bacteria cell cytosol is added in a visible location completely
+ * separate from the standard label.
+ * </p>
+ * <p>
+ * The remedy for this case is to qualify the cytosol compartment in the
+ * same way that it is done for bacteria: remove cytosol from the text
+ * and move the standard label to the visible location in its place. If
+ * that is done, then the issue will not be reported. It is arguably a
+ * cleaner approach to qualify the compartment label in this way with a
+ * prefix rather than hide and replace the standard label.
+ * </p>
+ * 
  * @author Fred Loney <loneyf@ohsu.edu>
  */
 @DiagramQACheck
