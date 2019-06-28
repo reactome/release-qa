@@ -64,6 +64,17 @@ public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck 
                     continue;
                 }
                 GKInstance cmpntInst = dba.fetchInstance(dbId);
+                if (cmpntInst == null) {
+                    // This is a serious issue
+                    String mod = QACheckerHelper.getLastModificationAuthor(diagram);
+                    report.addLine(diagram.getDBID().toString(),
+                                   pathwayInst.getDisplayName(),
+                                   pathwayInst.getDBID().toString(),
+                                   dbId + "",
+                                   "Compartment cannot find in db",
+                                   mod);
+                    continue;
+                }
                 if (isEscaped(cmpntInst)) {
                     continue;
                 }

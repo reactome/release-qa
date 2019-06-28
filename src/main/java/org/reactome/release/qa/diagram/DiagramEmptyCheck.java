@@ -47,7 +47,7 @@ public class DiagramEmptyCheck extends AbstractDiagramQACheck {
     private void checkPathwayDiagram(GKInstance pathwayDiagram,
             DiagramGKBReader reader,
             QAReport report) throws Exception {
-        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
+//        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
