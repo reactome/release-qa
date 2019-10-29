@@ -6,7 +6,7 @@
     <properties>
         <bundle.symbolicName>reactome-release-qa</bundle.symbolicName>
         <bundle.namespace>org.reactome</bundle.namespace>
-        <!-- Prevent Using platform encoding (UTF-8 actually) to copy filtered 
+        <!-- Prevent Using platform encoding (UTF-8 actually) to copy filtered
             resources, i.e. build is platform dependent! See: https://maven.apache.org/general.html -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <opencsv.version>4.2</opencsv.version>
@@ -159,6 +159,19 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>2.18.3</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- The CSV parser. -->
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -182,7 +195,7 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j2.version}</version>
         </dependency>
-        <!-- Log4j2-to-Log4j1.x bridge - just in case something in reactome-base 
+        <!-- Log4j2-to-Log4j1.x bridge - just in case something in reactome-base
             depends on log4j 1.x code. -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -200,8 +213,8 @@
             <groupId>org.reactome.base</groupId>
             <artifactId>reactome-base</artifactId>
             <version>${reactome.base.version}</version>
-            <!-- exclude old log4j 1.x libraries - log4j 1.x has not been 
-                supported for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces 
+            <!-- exclude old log4j 1.x libraries - log4j 1.x has not been
+                supported for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces
                 ) -->
             <exclusions>
                 <exclusion>
