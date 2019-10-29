@@ -73,9 +73,13 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 	}
 
 	@Override
-	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase)	{ this.olderDatabase = olderDatabase; }
+	public void setOtherDBAdaptor(MySQLAdaptor olderDatabase) {
+		this.olderDatabase = olderDatabase;
+	}
 
-	public MySQLAdaptor getOtherDBAdaptor() { return this.olderDatabase; };
+	public MySQLAdaptor getOtherDBAdaptor() {
+		return this.olderDatabase;
+	}
 
 	private List<Long> getPathwayIDsWithEHLD() throws EHLDPathwayIDRetrievalException {
 		final String reactomeEHLDURL = "https://reactome.org/download/current/ehld/";
