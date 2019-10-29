@@ -32,6 +32,11 @@ ContributorsCheck/contributors-check/src/main/resources/auth.properties
 .project
 .settings
 */target/*
+target/
 .recommenders
 NullCheck/src/main/resources/auth.properties
 auth.properties
+
+# ItelliJ Files
+.idea/
+release-qa.iml
