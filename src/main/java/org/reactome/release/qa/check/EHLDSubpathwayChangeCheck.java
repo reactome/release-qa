@@ -5,17 +5,10 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
-import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -42,7 +35,7 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 			"Subpathway Names removed in " + this.dba.getDBName()
 		);
 
-		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD());
+		List<Long> pathwayIds = new ArrayList<>(getPathwayIDsWithEHLD(this.dba));
 		List<EHLDPathway> oldPathways = getEHLDPathways(pathwayIds, getOtherDBAdaptor());
 		List<EHLDPathway> newPathways = getEHLDPathways(pathwayIds, this.dba);
 
@@ -81,47 +74,29 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 		return this.olderDatabase;
 	}
 
-	private List<Long> getPathwayIDsWithEHLD() throws EHLDPathwayIDRetrievalException {
-		final String reactomeEHLDURL = "https://reactome.org/download/current/ehld/";
-		List<Long> pathwayIds = new ArrayList<>();
+	List<Long> getPathwayIDsWithEHLD(MySQLAdaptor newerDatabase) throws EHLDPathwayIDRetrievalException {
 		try {
-			BufferedReader ehldWebSource = new BufferedReader(
-				new InputStreamReader(new URL(reactomeEHLDURL).openStream())
-			);
+			return asGKInstanceCollection(newerDatabase.fetchInstancesByClass(ReactomeJavaConstants.Pathway))
+				.stream()
+				.filter(this::hasEHLD)
+				.map(GKInstance::getDBID)
+				.collect(Collectors.toList());
+		} catch (Exception e) {
+			throw new EHLDPathwayIDRetrievalException("Unable to retrieve pathway ids from " + newerDatabase, e);
+		}
+	}
 
-			pathwayIds.addAll(parsePathwayIds(ehldWebSource));
-			pathwayIds.sort(Comparator.comparing(Long::longValue));
+	private boolean hasEHLD(GKInstance pathway) {
+		// Need to create this value in org/gk/model/ReactomeJavaConstants.java in the Curator Tool project source code
+		final String hasEHLDAttribute = "hasEHLD";
 
-			ehldWebSource.close();
-		} catch (IOException e) {
+		try {
+			String hasEHLDAttributeValue = (String) pathway.getAttributeValue(hasEHLDAttribute);
+			return hasEHLDAttributeValue != null && hasEHLDAttributeValue.equalsIgnoreCase("true");
+		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
-
-		if (pathwayIds.isEmpty()) {
-			throw new EHLDPathwayIDRetrievalException("Unable to retrieve pathway ids from " + reactomeEHLDURL);
-		}
-
-		return pathwayIds;
-	}
-
-	private List<Long> parsePathwayIds(BufferedReader ehldWebSource) throws IOException {
-		List<Long> pathwayIds = new ArrayList<>();
-
-		Pattern svgFileName = getSVGFileNamePattern();
-		String sourceLine;
-		while ((sourceLine = ehldWebSource.readLine()) != null) {
-			Matcher svgMatcher = svgFileName.matcher(sourceLine);
-			if (svgMatcher.find()) {
-				Long pathwayId = Long.parseLong(svgMatcher.group(1));
-				pathwayIds.add(pathwayId);
-			}
-		}
-
-		return pathwayIds;
-	}
-
-	private Pattern getSVGFileNamePattern() {
-		return Pattern.compile("\"(\\d+)\\.svg\"");
 	}
 
 	private List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
@@ -182,9 +157,9 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 		return instance.getSchemClass().isa(ReactomeJavaConstants.Pathway);
 	}
 
-	private class EHLDPathwayIDRetrievalException extends Exception {
-		public EHLDPathwayIDRetrievalException(String retrievalError) {
-			super(retrievalError);
+	private static class EHLDPathwayIDRetrievalException extends Exception {
+		public EHLDPathwayIDRetrievalException(String retrievalError, Throwable cause) {
+			super(retrievalError, cause);
 		}
 	}
 
