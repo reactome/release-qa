@@ -99,7 +99,7 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 		}
 	}
 
-	private List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
+	List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
 		List<EHLDPathway> ehldPathways = new ArrayList<>();
 		try {
 			ehldPathways.addAll(
@@ -163,7 +163,7 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 		}
 	}
 
-	private class EHLDPathway {
+	class EHLDPathway {
 		final private GKInstance pathway;
 		final private List<GKInstance> subPathways;
 		final private Integer reactomeVersion;
