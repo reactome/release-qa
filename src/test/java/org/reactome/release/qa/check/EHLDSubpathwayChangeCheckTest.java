@@ -3,8 +3,8 @@ package org.reactome.release.qa.check;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.reactome.release.qa.check.EHLDSubpathwayChangeCheck.HAS_EHLD;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -69,8 +69,8 @@ public class EHLDSubpathwayChangeCheckTest {
 		setUpMockPathway(firstPathway, FIRST_PATHWAY_DB_ID, true);
 		setUpMockPathway(secondPathway, SECOND_PATHWAY_DB_ID, false);
 
-		Mockito.when(adaptor.fetchInstancesByClass(ReactomeJavaConstants.Pathway))
-			.thenReturn(Arrays.asList(firstPathway, secondPathway));
+		Mockito.when(adaptor.fetchInstanceByAttribute(ReactomeJavaConstants.Pathway, HAS_EHLD, "=", true))
+			.thenReturn(Collections.singletonList(firstPathway));
 		Mockito.when(adaptor.fetchInstance((Collection<Long>) Collections.singletonList(FIRST_PATHWAY_DB_ID)))
 			.thenReturn(Collections.singletonList(firstPathway));
 	}
@@ -78,7 +78,7 @@ public class EHLDSubpathwayChangeCheckTest {
 	private void setUpMockPathway(GKInstance pathway, long dbId, boolean hasEHLD) throws Exception {
 		Mockito.when(pathway.getSchemClass()).thenReturn(pathwaySchemaClass);
 		Mockito.when(pathwaySchemaClass.isa(ReactomeJavaConstants.Pathway)).thenReturn(true);
-		Mockito.when(pathway.getAttributeValue("hasEHLD")).thenReturn(hasEHLD);
+		Mockito.when(pathway.getAttributeValue(HAS_EHLD)).thenReturn(hasEHLD);
 		Mockito.when(pathway.getDBID()).thenReturn(dbId);
 	}
 }

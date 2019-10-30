@@ -19,7 +19,12 @@ import java.util.stream.Collectors;
 @ReleaseQACheck
 public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
-	final private String NOT_AVAILABLE = "N/A";
+	private final String NOT_AVAILABLE = "N/A";
+	// Need to create the following value in org/gk/model/ReactomeJavaConstants.java in the Curator Tool project
+	// source code
+	public static final String HAS_EHLD = "hasEHLD";
+
+
 	private MySQLAdaptor olderDatabase;
 
 	@Override
@@ -76,26 +81,14 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 
 	List<Long> getPathwayIDsWithEHLD(MySQLAdaptor newerDatabase) throws EHLDPathwayIDRetrievalException {
 		try {
-			return asGKInstanceCollection(newerDatabase.fetchInstancesByClass(ReactomeJavaConstants.Pathway))
-				.stream()
-				.filter(this::hasEHLD)
-				.map(GKInstance::getDBID)
-				.collect(Collectors.toList());
+			return asGKInstanceCollection(
+				newerDatabase.fetchInstanceByAttribute(ReactomeJavaConstants.Pathway, HAS_EHLD, "=", true)
+			)
+			.stream()
+			.map(GKInstance::getDBID)
+			.collect(Collectors.toList());
 		} catch (Exception e) {
 			throw new EHLDPathwayIDRetrievalException("Unable to retrieve pathway ids from " + newerDatabase, e);
-		}
-	}
-
-	private boolean hasEHLD(GKInstance pathway) {
-		// Need to create this value in org/gk/model/ReactomeJavaConstants.java in the Curator Tool project source code
-		final String hasEHLDAttribute = "hasEHLD";
-
-		try {
-			Boolean hasEHLDAttributeValue = (Boolean) pathway.getAttributeValue(hasEHLDAttribute);
-			return hasEHLDAttributeValue != null && hasEHLDAttributeValue;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
 		}
 	}
 
