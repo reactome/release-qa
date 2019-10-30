@@ -91,8 +91,8 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 		final String hasEHLDAttribute = "hasEHLD";
 
 		try {
-			String hasEHLDAttributeValue = (String) pathway.getAttributeValue(hasEHLDAttribute);
-			return hasEHLDAttributeValue != null && hasEHLDAttributeValue.equalsIgnoreCase("true");
+			Boolean hasEHLDAttributeValue = (Boolean) pathway.getAttributeValue(hasEHLDAttribute);
+			return hasEHLDAttributeValue != null && hasEHLDAttributeValue;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

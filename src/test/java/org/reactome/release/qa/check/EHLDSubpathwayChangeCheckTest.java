@@ -66,8 +66,8 @@ public class EHLDSubpathwayChangeCheckTest {
 	}
 
 	private void setUpMockPathways() throws Exception {
-		setUpMockPathway(firstPathway, FIRST_PATHWAY_DB_ID, "true");
-		setUpMockPathway(secondPathway, SECOND_PATHWAY_DB_ID, "false");
+		setUpMockPathway(firstPathway, FIRST_PATHWAY_DB_ID, true);
+		setUpMockPathway(secondPathway, SECOND_PATHWAY_DB_ID, false);
 
 		Mockito.when(adaptor.fetchInstancesByClass(ReactomeJavaConstants.Pathway))
 			.thenReturn(Arrays.asList(firstPathway, secondPathway));
@@ -75,7 +75,7 @@ public class EHLDSubpathwayChangeCheckTest {
 			.thenReturn(Collections.singletonList(firstPathway));
 	}
 
-	private void setUpMockPathway(GKInstance pathway, long dbId, String hasEHLD) throws Exception {
+	private void setUpMockPathway(GKInstance pathway, long dbId, boolean hasEHLD) throws Exception {
 		Mockito.when(pathway.getSchemClass()).thenReturn(pathwaySchemaClass);
 		Mockito.when(pathwaySchemaClass.isa(ReactomeJavaConstants.Pathway)).thenReturn(true);
 		Mockito.when(pathway.getAttributeValue("hasEHLD")).thenReturn(hasEHLD);
