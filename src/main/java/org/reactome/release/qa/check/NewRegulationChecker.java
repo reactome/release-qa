@@ -15,6 +15,8 @@ import org.reactome.release.qa.common.QAReport;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toSet;
+
 @SliceQATest
 public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDatabases
 {
@@ -111,7 +113,23 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
                 }
             }
         }
-        return list1Copy.size() == list2Copy.size();
+        return equivalentLists(list1Copy, list2Copy);
+    }
+
+    // Even if Lists are the same size, it could mask unequal contents.
+    // This checks that the Lists and their contents are in fact equal.
+    private boolean equivalentLists(List<GKInstance> list1, List<GKInstance> list2) {
+        if (list1.size() != list2.size()) {
+            return false;
+        }
+        Set<Long> list1DbIds = getInstanceListDBIDs(list1);
+        Set<Long> list2DbIds = getInstanceListDBIDs(list2);
+        return list1DbIds.equals(list2DbIds);
+    }
+
+    // Return all unique DBIDs from instances in the list
+    private Set<Long> getInstanceListDBIDs(List<GKInstance> list) {
+        return list.stream().map(GKInstance::getDBID).collect(toSet());
     }
 
     private Set<GKInstance> getRlEsWithRegulationInstances(MySQLAdaptor dba) throws Exception {
