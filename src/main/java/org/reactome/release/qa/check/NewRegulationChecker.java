@@ -91,39 +91,18 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
     }
 
     /**
-     * Adapted from private InstanceUtilities.compareAttributes method. Takes the two 'regulatedBy' lists from the
-     * current and previous versions of a ReactionlikeEvent, and compares their contents, returning false if they differ.
+     * Takes the two 'regulatedBy' lists from the current and previous versions of a ReactionlikeEvent, and
+     * compares their contents, returning false if they differ.
      * @param regulatedByInstancesCurrent List<GKInstance> -- Contents of currentRlE's 'regulatedBy' attribute
      * @param regulatedByInstancesPrevious List<GKInstance> -- Contents of previousRlE's 'regulatedBy' attribute
      * @return boolean -- true if lists are equal, false if not.
      */
     private boolean isSameRegulatedByValues(List<GKInstance> regulatedByInstancesCurrent, List<GKInstance> regulatedByInstancesPrevious) {
-        List<GKInstance> list1Copy = new ArrayList(regulatedByInstancesCurrent);
-        List<GKInstance> list2Copy = new ArrayList(regulatedByInstancesPrevious);
-        GKInstance instance1;
-        GKInstance instance2;
-        for (Iterator it = list1Copy.iterator(); it.hasNext();) {
-            instance1 = (GKInstance) it.next();
-            for (Iterator it1 = list2Copy.iterator(); it1.hasNext();) {
-                instance2 = (GKInstance) it1.next();
-                if (instance2.getDBID().equals(instance1.getDBID())) {
-                    it1.remove();
-                    it.remove();
-                    break;
-                }
-            }
-        }
-        return equivalentLists(list1Copy, list2Copy);
-    }
-
-    // Even if Lists are the same size, it could mask unequal contents.
-    // This checks that the Lists and their contents are in fact equal.
-    private boolean equivalentLists(List<GKInstance> list1, List<GKInstance> list2) {
-        if (list1.size() != list2.size()) {
+        if (regulatedByInstancesCurrent.size() != regulatedByInstancesPrevious.size()) {
             return false;
         }
-        Set<Long> list1DbIds = getInstanceListDBIDs(list1);
-        Set<Long> list2DbIds = getInstanceListDBIDs(list2);
+        Set<Long> list1DbIds = getInstanceListDBIDs(regulatedByInstancesCurrent);
+        Set<Long> list2DbIds = getInstanceListDBIDs(regulatedByInstancesPrevious);
         return list1DbIds.equals(list2DbIds);
     }
 
