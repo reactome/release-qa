@@ -75,19 +75,18 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
         // If previousRlE does not exist, we ignore it since that does not pertain to this particular QA check.
         if (previousRlE == null) {
             return false;
-        } else {
-            // Compare contents of the 'regulatedBy' attribute of the current and previous versions of the RlE.
-            boolean sameRegulatedBy = isSameRegulatedByValues(
-                    currentRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy),
-                    previousRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy)
-            );
-
-            int currentRlEReviewed = currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
-            int previousRlEReviewed = previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
-
-            // The actual QA check
-            return !sameRegulatedBy && currentRlEReviewed == previousRlEReviewed;
         }
+        // Compare contents of the 'regulatedBy' attribute of the current and previous versions of the RlE.
+        boolean sameRegulatedBy = isSameRegulatedByValues(
+                currentRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy),
+                previousRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy)
+        );
+
+        int currentRlEReviewed = currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
+        int previousRlEReviewed = previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
+
+        // The actual QA check
+        return !sameRegulatedBy && currentRlEReviewed == previousRlEReviewed;
     }
 
     /**
