@@ -45,8 +45,14 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
         for (GKInstance currentRlE : currentRlEsWithRegulations) {
             GKInstance previousRlE = priorAdaptor.fetchInstance(currentRlE.getDBID());
             // QA check
-            if (newRegulationWithoutReviewed(currentRlE, previousRlE)){
-                report.addLine(currentRlE.getDBID().toString(), currentRlE.getDisplayName(), currentRlE.getSchemClass().getName(), "ReactionlikeEvent with new regulatedBy instance but has not yet been reviewed", QACheckerHelper.getLastModificationAuthor(currentRlE));
+            if (changedRegulatedByWithoutNewReviewed(currentRlE, previousRlE)){
+                report.addLine(
+                        currentRlE.getDBID().toString(),
+                        currentRlE.getDisplayName(),
+                        currentRlE.getSchemClass().getName(),
+                        "ReactionlikeEvent with new regulatedBy instance but has not yet been reviewed",
+                        QACheckerHelper.getLastModificationAuthor(currentRlE)
+                );
             }
         }
         return report;
@@ -62,23 +68,57 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
      * @return boolean -- True if a new, unreviewed regulation instance has been added.
      * @throws Exception -- DBA exceptions.
      */
-    private boolean newRegulationWithoutReviewed(GKInstance currentRlE, GKInstance previousRlE) throws Exception {
+    private boolean changedRegulatedByWithoutNewReviewed(GKInstance currentRlE, GKInstance previousRlE) throws Exception {
+
         // If previousRlE does not exist, we ignore it since that does not pertain to this particular QA check.
-        if (previousRlE != null) {
-            int currentRlERegulationCount = currentRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy).size();
-            int currentRlEReviewedCount = currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
-            int previousRlERegulationCount = previousRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy).size();
-            int previousRlEReviewedCount = previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
+        if (previousRlE == null) {
+            return false;
+        } else {
+            // Compare contents of the 'regulatedBy' attribute of the current and previous versions of the RlE.
+            boolean sameRegulatedBy = isSameRegulatedByValues(
+                    currentRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy),
+                    previousRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy)
+            );
+
+            int currentRlEReviewed = currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
+            int previousRlEReviewed = previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
 
             // The actual QA check
-            if (currentRlERegulationCount > previousRlERegulationCount && currentRlEReviewedCount == previousRlEReviewedCount) {
-                return true;
+            return !sameRegulatedBy && currentRlEReviewed == previousRlEReviewed;
+        }
+    }
+
+    /**
+     * Adapted from private InstanceUtilities.compareAttributes method. Takes the two 'regulatedBy' lists from the
+     * current and previous versions of a ReactionlikeEvent, and compares their contents, returning false if they differ.
+     * @param regulatedByInstancesCurrent List<GKInstance> -- Contents of currentRlE's 'regulatedBy' attribute
+     * @param regulatedByInstancesPrevious List<GKInstance> -- Contents of previousRlE's 'regulatedBy' attribute
+     * @return boolean -- true if lists are equal, false if not.
+     */
+    private boolean isSameRegulatedByValues(List<GKInstance> regulatedByInstancesCurrent, List<GKInstance> regulatedByInstancesPrevious) {
+        List<GKInstance> list1Copy = new ArrayList(regulatedByInstancesCurrent);
+        List<GKInstance> list2Copy = new ArrayList(regulatedByInstancesPrevious);
+        GKInstance instance1;
+        GKInstance instance2;
+        for (Iterator it = list1Copy.iterator(); it.hasNext();) {
+            instance1 = (GKInstance) it.next();
+            for (Iterator it1 = list2Copy.iterator(); it1.hasNext();) {
+                instance2 = (GKInstance) it1.next();
+                if (instance2.getDBID().equals(instance1.getDBID())) {
+                    it1.remove();
+                    it.remove();
+                    break;
+                }
             }
         }
-        return false;
+        return list1Copy.size() == list2Copy.size();
     }
 
     private Set<GKInstance> getRlEsWithRegulationInstances(MySQLAdaptor dba) throws Exception {
-       return (HashSet<GKInstance>) dba.fetchInstanceByAttribute(ReactomeJavaConstants.ReactionlikeEvent, ReactomeJavaConstants.regulatedBy, "!=", "null");
+       return (HashSet<GKInstance>) dba.fetchInstanceByAttribute(
+               ReactomeJavaConstants.ReactionlikeEvent,
+               ReactomeJavaConstants.regulatedBy,
+               "IS NOT NULL",
+               "null");
     }
 }
