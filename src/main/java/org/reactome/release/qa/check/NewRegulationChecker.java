@@ -77,31 +77,33 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
             return false;
         }
         // Compare contents of the 'regulatedBy' attribute of the current and previous versions of the RlE.
-        boolean sameRegulatedBy = isSameRegulatedByValues(
+        boolean sameRegulatedByAttrs = hasEquivalentAttributeValues(
                 currentRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy),
                 previousRlE.getAttributeValuesList(ReactomeJavaConstants.regulatedBy)
         );
 
-        int currentRlEReviewed = currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
-        int previousRlEReviewed = previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed).size();
+        boolean sameReviewedAttrs = hasEquivalentAttributeValues(
+                currentRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed),
+                previousRlE.getAttributeValuesList(ReactomeJavaConstants.reviewed)
+        );
 
         // The actual QA check
-        return !sameRegulatedBy && currentRlEReviewed == previousRlEReviewed;
+        return !sameRegulatedByAttrs && sameReviewedAttrs;
     }
 
     /**
-     * Takes the two 'regulatedBy' lists from the current and previous versions of a ReactionlikeEvent, and
+     * Takes two lists from the same attribute in current and previous versions of a ReactionlikeEvent and
      * compares their contents, returning false if they differ.
-     * @param regulatedByInstancesCurrent List<GKInstance> -- Contents of currentRlE's 'regulatedBy' attribute
-     * @param regulatedByInstancesPrevious List<GKInstance> -- Contents of previousRlE's 'regulatedBy' attribute
+     * @param attributeValuesCurrent List<GKInstance> -- Contents of currentRlE's attribute
+     * @param attributeValuesPrevious List<GKInstance> -- Contents of previousRlE's attribute
      * @return boolean -- true if lists are equal, false if not.
      */
-    private boolean isSameRegulatedByValues(List<GKInstance> regulatedByInstancesCurrent, List<GKInstance> regulatedByInstancesPrevious) {
-        if (regulatedByInstancesCurrent.size() != regulatedByInstancesPrevious.size()) {
+    private boolean hasEquivalentAttributeValues(List<GKInstance> attributeValuesCurrent, List<GKInstance> attributeValuesPrevious) {
+        if (attributeValuesCurrent.size() != attributeValuesPrevious.size()) {
             return false;
         }
-        Set<Long> list1DbIds = getInstanceListDBIDs(regulatedByInstancesCurrent);
-        Set<Long> list2DbIds = getInstanceListDBIDs(regulatedByInstancesPrevious);
+        Set<Long> list1DbIds = getInstanceListDBIDs(attributeValuesCurrent);
+        Set<Long> list2DbIds = getInstanceListDBIDs(attributeValuesPrevious);
         return list1DbIds.equals(list2DbIds);
     }
 
@@ -115,6 +117,6 @@ public class NewRegulationChecker extends AbstractQACheck implements ChecksTwoDa
                ReactomeJavaConstants.ReactionlikeEvent,
                ReactomeJavaConstants.regulatedBy,
                "IS NOT NULL",
-               "null");
+               null);
     }
 }
