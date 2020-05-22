@@ -1,34 +1,27 @@
 package org.reactome.release.qa.diagram;
 
-import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 
 import org.gk.model.GKInstance;
-import org.gk.model.ReactomeJavaConstants;
+import org.gk.model.InstanceUtilities;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.DefaultRenderConstants;
 import org.gk.render.Renderable;
 import org.gk.render.RenderableComplex;
 import org.gk.render.RenderableEntitySet;
 import org.gk.render.RenderablePathway;
-import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.ReleaseQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * QA check to flag any oddities in disease reaction coloring.
- * The reaction edges of an RLE with a disease tag should be red.
- * Likewise if an RLE is not tagged with disease, reaction edges should be black.
- * Disease-tagged entities and/or entities with non-human species (or a relatedSpecies attribute) should colored red.
- * RLEs QA consideration: manually applied colors may differ. RGB comparison to make sure same color is applied.
- * Have predefined color for certain entities.
+ * QA check to flag any oddities in drug coloring.
  */
 @ReleaseQACheck
-public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
+public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
 
-    public DiagramDiseaseColorCheck() {
+    public DiagramDrugColorCheck() {
     }
 
     @Override
@@ -58,11 +51,10 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
         for (Renderable component : components) {
             boolean addLine = false;
 
-            // Check correctness of disease outline.
-            if (component instanceof RenderableReaction ||
-                component instanceof RenderableEntitySet ||
+            // Check correctness of drug background.
+            if (component instanceof RenderableEntitySet ||
                 component instanceof RenderableComplex)
-                addLine = checkDisease(component);
+                addLine = checkDrug(component);
 
             // Continue if there is no line to be added.
             if (!addLine) continue;
@@ -78,7 +70,7 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
     }
 
     /**
-     * Check if a component has the appropriate foreground color for its disease status.
+     * Check if a component has the appropriate background color for its drug status.
      *
      * Returns true is color matches the status.
      * Returns false if there is a mismatch (error).
@@ -87,25 +79,20 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
      * @return boolean
      * @throws Exception
      */
-    private boolean checkDisease(Renderable component) throws Exception {
+    private boolean checkDrug(Renderable component) throws Exception {
         GKInstance instance = dba.fetchInstance(component.getReactomeId());
         if (instance == null)
             return false;
 
-        // Disease outline check.
-        GKInstance species = (GKInstance) instance.getAttributeValue(ReactomeJavaConstants.species);
-        GKInstance relatedSpecies = (GKInstance) instance.getAttributeValue(ReactomeJavaConstants.relatedSpecies);
-        GKInstance human = dba.fetchInstance(48887L);
-
-        if (component.getIsForDisease() || species.equals(human) || relatedSpecies.equals(human)) {
-            if (component.getForegroundColor() != DefaultRenderConstants.DEFAULT_DISEASE_LINE_COLOR)
+        // Drug background check.
+        if (InstanceUtilities.hasDrug(instance)) {
+            if (component.getBackgroundColor() != DefaultRenderConstants.DEFAULT_DRUG_BACKGROUND)
                 return true;
         }
         else {
-            if (component.getForegroundColor() != Color.black)
+            if (component.getBackgroundColor() != DefaultRenderConstants.DEFAULT_BACKGROUND)
                 return true;
         }
-
         return false;
     }
 
