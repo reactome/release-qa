@@ -99,8 +99,8 @@ public class Main {
             }
             else {
                 String fileName = check.getDisplayName();
-                qaReport.output(fileName + ".txt", output.getAbsolutePath());
-                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + ".txt for report details.");
+                qaReport.output(fileName + ".tsv", output.getAbsolutePath());
+                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + ".tsv for report details.");
             }
         }
     }
