@@ -7,6 +7,10 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+/**
+ *  Finds all non-human Events that are not used for manual inference (ie. inferredFrom referral is null)
+ */
+
 @SliceQATest
 public class NonHumanEventsNotManuallyInferredChecker extends AbstractQACheck {
 

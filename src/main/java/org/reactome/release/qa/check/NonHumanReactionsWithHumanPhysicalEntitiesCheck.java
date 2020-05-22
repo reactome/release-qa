@@ -11,6 +11,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Flags all human PhysicalEntities that are participants in a non-human ReactionlikeEvent.
+ */
+
 @SliceQATest
 public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQACheck {
 

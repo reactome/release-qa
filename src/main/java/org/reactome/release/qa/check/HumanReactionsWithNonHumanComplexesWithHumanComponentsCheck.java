@@ -12,6 +12,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * QA check that finds non-human Complexes that contain human Components, that are members of human, non-manually inferred ReactionlikeEvents.
+ */
+
 @SliceQATest
 public class HumanReactionsWithNonHumanComplexesWithHumanComponentsCheck extends AbstractQACheck {
     @Override

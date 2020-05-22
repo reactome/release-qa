@@ -12,6 +12,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Flags human ReactionlikeEvents that do not have a populated disease attribute, but have non-human participants.
+ */
+
 @SliceQATest
 public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends AbstractQACheck {
 
