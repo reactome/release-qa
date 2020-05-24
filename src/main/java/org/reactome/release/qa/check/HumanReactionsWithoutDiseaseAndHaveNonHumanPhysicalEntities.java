@@ -60,8 +60,8 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends
     }
 
     private String getReportLine(GKInstance physicalEntity, GKInstance reaction) throws Exception {
-        String speciesName = QACheckerHelper.getInstanceAttributeName(physicalEntity, ReactomeJavaConstants.species);
-        String createdName = QACheckerHelper.getInstanceAttributeName(physicalEntity, ReactomeJavaConstants.created);
+        String speciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.species);
+        String createdName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.created);
         return String.join("\t",
                 reaction.getDBID().toString(),
                 reaction.getDisplayName(),

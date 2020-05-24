@@ -75,8 +75,8 @@ public class HumanReactionsWithNonHumanComplexesWithHumanComponentsCheck extends
     }
 
     private String getReportLine(GKInstance event, GKInstance complex, GKInstance component) throws Exception {
-        String complexCreatedName = QACheckerHelper.getInstanceAttributeName(complex, ReactomeJavaConstants.created);
-        String componentCreatedName = QACheckerHelper.getInstanceAttributeName(component, ReactomeJavaConstants.created);
+        String complexCreatedName = QACheckerHelper.getInstanceAttributeNameForOutputReport(complex, ReactomeJavaConstants.created);
+        String componentCreatedName = QACheckerHelper.getInstanceAttributeNameForOutputReport(component, ReactomeJavaConstants.created);
         return String.join("\t",
                 event.getDBID().toString(),
                 event.getDisplayName(),

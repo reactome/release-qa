@@ -24,7 +24,7 @@ public class QACheckerHelper {
     
 	public static final String IS_NOT_NULL = "IS NOT NULL";
 	public static final String IS_NULL = "IS NULL";
-	private static List<String> skiplistDbIDs = new ArrayList<>();
+	private static List<String> skiplistDbIds = new ArrayList<>();
 	private static GKInstance humanSpeciesInst = new GKInstance();
 	
 	/**
@@ -310,6 +310,7 @@ public class QACheckerHelper {
 		Set<GKInstance> catalystPEs = new HashSet<>();
 		List<GKInstance> catalysts = reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity);
 		for (GKInstance catalyst : catalysts) {
+			// Catalyst PhysicalEntities are found in its activeUnit and physicalEntity slots.
 			for (String attribute : Arrays.asList(ReactomeJavaConstants.activeUnit, ReactomeJavaConstants.physicalEntity)) {
 				for (GKInstance attributePE : (Collection<GKInstance>) catalyst.getAttributeValuesList(attribute)) {
 					// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
@@ -334,6 +335,7 @@ public class QACheckerHelper {
 		Set<GKInstance> regulationPEs = new HashSet<>();
 		List<GKInstance> regulations = reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy);
 		for (GKInstance regulation : regulations) {
+			// Regulation PhysicalEntities are found in its activeUnit and regulator slots.
 			for (String attribute : Arrays.asList(ReactomeJavaConstants.activeUnit, ReactomeJavaConstants.regulator)) {
 				for (GKInstance attributePE : (Collection<GKInstance>) regulation.getAttributeValuesList(attribute)) {
 					// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
@@ -377,12 +379,9 @@ public class QACheckerHelper {
 	 * @return boolean -- true if PhysicalEntity type that contains multiple PEs, false if only type that has single PhysicalEntity.
 	 */
 	public static boolean containsMultiplePEs(GKInstance physicalEntity) {
-		if (physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Complex) ||
+		return physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Complex) ||
 				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Polymer) ||
-				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.EntitySet)) {
-			return true;
-		}
-		return false;
+				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.EntitySet);
 	}
 
 	/**
@@ -393,23 +392,32 @@ public class QACheckerHelper {
 	 */
 	public static Set<GKInstance> findAllConstituentPEs(GKInstance multiPEInstance) throws Exception {
 		Set<GKInstance> physicalEntities = new HashSet<>();
-		if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
-			// Recursively search Complex components for all PhysicalEntities.
-			Collection<GKInstance> complexComponents = multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.hasComponent);
-			for (GKInstance complexComponent : complexComponents) {
-				physicalEntities.addAll(findAllPhysicalEntities(complexComponent));
-			}
-		} else if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Polymer)) {
-			// Recursively search Polymer repeatedUnits for all PhysicalEntities.
-			Collection<GKInstance> polymerUnits = multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.repeatedUnit);
-			for (GKInstance polymerUnit : polymerUnits) {
-				physicalEntities.addAll(findAllPhysicalEntities(polymerUnit));
+		if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Complex) || multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Polymer)) {
+			// Recursively search Complex/Polymer for all PhysicalEntities.
+			for (GKInstance constituentPE : getComplexOrPolymerConstituentPEs(multiPEInstance)) {
+				physicalEntities.addAll(findAllPhysicalEntities(constituentPE));
 			}
 		} else if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.EntitySet)) {
 			// Recursively search members and candidates (if EntitySet is a CandidateSet) for all PhysicalEntities.
 			physicalEntities.addAll(findEntitySetPhysicalEntities(multiPEInstance));
 		}
 		return physicalEntities;
+	}
+
+	/**
+	 * Helper method that returns either a Complexes' components or Polymers' repeatedUnits.
+	 * @param multiPEInstance GKInstance -- Either a Complex or Polymer instance.
+	 * @return Set<GKInstance> -- All components or repeatedUnits from the incoming instance.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
+	 */
+	private static Collection<GKInstance> getComplexOrPolymerConstituentPEs(GKInstance multiPEInstance) throws Exception {
+		Set<GKInstance> constituentPEs = new HashSet<>();
+		if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
+			constituentPEs.addAll(multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.hasComponent));
+		} else if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Polymer)) {
+			constituentPEs.addAll(multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.repeatedUnit));
+		}
+		return constituentPEs;
 	}
 
 	/**
@@ -421,11 +429,11 @@ public class QACheckerHelper {
 	 */
 	public static Set<GKInstance> findEntitySetPhysicalEntities(GKInstance entitySet) throws Exception {
 		Set<GKInstance> physicalEntities = new HashSet<>();
-		// Attribute values to be recursively searched for PhysicalEntities include 'hasMember' and 'hasCandidate'.
-		Set<String> entitySetAttributes = new HashSet<>(Arrays.asList(ReactomeJavaConstants.hasMember, ReactomeJavaConstants.hasCandidate));
-		// If the EntitySet is a DefinedSet, 'hasCandidate' attribute is not searched.
-		if (entitySet.getSchemClass().isa(ReactomeJavaConstants.DefinedSet)) {
-			entitySetAttributes.remove(ReactomeJavaConstants.hasCandidate);
+		// All EntitySet instances have a 'hasMember' slot to be searched.
+		Set<String> entitySetAttributes = new HashSet<>(Arrays.asList(ReactomeJavaConstants.hasMember));
+		// If the EntitySet is a CandidateSet, 'hasCandidate' attribute needs to be searched as well.
+		if (entitySet.getSchemClass().isa(ReactomeJavaConstants.CandidateSet)) {
+			entitySetAttributes.add(ReactomeJavaConstants.hasCandidate);
 		}
 		for (String entitySetAttribute : entitySetAttributes) {
 			// Recursively searches members/candidates in EntitySet for all PhysicalEntities.
@@ -443,7 +451,7 @@ public class QACheckerHelper {
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean manuallyInferred(GKInstance event) throws Exception {
-		return event.getReferers(ReactomeJavaConstants.inferredFrom) != null ? true : false;
+		return event.getReferers(ReactomeJavaConstants.inferredFrom) != null;
 	}
 
 	/**
@@ -465,12 +473,9 @@ public class QACheckerHelper {
 	 */
 	public static boolean hasNonHumanSpecies(GKInstance databaseObject) throws Exception {
 		// Check if species is a valid attribute for physicalEntity.
-		if (hasSpeciesAttribute(databaseObject) &&
-				databaseObject.getAttributeValue(ReactomeJavaConstants.species) != null &&
-				!databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).contains(humanSpeciesInst)) {
-			return true;
-		}
-		return false;
+		return hasSpeciesAttribute(databaseObject)
+				&& databaseObject.getAttributeValue(ReactomeJavaConstants.species) != null
+				&& !databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).contains(humanSpeciesInst);
 	}
 
 	/**
@@ -483,10 +488,10 @@ public class QACheckerHelper {
 	}
 
 	/**
-	 * Checks if
-	 * @param databaseObject
-	 * @return
-	 * @throws Exception
+	 * Checks if the incoming databaseObject has a popalated disease attribute.
+	 * @param databaseObject GKInstance -- Instance to be checked for populated disease attribute.
+	 * @return boolean -- true if has filled disease attribute, false if not.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean hasDisease(GKInstance databaseObject) throws Exception {
 		return databaseObject.getAttributeValue(ReactomeJavaConstants.disease) != null;
@@ -500,32 +505,25 @@ public class QACheckerHelper {
 	 */
 	public static boolean memberSkipListPathway(GKInstance event) throws Exception {
 
-		if (skiplistDbIDs != null) {
-			// Finds all parent Event DbIds.
-			Set<String> hierarchyDbIds = findEventHierarchyDbIds(event, new HashSet<>());
-			// Check if any returned Event DbIds (including original Events) are in skiplist.
-			for (String skiplistDbId : skiplistDbIDs) {
-				if (hierarchyDbIds.contains(skiplistDbId)) {
-					return true;
-				}
-			}
-		}
-		return false;
+		// Finds all parent Event DbIds.
+		Set<String> hierarchyDbIds = findEventHierarchyDbIds(event);
+		// Check if any returned Event DbIds (including original Events) are in skiplist.
+		return skiplistDbIds.stream().anyMatch(dbId -> hierarchyDbIds.contains(dbId));
 	}
 
 	/**
 	 * Finds parent DbIds of incoming Event through hasEvent referrers. Recurses until there are no more referrers.
 	 * @param event GKInstance -- Event that is being checked for referrers. Its DbId is added to the Set being built.
-	 * @param dbIds Set<String> -- Current Set of parent DbIds of Event.
 	 * @return Set<String> -- Once TopLevelPathway has been found, returns all DbIds, inclusive, between TopLevelPathway and original Event.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	private static Set<String> findEventHierarchyDbIds(GKInstance event, Set<String> dbIds) throws Exception {
+	private static Set<String> findEventHierarchyDbIds(GKInstance event) throws Exception {
+		Set<String> dbIds = new HashSet<>();
 		dbIds.add(event.getDBID().toString());
 		Collection<GKInstance> hasEventReferrals = event.getReferers(ReactomeJavaConstants.hasEvent);
 		if (hasEventReferrals != null) {
 			for (GKInstance hasEventReferral : hasEventReferrals) {
-				dbIds.addAll(findEventHierarchyDbIds(hasEventReferral, dbIds));
+				dbIds.addAll(findEventHierarchyDbIds(hasEventReferral));
 			}
 		}
 		return dbIds;
@@ -544,7 +542,7 @@ public class QACheckerHelper {
 	 * @param skippedDbIds List<String> -- List of DbIds taken from either file or provided in class.
 	 */
 	public static void setSkipList(List<String> skippedDbIds) {
-		skiplistDbIDs = skippedDbIds;
+		skiplistDbIds = skippedDbIds != null ? skippedDbIds : new ArrayList<>();
 	}
 
 	/**
@@ -564,7 +562,7 @@ public class QACheckerHelper {
 	 * @return String -- Either the attribute instance's displayName, or null.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static String getInstanceAttributeName(GKInstance instance, String attribute) throws Exception {
+	public static String getInstanceAttributeNameForOutputReport(GKInstance instance, String attribute) throws Exception {
 		GKInstance attributeInstance = (GKInstance) instance.getAttributeValue(attribute);
 		return attributeInstance != null ? attributeInstance.getDisplayName() : null;
 	}

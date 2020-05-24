@@ -32,8 +32,8 @@ public class NonHumanEventsNotManuallyInferredChecker extends AbstractQACheck {
     }
 
     private String getReportLine(GKInstance event) throws Exception {
-        String speciesName = QACheckerHelper.getInstanceAttributeName(event, ReactomeJavaConstants.species);
-        String createdName = QACheckerHelper.getInstanceAttributeName(event, ReactomeJavaConstants.created);
+        String speciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(event, ReactomeJavaConstants.species);
+        String createdName = QACheckerHelper.getInstanceAttributeNameForOutputReport(event, ReactomeJavaConstants.created);
         return String.join("\t",
                 event.getDBID().toString(),
                 event.getDisplayName(),
