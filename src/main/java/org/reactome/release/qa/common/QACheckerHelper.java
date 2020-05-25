@@ -24,7 +24,6 @@ public class QACheckerHelper {
     
 	public static final String IS_NOT_NULL = "IS NOT NULL";
 	public static final String IS_NULL = "IS NULL";
-	public static final long HUMAN_SPECIES_INSTANCE_DBID = 48887L;
 	/**
 	 * Filter a list of GKInstance objects by the DB IDs in skipList.
 	 * @param skipList - the skipList.
@@ -54,7 +53,14 @@ public class QACheckerHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static GKInstance getHuman(MySQLAdaptor dba) throws Exception {
-	    return dba.fetchInstance(HUMAN_SPECIES_INSTANCE_DBID);
+		Collection<GKInstance> c = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Species,
+				ReactomeJavaConstants._displayName,
+				"=",
+				"Homo sapiens");
+		if (c == null || c.size() == 0)
+			throw new IllegalStateException("Cannot find species Homo sapiens in the database, " +
+					dba.getDBName() + "@" + dba.getDBHost());
+		return c.iterator().next();
 	}
 	
 	public static List<Long> getSkipList(String filePath) throws IOException
@@ -250,7 +256,7 @@ public class QACheckerHelper {
 		for (GKInstance event : findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
 			// Filter for Human ReactionlikeEvents
 			if (event.getSchemClass().isa(ReactomeJavaConstants.ReactionlikeEvent)
-					&& isHumanDatabaseObject(event, dba)) {
+					&& isHumanDatabaseObject(event)) {
 
 				reactionsNotUsedForManualInference.add(event);
 			}
@@ -450,27 +456,35 @@ public class QACheckerHelper {
 	/**
 	 * Checks if incoming DatabaseObject (Event or PhysicalEntity) has single Homo sapiens species.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity instance being checked for only Homo sapiens species.
-	 * @param dba MySQLAdaptor
 	 * @return boolean -- true if databaseObject only has a single, Homo sapiens species instance, false if not.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static boolean isHumanDatabaseObject(GKInstance databaseObject, MySQLAdaptor dba) throws Exception {
-		Collection<GKInstance> objectSpecies = databaseObject.getAttributeValuesList(ReactomeJavaConstants.species);
-		return objectSpecies.size() == 1 && objectSpecies.contains(getHuman(dba));
+	public static boolean isHumanDatabaseObject(GKInstance databaseObject) throws Exception {
+		List<GKInstance> objectSpecies = databaseObject.getAttributeValuesList(ReactomeJavaConstants.species);
+		return objectSpecies.size() == 1 && hasHumanSpecies(objectSpecies);
 	}
 
 	/**
 	 * Checks if the incoming DatabaseObject (Event or PhysicalEntity) is non-human.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity to be checked for non-human species attribute.
-	 * @param dba MySQLAdaptor
-	 * @return boolean -- true if has non-human species, false if has human species.
+	 * @return boolean -- true if instance has species, and if none of the species are human, false if not.
 	 * @throws Exception
 	 */
-	public static boolean hasNonHumanSpecies(GKInstance databaseObject, MySQLAdaptor dba) throws Exception {
+	public static boolean hasOnlyNonHumanSpecies(GKInstance databaseObject) throws Exception {
 		// Check if species is a valid attribute for physicalEntity.
 		return hasSpeciesAttribute(databaseObject)
 				&& databaseObject.getAttributeValue(ReactomeJavaConstants.species) != null
-				&& !databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).contains(getHuman(dba));
+				&& !databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).isEmpty()
+				&& !hasHumanSpecies(databaseObject.getAttributeValuesList(ReactomeJavaConstants.species));
+	}
+
+	/**
+	 * Checks to see if any of the Species instances in incoming list are Homo sapiens.
+	 * @param objectSpecies List<GKInstance> -- List of Species instances from a DatabaseObject (PhysicalEntity or ReactionlikeEvent)
+	 * @return boolean -- true if any of the Species instance display names are equal to Homo sapiens.
+	 */
+	private static boolean hasHumanSpecies(List<GKInstance> objectSpecies) {
+		return objectSpecies.stream().anyMatch(species -> species.getDisplayName().equals("Homo sapiens"));
 	}
 
 	/**

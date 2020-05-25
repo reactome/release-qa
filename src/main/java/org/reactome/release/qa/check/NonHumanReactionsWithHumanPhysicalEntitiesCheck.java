@@ -26,7 +26,7 @@ public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQAC
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
             // Many Events have multiple species. Cases where there are multiple species and one of them is Human are also excluded.
-            if (QACheckerHelper.hasNonHumanSpecies(reaction, dba) && !QACheckerHelper.memberSkipListPathway(reaction, skiplistDbIds)) {
+            if (QACheckerHelper.hasOnlyNonHumanSpecies(reaction) && !QACheckerHelper.memberSkipListPathway(reaction, skiplistDbIds)) {
                 for (GKInstance humanPE : findAllHumanPhysicalEntitiesInReaction(reaction)) {
                     report.addLine(getReportLine(humanPE, reaction));
                 }
@@ -45,7 +45,7 @@ public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQAC
     private Set<GKInstance> findAllHumanPhysicalEntitiesInReaction(GKInstance reaction) throws Exception {
         Set<GKInstance> humanPEs = new HashSet<>();
         for (GKInstance physicalEntity: QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
-            if (QACheckerHelper.isHumanDatabaseObject(physicalEntity, dba)) {
+            if (QACheckerHelper.isHumanDatabaseObject(physicalEntity)) {
                 humanPEs.add(physicalEntity);
             }
         }

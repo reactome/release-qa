@@ -23,7 +23,7 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
             for (GKInstance reactionPE : QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
                 // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
                 // and that do not have a populated disease attribute.
-                if ((QACheckerHelper.hasNonHumanSpecies(reactionPE, dba) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
+                if ((QACheckerHelper.hasOnlyNonHumanSpecies(reactionPE) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
                         && !QACheckerHelper.hasDisease(reactionPE)) {
 
                     report.addLine(getReportLine(reactionPE, reaction));
@@ -41,7 +41,7 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
     private boolean hasHumanSpeciesWithRelatedSpecies(GKInstance reactionPE) throws Exception {
-        return QACheckerHelper.isHumanDatabaseObject(reactionPE, dba)
+        return QACheckerHelper.isHumanDatabaseObject(reactionPE)
                 && hasRelatedSpecies(reactionPE);
     }
 
