@@ -22,14 +22,13 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        QACheckerHelper.setHumanSpeciesInst(dba);
         this.skiplistDbIds.add(INNATE_IMMUNITY_PATHWAY_DBID);
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
             // isHumanDatabaseObject checks that the species attribute only contains a Homo sapiens species instance. Multi-species RlEs are excluded.
             if (!QACheckerHelper.memberSkipListPathway(reaction, skiplistDbIds)
-                    && QACheckerHelper.isHumanDatabaseObject(reaction)
+                    && QACheckerHelper.isHumanDatabaseObject(reaction, dba)
                     && !QACheckerHelper.hasDisease(reaction)) {
 
                 for (GKInstance nonHumanPE : findAllNonHumanPhysicalEntitiesInReaction(reaction)) {
@@ -50,7 +49,7 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends
     private Set<GKInstance> findAllNonHumanPhysicalEntitiesInReaction(GKInstance reaction) throws Exception {
         Set<GKInstance> nonHumanPEs = new HashSet<>();
         for (GKInstance physicalEntity : QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
-            if (QACheckerHelper.hasNonHumanSpecies(physicalEntity)) {
+            if (QACheckerHelper.hasNonHumanSpecies(physicalEntity, dba)) {
                 nonHumanPEs.add(physicalEntity);
             }
         }

@@ -22,13 +22,12 @@ public class NonHumanEventsNotManuallyInferredChecker extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        QACheckerHelper.setHumanSpeciesInst(dba);
         this.skiplistDbIds.addAll(QACheckerHelper.getNonHumanPathwaySkipList());
 
         // The actual method for finding Events that aren't manually inferred is used by multiple QA tests.
         for (GKInstance event : QACheckerHelper.findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
             // Many Events have multiple species. Cases where there are multiple species and one of them is human are also excluded.
-            if (QACheckerHelper.hasNonHumanSpecies(event)) {
+            if (QACheckerHelper.hasNonHumanSpecies(event, dba)) {
                 report.addLine(getReportLine(event));
             }
         }

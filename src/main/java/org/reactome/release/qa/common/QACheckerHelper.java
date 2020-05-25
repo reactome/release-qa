@@ -24,8 +24,7 @@ public class QACheckerHelper {
     
 	public static final String IS_NOT_NULL = "IS NOT NULL";
 	public static final String IS_NULL = "IS NULL";
-	private static GKInstance humanSpeciesInst = new GKInstance();
-	
+	public static final long HUMAN_SPECIES_INSTANCE_DBID = 48887L;
 	/**
 	 * Filter a list of GKInstance objects by the DB IDs in skipList.
 	 * @param skipList - the skipList.
@@ -55,14 +54,7 @@ public class QACheckerHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static GKInstance getHuman(MySQLAdaptor dba) throws Exception {
-	    Collection<GKInstance> c = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Species,
-	            ReactomeJavaConstants._displayName,
-	            "=", 
-	            "Homo sapiens");
-	    if (c == null || c.size() == 0)
-	        throw new IllegalStateException("Cannot find species Homo sapiens in the database, " + 
-	                                        dba.getDBName() + "@" + dba.getDBHost());
-	    return c.iterator().next();
+	    return dba.fetchInstance(HUMAN_SPECIES_INSTANCE_DBID);
 	}
 	
 	public static List<Long> getSkipList(String filePath) throws IOException
@@ -258,7 +250,7 @@ public class QACheckerHelper {
 		for (GKInstance event : findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
 			// Filter for Human ReactionlikeEvents
 			if (event.getSchemClass().isa(ReactomeJavaConstants.ReactionlikeEvent)
-					&& isHumanDatabaseObject(event)) {
+					&& isHumanDatabaseObject(event, dba)) {
 
 				reactionsNotUsedForManualInference.add(event);
 			}
@@ -458,25 +450,27 @@ public class QACheckerHelper {
 	/**
 	 * Checks if incoming DatabaseObject (Event or PhysicalEntity) has single Homo sapiens species.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity instance being checked for only Homo sapiens species.
+	 * @param dba MySQLAdaptor
 	 * @return boolean -- true if databaseObject only has a single, Homo sapiens species instance, false if not.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static boolean isHumanDatabaseObject(GKInstance databaseObject) throws Exception {
+	public static boolean isHumanDatabaseObject(GKInstance databaseObject, MySQLAdaptor dba) throws Exception {
 		Collection<GKInstance> objectSpecies = databaseObject.getAttributeValuesList(ReactomeJavaConstants.species);
-		return objectSpecies.size() == 1 && objectSpecies.contains(humanSpeciesInst);
+		return objectSpecies.size() == 1 && objectSpecies.contains(getHuman(dba));
 	}
 
 	/**
 	 * Checks if the incoming DatabaseObject (Event or PhysicalEntity) is non-human.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity to be checked for non-human species attribute.
+	 * @param dba MySQLAdaptor
 	 * @return boolean -- true if has non-human species, false if has human species.
 	 * @throws Exception
 	 */
-	public static boolean hasNonHumanSpecies(GKInstance databaseObject) throws Exception {
+	public static boolean hasNonHumanSpecies(GKInstance databaseObject, MySQLAdaptor dba) throws Exception {
 		// Check if species is a valid attribute for physicalEntity.
 		return hasSpeciesAttribute(databaseObject)
 				&& databaseObject.getAttributeValue(ReactomeJavaConstants.species) != null
-				&& !databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).contains(humanSpeciesInst);
+				&& !databaseObject.getAttributeValuesList(ReactomeJavaConstants.species).contains(getHuman(dba));
 	}
 
 	/**
@@ -537,15 +531,6 @@ public class QACheckerHelper {
 	 */
 	public static List<String> getNonHumanPathwaySkipList() throws IOException {
 		return Files.readAllLines(Paths.get("src/main/resources/manually_curated_nonhuman_pathways_skip_list.txt"));
-	}
-
-	/**
-	 * Finds Homo sapiens species instance and sets as global variable to be used throughout QA check.
-	 * @param dba MySQLAdaptor
-	 * @throws Exception -- Thrown by MySQLAdaptor.
-	 */
-	public static void setHumanSpeciesInst(MySQLAdaptor dba) throws Exception {
-		humanSpeciesInst = dba.fetchInstance(48887L);
 	}
 
 	/**

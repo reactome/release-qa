@@ -7,9 +7,6 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Flags all human Reactions that contain non-disease PhysicalEntities that are non-human, or are human PhysicalEntities with relatedSpecies.
  */
@@ -20,14 +17,13 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        QACheckerHelper.setHumanSpeciesInst(dba);
 
         // This QA Check is only performed on human ReactionlikeEvents that do not have any inferredFrom referrals.
         for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba, EMPTY_SKIP_LIST)) {
             for (GKInstance reactionPE : QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
                 // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
                 // and that do not have a populated disease attribute.
-                if ((QACheckerHelper.hasNonHumanSpecies(reactionPE) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
+                if ((QACheckerHelper.hasNonHumanSpecies(reactionPE, dba) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
                         && !QACheckerHelper.hasDisease(reactionPE)) {
 
                     report.addLine(getReportLine(reactionPE, reaction));
@@ -45,7 +41,7 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
     private boolean hasHumanSpeciesWithRelatedSpecies(GKInstance reactionPE) throws Exception {
-        return QACheckerHelper.isHumanDatabaseObject(reactionPE)
+        return QACheckerHelper.isHumanDatabaseObject(reactionPE, dba)
                 && hasRelatedSpecies(reactionPE);
     }
 
