@@ -7,6 +7,9 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *  Finds all non-human Events that are not used for manual inference (ie. inferredFrom referral is null)
  */
@@ -14,14 +17,16 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQATest
 public class NonHumanEventsNotManuallyInferredChecker extends AbstractQACheck {
 
+    private static List<String> skiplistDbIds = new ArrayList<>();
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        QACheckerHelper.setSkipList(QACheckerHelper.getNonHumanPathwaySkipList());
+        skiplistDbIds = QACheckerHelper.getNonHumanPathwaySkipList();
 
         // The actual method for finding Events that aren't manually inferred is used by multiple QA tests.
-        for (GKInstance event : QACheckerHelper.findEventsNotUsedForManualInference(dba)) {
+        for (GKInstance event : QACheckerHelper.findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
             // Many Events have multiple species. Cases where there are multiple species and one of them is human are also excluded.
             if (QACheckerHelper.hasNonHumanSpecies(event)) {
                 report.addLine(getReportLine(event));

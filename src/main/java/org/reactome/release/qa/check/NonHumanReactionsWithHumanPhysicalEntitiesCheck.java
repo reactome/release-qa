@@ -7,9 +7,7 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Flags all human PhysicalEntities that are participants in a non-human ReactionlikeEvent.
@@ -18,16 +16,18 @@ import java.util.Set;
 @SliceQATest
 public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
+    private static List<String> skiplistDbIds = new ArrayList<>();
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        QACheckerHelper.setSkipList(QACheckerHelper.getNonHumanPathwaySkipList());
+        skiplistDbIds = QACheckerHelper.getNonHumanPathwaySkipList();
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
             // Many Events have multiple species. Cases where there are multiple species and one of them is Human are also excluded.
-            if (QACheckerHelper.hasNonHumanSpecies(reaction)) {
+            if (QACheckerHelper.hasNonHumanSpecies(reaction) && !QACheckerHelper.memberSkipListPathway(reaction, skiplistDbIds)) {
                 for (GKInstance humanPE : findAllHumanPhysicalEntitiesInReaction(reaction)) {
                     report.addLine(getReportLine(humanPE, reaction));
                 }

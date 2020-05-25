@@ -24,7 +24,6 @@ public class QACheckerHelper {
     
 	public static final String IS_NOT_NULL = "IS NOT NULL";
 	public static final String IS_NULL = "IS NULL";
-	private static List<String> skiplistDbIds = new ArrayList<>();
 	private static GKInstance humanSpeciesInst = new GKInstance();
 	
 	/**
@@ -232,14 +231,15 @@ public class QACheckerHelper {
 	 * Finds all Events in DB that are not used for manual inference, or members of Pathways in skiplist. Finding if
 	 * manually inferred is done by checking for a null 'inferredFrom' referral.
 	 * @param dba MySQLAdaptor
+	 * @param skiplistDbIds List<String> -- List of Pathway DbIds. If an Event being checked is a member of these pathways, they are skipped.
 	 * @return Set<GKInstance> -- All Events in DB that are not used for manual inference.
 	 * @throws Exception -- Thrown by MySQLAdaptor
 	 */
-	public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba) throws Exception {
+	public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
 		Set<GKInstance> eventsNotUsedForInference = new HashSet<>();
 		Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
 		for (GKInstance event : events) {
-			if (!manuallyInferred(event) && !memberSkipListPathway(event)) {
+			if (!manuallyInferred(event) && !memberSkipListPathway(event, skiplistDbIds)) {
 				eventsNotUsedForInference.add(event);
 			}
 		}
@@ -249,12 +249,13 @@ public class QACheckerHelper {
 	/**
 	 * Finds all Events not used for Inference, and then finds subset that are Human ReactionlikeEvents
 	 * @param dba MySQLAdaptor
-	 * @return
+	 * @param skiplistDbIds List<String> -- List of Pathway DbIds. If an Event being checked is a member of these pathways, they are skipped.
+	 * @return Set<GKInstance> -- All Human ReactionlikeEvents that are not used for manual inference.
 	 * @throws Exception-- Thrown by MySQLAdaptor
 	 */
-	public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba) throws Exception {
+	public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
 		Set<GKInstance> reactionsNotUsedForManualInference = new HashSet<>();
-		for (GKInstance event : findEventsNotUsedForManualInference(dba)) {
+		for (GKInstance event : findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
 			// Filter for Human ReactionlikeEvents
 			if (event.getSchemClass().isa(ReactomeJavaConstants.ReactionlikeEvent)
 					&& isHumanDatabaseObject(event)) {
@@ -500,10 +501,11 @@ public class QACheckerHelper {
 	/**
 	 * Finds all parent DbIds of the incoming Event, and then checks if any of them are in the skiplist of Pathway DbIds.
 	 * @param event GKInstance -- Event that is being checked for membership in a skiplist Pathway.
+	 * @param skiplistDbIds List<String> -- List of Pathway DbIds. If an Event being checked is a member of these pathways, they are skipped.
 	 * @return boolean -- true if member of skiplist Pathway, false if not.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static boolean memberSkipListPathway(GKInstance event) throws Exception {
+	public static boolean memberSkipListPathway(GKInstance event, List<String> skiplistDbIds) throws Exception {
 
 		// Finds all parent Event DbIds.
 		Set<String> hierarchyDbIds = findEventHierarchyDbIds(event);
@@ -538,14 +540,6 @@ public class QACheckerHelper {
 	}
 
 	/**
-	 * Takes incoming List of DbIds and sets them as global variable to be used throughout QA check.
-	 * @param skippedDbIds List<String> -- List of DbIds taken from either file or provided in class.
-	 */
-	public static void setSkipList(List<String> skippedDbIds) {
-		skiplistDbIds = skippedDbIds != null ? skippedDbIds : new ArrayList<>();
-	}
-
-	/**
 	 * Finds Homo sapiens species instance and sets as global variable to be used throughout QA check.
 	 * @param dba MySQLAdaptor
 	 * @throws Exception -- Thrown by MySQLAdaptor.
@@ -564,6 +558,6 @@ public class QACheckerHelper {
 	 */
 	public static String getInstanceAttributeNameForOutputReport(GKInstance instance, String attribute) throws Exception {
 		GKInstance attributeInstance = (GKInstance) instance.getAttributeValue(attribute);
-		return attributeInstance != null ? attributeInstance.getDisplayName() : null;
+		return attributeInstance != null ? attributeInstance.getDisplayName() : "N/A";
 	}
 }

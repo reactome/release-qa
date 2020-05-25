@@ -7,10 +7,7 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * QA check that finds non-human Complexes that contain human Components, that are members of human, non-manually inferred ReactionlikeEvents.
@@ -18,13 +15,16 @@ import java.util.Set;
 
 @SliceQATest
 public class HumanReactionsWithNonHumanComplexesWithHumanComponentsCheck extends AbstractQACheck {
+
+    // Rather than overload multiple methods that use/don't use a skiplist, an empty List is used here.
+    private static List<String> EMPTY_SKIP_LIST = new ArrayList<>();
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        QACheckerHelper.setSkipList(null);
 
-        for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba)) {
+        for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba, EMPTY_SKIP_LIST)) {
             // QA Check is only on PhysicalEntities that are participants of human ReactionlikeEvents that are not manually inferred
             Map<GKInstance, Set<GKInstance>> nonHumanComplexesWithHumanComponentsMap = findAllNonHumanComplexesWithHumanComponentInReaction(reaction);
             for (GKInstance complexWithHumanComponent : nonHumanComplexesWithHumanComponentsMap.keySet()) {

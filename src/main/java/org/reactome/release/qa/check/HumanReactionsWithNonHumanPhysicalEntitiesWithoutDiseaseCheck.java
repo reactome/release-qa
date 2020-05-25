@@ -7,6 +7,9 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Flags all human Reactions that contain non-disease PhysicalEntities that are non-human, or are human PhysicalEntities with relatedSpecies.
  */
@@ -14,14 +17,16 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQATest
 public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck extends AbstractQACheck {
 
+    // Rather than overload multiple methods that use/don't use a skiplist, an empty List is used here.
+    private static List<String> EMPTY_SKIP_LIST = new ArrayList<>();
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        QACheckerHelper.setSkipList(QACheckerHelper.getNonHumanPathwaySkipList());
 
         // This QA Check is only performed on human ReactionlikeEvents that do not have any inferredFrom referrals.
-        for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba)) {
+        for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba, EMPTY_SKIP_LIST)) {
             for (GKInstance reactionPE : QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
                 // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
                 // and that do not have a populated disease attribute.
