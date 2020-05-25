@@ -17,13 +17,13 @@ import java.util.List;
 @SliceQATest
 public class NonHumanEventsNotManuallyInferredChecker extends AbstractQACheck {
 
-    private static List<String> skiplistDbIds = new ArrayList<>();
+    private List<String> skiplistDbIds = new ArrayList<>();
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        skiplistDbIds = QACheckerHelper.getNonHumanPathwaySkipList();
+        this.skiplistDbIds.addAll(QACheckerHelper.getNonHumanPathwaySkipList());
 
         // The actual method for finding Events that aren't manually inferred is used by multiple QA tests.
         for (GKInstance event : QACheckerHelper.findEventsNotUsedForManualInference(dba, skiplistDbIds)) {

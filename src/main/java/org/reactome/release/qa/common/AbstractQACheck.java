@@ -1,6 +1,8 @@
 package org.reactome.release.qa.common;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
@@ -9,6 +11,7 @@ public abstract class AbstractQACheck implements QACheck {
     private final static Logger logger = Logger.getLogger(AbstractQACheck.class);
 
     protected MySQLAdaptor dba;
+    protected List<String> EMPTY_SKIP_LIST = new ArrayList<>();
 
     @Override
     public void setMySQLAdaptor(MySQLAdaptor dba) {

@@ -17,9 +17,6 @@ import java.util.List;
 @SliceQATest
 public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck extends AbstractQACheck {
 
-    // Rather than overload multiple methods that use/don't use a skiplist, an empty List is used here.
-    private static List<String> EMPTY_SKIP_LIST = new ArrayList<>();
-
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();

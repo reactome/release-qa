@@ -17,13 +17,13 @@ import java.util.*;
 public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends AbstractQACheck {
 
     private static final String INNATE_IMMUNITY_PATHWAY_DBID = "168249";
-    private static List<String> skiplistDbIds = new ArrayList<>();
+    private List<String> skiplistDbIds = new ArrayList<>();
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
         QACheckerHelper.setHumanSpeciesInst(dba);
-        skiplistDbIds.add(INNATE_IMMUNITY_PATHWAY_DBID);
+        this.skiplistDbIds.add(INNATE_IMMUNITY_PATHWAY_DBID);
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
