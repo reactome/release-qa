@@ -97,7 +97,10 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
         GKInstance relatedSpecies = (GKInstance) instance.getAttributeValue(ReactomeJavaConstants.relatedSpecies);
         GKInstance human = dba.fetchInstance(48887L);
 
-        if (component.getIsForDisease() || species.equals(human) || relatedSpecies.equals(human)) {
+        boolean humanSpecies = (species != null && species.equals(human));
+        boolean humanRelatedSpecies = (relatedSpecies != null && relatedSpecies.equals(human));
+
+        if (component.getIsForDisease() || humanSpecies || humanRelatedSpecies) {
             if (component.getForegroundColor() != DefaultRenderConstants.DEFAULT_DISEASE_LINE_COLOR)
                 return true;
         }
