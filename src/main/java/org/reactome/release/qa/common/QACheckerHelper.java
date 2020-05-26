@@ -50,8 +50,15 @@ public class QACheckerHelper {
             return false;
         return true;
     }
-	
-	// TODO: If this method is being heavily used by a QA check, consider using 'fetchInstance(48887L)`. It's much quicker than a global DB search.
+
+	/**
+	 * This method retrieves the Homo sapiens species instance from the database. Currently the method utilizes
+	 * the 'fetchInstanceByAttribute' query, which performs a global search on the database, which can be slow.
+	 * This can be improved by explicitly searching for the Homo sapiens instance (DBID 48887) or by caching the returned instance.
+	 * @param dba MySQLAdaptor
+	 * @return GKInstance -- Homo sapiens species instance.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
+	 */
 	@SuppressWarnings("unchecked")
 	public static GKInstance getHuman(MySQLAdaptor dba) throws Exception {
 		Collection<GKInstance> c = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Species,
