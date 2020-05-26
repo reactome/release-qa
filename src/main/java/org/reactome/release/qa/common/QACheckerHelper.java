@@ -51,6 +51,7 @@ public class QACheckerHelper {
         return true;
     }
 	
+	// TODO: If this method is being heavily used by a QA check, consider using 'fetchInstance(48887L)`. It's much quicker than a global DB search.
 	@SuppressWarnings("unchecked")
 	public static GKInstance getHuman(MySQLAdaptor dba) throws Exception {
 		Collection<GKInstance> c = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Species,
