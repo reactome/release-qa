@@ -3,12 +3,7 @@ package org.reactome.release.qa.common;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
@@ -292,7 +287,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct PhysicalEntitys in ReactionlikeEvent's inputs and outputs.
 	 * @throws Exception -- Thrown by MySQLAdaptor
 	 */
-	public static Set<GKInstance> findAllInputAndOutputPEs(GKInstance reaction) throws Exception {
+	private static Set<GKInstance> findAllInputAndOutputPEs(GKInstance reaction) throws Exception {
 		Set<GKInstance> inputOutputPEs = new HashSet<>();
 		for (String attribute : Arrays.asList(ReactomeJavaConstants.input, ReactomeJavaConstants.output)) {
 			for (GKInstance attributePE : (Collection<GKInstance>) reaction.getAttributeValuesList(attribute)) {
@@ -313,7 +308,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct PhysicalEntities in ReactionlikeEvent's catalystActivity.
 	 * @throws Exception -- Thrown by MySQLAdaptor
 	 */
-	public static Set<GKInstance> findAllCatalystPEs(GKInstance reaction) throws Exception {
+	private static Set<GKInstance> findAllCatalystPEs(GKInstance reaction) throws Exception {
 		Set<GKInstance> catalystPEs = new HashSet<>();
 		List<GKInstance> catalysts = reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity);
 		for (GKInstance catalyst : catalysts) {
@@ -338,7 +333,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct PhysicalEntities in ReactionlikeEvent's regulatedBy.
 	 * @throws Exception -- Thrown by MySQLAdaptor
 	 */
-	public static Set<GKInstance> findAllRegulationPEs(GKInstance reaction) throws Exception {
+	private static Set<GKInstance> findAllRegulationPEs(GKInstance reaction) throws Exception {
 		Set<GKInstance> regulationPEs = new HashSet<>();
 		List<GKInstance> regulations = reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy);
 		for (GKInstance regulation : regulations) {
@@ -363,7 +358,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct PhysicalEntities found in incoming PhysicalEntity. Includes incoming PhysicalEntity.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static Set<GKInstance> findAllPhysicalEntities(GKInstance physicalEntity) throws Exception {
+	private static Set<GKInstance> findAllPhysicalEntities(GKInstance physicalEntity) throws Exception {
 		Set<GKInstance> physicalEntities = new HashSet<>();
 		// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
 		// Since this method can be called by its interior methods, species check needs to happen here as well.
@@ -385,7 +380,7 @@ public class QACheckerHelper {
 	 * @param physicalEntity GKInstance -- PhysicalEntity that is being checked.
 	 * @return boolean -- true if PhysicalEntity type that contains multiple PEs, false if only type that has single PhysicalEntity.
 	 */
-	public static boolean containsMultiplePEs(GKInstance physicalEntity) {
+	private static boolean containsMultiplePEs(GKInstance physicalEntity) {
 		return physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Complex) ||
 				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Polymer) ||
 				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.EntitySet);
@@ -434,7 +429,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct PhysicalEntities that are found in EntitySet.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static Set<GKInstance> findEntitySetPhysicalEntities(GKInstance entitySet) throws Exception {
+	private static Set<GKInstance> findEntitySetPhysicalEntities(GKInstance entitySet) throws Exception {
 		Set<GKInstance> physicalEntities = new HashSet<>();
 		// All EntitySet instances have a 'hasMember' slot to be searched.
 		Set<String> entitySetAttributes = new HashSet<>(Arrays.asList(ReactomeJavaConstants.hasMember));
@@ -457,7 +452,7 @@ public class QACheckerHelper {
 	 * @return boolean -- true if inferredFrom referral exists, false if not.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static boolean manuallyInferred(GKInstance event) throws Exception {
+	private static boolean manuallyInferred(GKInstance event) throws Exception {
 		return event.getReferers(ReactomeJavaConstants.inferredFrom) != null;
 	}
 
@@ -468,7 +463,9 @@ public class QACheckerHelper {
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean isHumanDatabaseObject(GKInstance databaseObject) throws Exception {
-		List<GKInstance> objectSpecies = databaseObject.getAttributeValuesList(ReactomeJavaConstants.species);
+
+		List<GKInstance> objectSpecies = databaseObject.getSchemClass().isValidAttribute(ReactomeJavaConstants.species) ?
+				databaseObject.getAttributeValuesList(ReactomeJavaConstants.species) : Collections.emptyList();
 		return objectSpecies.size() == 1 && hasHumanSpecies(objectSpecies);
 	}
 
@@ -476,7 +473,7 @@ public class QACheckerHelper {
 	 * Checks if the incoming DatabaseObject (Event or PhysicalEntity) is non-human.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity to be checked for non-human species attribute.
 	 * @return boolean -- true if instance has species, and if none of the species are human, false if not.
-	 * @throws Exception
+	 * @throws Exception -- Thrown by MysqlAdaptor.
 	 */
 	public static boolean hasOnlyNonHumanSpecies(GKInstance databaseObject) throws Exception {
 		// Check if species is a valid attribute for physicalEntity.
@@ -500,7 +497,7 @@ public class QACheckerHelper {
 	 * @param physicalEntity GKInstance -- PhysicalEntity that is being checked to see if species is a valid attribute.
 	 * @return boolean -- true if species is a valid attribute, false if not.
 	 */
-	public static boolean hasSpeciesAttribute(GKInstance physicalEntity) {
+	private static boolean hasSpeciesAttribute(GKInstance physicalEntity) {
 		return physicalEntity.getSchemClass().isValidAttribute(ReactomeJavaConstants.species);
 	}
 
@@ -511,7 +508,8 @@ public class QACheckerHelper {
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean hasDisease(GKInstance databaseObject) throws Exception {
-		return databaseObject.getAttributeValue(ReactomeJavaConstants.disease) != null;
+		return databaseObject.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease)
+			&& databaseObject.getAttributeValue(ReactomeJavaConstants.disease) != null;
 	}
 
 	/**
