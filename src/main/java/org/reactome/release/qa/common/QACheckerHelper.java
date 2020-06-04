@@ -248,6 +248,16 @@ public class QACheckerHelper {
 	}
 
 	/**
+	 * Checks if incoming Event is manually inferred by checking inferredFrom referral.
+	 * @param event GKInstance -- Event instance being checked for inferredFrom referral.
+	 * @return boolean -- true if inferredFrom referral exists, false if not.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
+	 */
+	private static boolean manuallyInferred(GKInstance event) throws Exception {
+		return event.getReferers(ReactomeJavaConstants.inferredFrom) != null;
+	}
+
+	/**
 	 * Finds all Events not used for Inference, and then finds subset that are Human ReactionlikeEvents
 	 * @param dba MySQLAdaptor
 	 * @param skiplistDbIds List<String> -- List of Pathway DbIds. If an Event being checked is a member of these pathways, they are skipped.
@@ -268,192 +278,43 @@ public class QACheckerHelper {
 	}
 
 	/**
-	 * Finds all PhysicalEntities that exist in a ReactionlikeEvent's inputs, outputs, catalysts and regulations.
-	 * @param reaction GKInstance -- ReactionlikeEvent that will be searched for PhysicalEntities.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntitys in ReactionlikeEvent
-	 * @throws Exception -- Thrown by MySQLAdaptor
+	 * This method utilizes the InstanceUtilities method for finding all reaction participants. It also checks for the
+	 * 'activeUnit' participant in catalysts/regulations that can be flagged by certain QA checks. Generally speaking,
+	 * the 'activeUnit' instance should be found in the 'physicalEntity' of catalysts/regulations. Sometimes this is not
+	 * the case, when the wrong activeUnit is mistakenly checked in. This will be flagged by QA tests that call this method.
+	 * @param reaction GKInstance -- ReactionlikeEvent that will be checked for all participants.
+	 * @return Set<GKInstance> -- All distinct participants in the incoming ReactionlikeEvent.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static Set<GKInstance> findAllPhysicalEntitiesInReaction(GKInstance reaction) throws Exception {
+	public static Set<GKInstance> getAllReactionParticipantsIncludingCatalystAndRegulations(GKInstance reaction) throws Exception {
 		Set<GKInstance> reactionPEs = new HashSet<>();
-		reactionPEs.addAll(findAllInputAndOutputPEs(reaction));
-		reactionPEs.addAll(findAllCatalystPEs(reaction));
-		reactionPEs.addAll(findAllRegulationPEs(reaction));
-		return reactionPEs;
-	}
+		reactionPEs.addAll(InstanceUtilities.getReactionParticipants(reaction));
+		// Catalysts/Regulations also added to check for incorrect activeUnits.
+		reactionPEs.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity));
+		reactionPEs.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy));
 
-	/**
-	 * Finds all PhysicalEntities that exist in a ReactionlikeEvent's inputs and outputs.
-	 * @param reaction GKInstance -- ReactionlikeEvent that is being searched for PhysicalEntities.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntitys in ReactionlikeEvent's inputs and outputs.
-	 * @throws Exception -- Thrown by MySQLAdaptor
-	 */
-	private static Set<GKInstance> findAllInputAndOutputPEs(GKInstance reaction) throws Exception {
-		Set<GKInstance> inputOutputPEs = new HashSet<>();
-		for (String attribute : Arrays.asList(ReactomeJavaConstants.input, ReactomeJavaConstants.output)) {
-			for (GKInstance attributePE : (Collection<GKInstance>) reaction.getAttributeValuesList(attribute)) {
-				// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
-				if (hasSpeciesAttribute(attributePE)) {
-					inputOutputPEs.add(attributePE);
-					inputOutputPEs.addAll(findAllPhysicalEntities(attributePE));
-				}
-			}
+		Set<GKInstance> allReactionPEs = new HashSet<>();
+		for (GKInstance reactionPE : reactionPEs) {
+			allReactionPEs.add(reactionPE);
+			allReactionPEs.addAll(getPhysicalEntityContainedInstances(reactionPE));
 		}
-		return inputOutputPEs;
+		return allReactionPEs;
 	}
 
 	/**
-	 * Finds all PhysicalEntities that exist in a ReactionlikeEvent's catalystActivity. It checks the catalyst's
-	 * activeUnit and physicalEntity attributes.
-	 * @param reaction GKInstance -- ReactionlikeEvent that is being searched for PhysicalEntities.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntities in ReactionlikeEvent's catalystActivity.
-	 * @throws Exception -- Thrown by MySQLAdaptor
-	 */
-	private static Set<GKInstance> findAllCatalystPEs(GKInstance reaction) throws Exception {
-		Set<GKInstance> catalystPEs = new HashSet<>();
-		List<GKInstance> catalysts = reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity);
-		for (GKInstance catalyst : catalysts) {
-			// Catalyst PhysicalEntities are found in its activeUnit and physicalEntity slots.
-			for (String attribute : Arrays.asList(ReactomeJavaConstants.activeUnit, ReactomeJavaConstants.physicalEntity)) {
-				for (GKInstance attributePE : (Collection<GKInstance>) catalyst.getAttributeValuesList(attribute)) {
-					// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
-					if (hasSpeciesAttribute(attributePE)) {
-						catalystPEs.add(attributePE);
-						catalystPEs.addAll(findAllPhysicalEntities(attributePE));
-					}
-				}
-			}
-		}
-		return catalystPEs;
-	}
-
-	/**
-	 * Finds all PhysicalEntities that exist in a ReactionlikeEvent's regulatedBy. It checks the regulation's
-	 * activeUnit and regulator attributes.
-	 * @param reaction GKInstance -- ReactionlikeEvent that is being searched for PhysicalEntities.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntities in ReactionlikeEvent's regulatedBy.
-	 * @throws Exception -- Thrown by MySQLAdaptor
-	 */
-	private static Set<GKInstance> findAllRegulationPEs(GKInstance reaction) throws Exception {
-		Set<GKInstance> regulationPEs = new HashSet<>();
-		List<GKInstance> regulations = reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy);
-		for (GKInstance regulation : regulations) {
-			// Regulation PhysicalEntities are found in its activeUnit and regulator slots.
-			for (String attribute : Arrays.asList(ReactomeJavaConstants.activeUnit, ReactomeJavaConstants.regulator)) {
-				for (GKInstance attributePE : (Collection<GKInstance>) regulation.getAttributeValuesList(attribute)) {
-					// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
-					if (hasSpeciesAttribute(attributePE)) {
-						regulationPEs.add(attributePE);
-						regulationPEs.addAll(findAllPhysicalEntities(attributePE));
-					}
-				}
-			}
-		}
-		return regulationPEs;
-	}
-
-	/**
-	 * Method that actually finds all distinct PhysicalEntities. Checks if it contains multiple PhysicalEntities (Complexes, Polymers, EntitySets).
-	 * If it does, it will find all PhysicalEntities within that PhysicalEntity. Otherwise, just adds the single PhysicalEntity.
-	 * @param physicalEntity GKInstance -- PhysicalEntity that is checked for additional PhysicalEntities, and also added to returned Set.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntities found in incoming PhysicalEntity. Includes incoming PhysicalEntity.
+	 * This method is wrapper for the InstanceUtilities getContainedInstances method.
+	 * @param reactionPE GKInstance -- PhysicalEntity that will be checked for contained instances.
+	 * @return Set<GKInstance> -- All distinct contained instances in the incoming PhysicalEntity.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	private static Set<GKInstance> findAllPhysicalEntities(GKInstance physicalEntity) throws Exception {
-		Set<GKInstance> physicalEntities = new HashSet<>();
-		// QA checks calling these methods are concerned with PhysicalEntities that have a species attribute.
-		// Since this method can be called by its interior methods, species check needs to happen here as well.
-		if (hasSpeciesAttribute(physicalEntity)) {
-			// Checks if Complex, Polymer, or EntitySet. Finds all constituent PEs if so.
-			if (containsMultiplePEs(physicalEntity)) {
-				physicalEntities.add(physicalEntity);
-				physicalEntities.addAll(findAllConstituentPEs(physicalEntity));
-				// If EWAS, just adds to Set and is returned.
-			} else if (physicalEntity.getSchemClass().isa(ReactomeJavaConstants.EntityWithAccessionedSequence)) {
-				physicalEntities.add(physicalEntity);
-			}
-		}
-		return physicalEntities;
-	}
-
-	/**
-	 * Checks if PhysicalEntity contains additional PhysicalEntities within it.
-	 * @param physicalEntity GKInstance -- PhysicalEntity that is being checked.
-	 * @return boolean -- true if PhysicalEntity type that contains multiple PEs, false if only type that has single PhysicalEntity.
-	 */
-	private static boolean containsMultiplePEs(GKInstance physicalEntity) {
-		return physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Complex) ||
-				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Polymer) ||
-				physicalEntity.getSchemClass().isa(ReactomeJavaConstants.EntitySet);
-	}
-
-	/**
-	 * Finds all PhysicalEntities contained within a Complex, Polymer or EntitySet. Searches recursively by calling parent 'findAllPhysicalEntities' method.
-	 * @param multiPEInstance GKInstance -- Complex, Polymer or EntitySet instance that will be searched for all PhysicalEntity instances.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntities that are found in Complex/Polymer/EntitySet.
-	 * @throws Exception -- Thrown by MySQLAdaptor.
-	 */
-	public static Set<GKInstance> findAllConstituentPEs(GKInstance multiPEInstance) throws Exception {
-		Set<GKInstance> physicalEntities = new HashSet<>();
-		if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Complex) || multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Polymer)) {
-			// Recursively search Complex/Polymer for all PhysicalEntities.
-			for (GKInstance constituentPE : getComplexOrPolymerConstituentPEs(multiPEInstance)) {
-				physicalEntities.addAll(findAllPhysicalEntities(constituentPE));
-			}
-		} else if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.EntitySet)) {
-			// Recursively search members and candidates (if EntitySet is a CandidateSet) for all PhysicalEntities.
-			physicalEntities.addAll(findEntitySetPhysicalEntities(multiPEInstance));
-		}
-		return physicalEntities;
-	}
-
-	/**
-	 * Helper method that returns either a Complexes' components or Polymers' repeatedUnits.
-	 * @param multiPEInstance GKInstance -- Either a Complex or Polymer instance.
-	 * @return Set<GKInstance> -- All components or repeatedUnits from the incoming instance.
-	 * @throws Exception -- Thrown by MySQLAdaptor.
-	 */
-	private static Collection<GKInstance> getComplexOrPolymerConstituentPEs(GKInstance multiPEInstance) throws Exception {
-		Set<GKInstance> constituentPEs = new HashSet<>();
-		if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
-			constituentPEs.addAll(multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.hasComponent));
-		} else if (multiPEInstance.getSchemClass().isa(ReactomeJavaConstants.Polymer)) {
-			constituentPEs.addAll(multiPEInstance.getAttributeValuesList(ReactomeJavaConstants.repeatedUnit));
-		}
-		return constituentPEs;
-	}
-
-	/**
-	 * Finds all PhysicalEntities that exist within an EntitySet by searching for all member PEs (via 'hasMember' attribute)
-	 * and all candidate PEs (if entitySet is a CandidateSet; via 'hasCandidate attribute).
-	 * @param entitySet GKInstance -- EntitySet instance that will be searched for all PhysicalEntities.
-	 * @return Set<GKInstance> -- All distinct PhysicalEntities that are found in EntitySet.
-	 * @throws Exception -- Thrown by MySQLAdaptor.
-	 */
-	private static Set<GKInstance> findEntitySetPhysicalEntities(GKInstance entitySet) throws Exception {
-		Set<GKInstance> physicalEntities = new HashSet<>();
-		// All EntitySet instances have a 'hasMember' slot to be searched.
-		Set<String> entitySetAttributes = new HashSet<>(Arrays.asList(ReactomeJavaConstants.hasMember));
-		// If the EntitySet is a CandidateSet, 'hasCandidate' attribute needs to be searched as well.
-		if (entitySet.getSchemClass().isa(ReactomeJavaConstants.CandidateSet)) {
-			entitySetAttributes.add(ReactomeJavaConstants.hasCandidate);
-		}
-		for (String entitySetAttribute : entitySetAttributes) {
-			// Recursively searches members/candidates in EntitySet for all PhysicalEntities.
-			for (GKInstance setInstance : (Collection<GKInstance>) entitySet.getAttributeValuesList(entitySetAttribute)) {
-				physicalEntities.addAll(findAllPhysicalEntities((setInstance)));
-			}
-		}
-		return physicalEntities;
-	}
-
-	/**
-	 * Checks if incoming Event is manually inferred by checking inferredFrom referral.
-	 * @param event GKInstance -- Event instance being checked for inferredFrom referral.
-	 * @return boolean -- true if inferredFrom referral exists, false if not.
-	 * @throws Exception -- Thrown by MySQLAdaptor.
-	 */
-	private static boolean manuallyInferred(GKInstance event) throws Exception {
-		return event.getReferers(ReactomeJavaConstants.inferredFrom) != null;
+	public static Set<GKInstance> getPhysicalEntityContainedInstances(GKInstance reactionPE) throws Exception {
+		return InstanceUtilities.getContainedInstances(
+				reactionPE,
+				ReactomeJavaConstants.hasMember,
+				ReactomeJavaConstants.hasCandidate,
+				ReactomeJavaConstants.hasComponent,
+				ReactomeJavaConstants.repeatedUnit,
+				ReactomeJavaConstants.activeUnit);
 	}
 
 	/**
@@ -520,7 +381,6 @@ public class QACheckerHelper {
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean memberSkipListPathway(GKInstance event, List<String> skiplistDbIds) throws Exception {
-
 		// Finds all parent Event DbIds.
 		Set<String> hierarchyDbIds = findEventHierarchyDbIds(event);
 		// Check if any returned Event DbIds (including original Events) are in skiplist.

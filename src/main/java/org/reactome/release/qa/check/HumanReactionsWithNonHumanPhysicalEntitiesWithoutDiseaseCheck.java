@@ -20,7 +20,7 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
 
         // This QA Check is only performed on human ReactionlikeEvents that do not have any inferredFrom referrals.
         for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba, EMPTY_SKIP_LIST)) {
-            for (GKInstance reactionPE : QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
+            for (GKInstance reactionPE : QACheckerHelper.getAllReactionParticipantsIncludingCatalystAndRegulations(reaction)) {
                 // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
                 // and that do not have a populated disease attribute.
                 if ((QACheckerHelper.hasOnlyNonHumanSpecies(reactionPE) || hasHumanSpeciesWithRelatedSpecies(reactionPE))

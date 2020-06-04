@@ -44,7 +44,7 @@ public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQAC
      */
     private Set<GKInstance> findAllHumanPhysicalEntitiesInReaction(GKInstance reaction) throws Exception {
         Set<GKInstance> humanPEs = new HashSet<>();
-        for (GKInstance physicalEntity: QACheckerHelper.findAllPhysicalEntitiesInReaction(reaction)) {
+        for (GKInstance physicalEntity: QACheckerHelper.getAllReactionParticipantsIncludingCatalystAndRegulations(reaction)) {
             if (QACheckerHelper.isHumanDatabaseObject(physicalEntity)) {
                 humanPEs.add(physicalEntity);
             }
