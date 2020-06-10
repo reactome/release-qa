@@ -1,5 +1,6 @@
 package org.reactome.release.qa.diagram;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -7,18 +8,22 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.DefaultRenderConstants;
+import org.gk.render.Node;
 import org.gk.render.Renderable;
+import org.gk.render.RenderableChemicalDrug;
 import org.gk.render.RenderableComplex;
 import org.gk.render.RenderableEntitySet;
 import org.gk.render.RenderablePathway;
-import org.reactome.release.qa.annotations.ReleaseQACheck;
+import org.gk.render.RenderableProteinDrug;
+import org.gk.render.RenderableRNADrug;
+import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
  * QA check to flag any oddities in drug coloring.
  */
-@ReleaseQACheck
+@DiagramQACheck
 public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
 
     public DiagramDrugColorCheck() {
@@ -49,23 +54,22 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
             return;
         // For all rendered components.
         for (Renderable component : components) {
-            boolean addLine = false;
-
             // Check correctness of drug background.
-            if (component instanceof RenderableEntitySet ||
-                component instanceof RenderableComplex)
-                addLine = checkDrug(component);
-
-            // Continue if there is no line to be added.
-            if (!addLine) continue;
-
-            // Otherwise, add line to report.
-            report.addLine(diagram.getDBID().toString(),
-                           pathway.getDisplayName(),
-                           pathway.getReactomeDiagramId().toString(),
-                           component.getDisplayName(),
-                           component.getReactomeId().toString(),
-                           modDate);
+            List<Class<? extends Node>> classesToCheck = Arrays.asList(RenderableEntitySet.class,
+                                                                       RenderableComplex.class,
+                                                                       RenderableChemicalDrug.class,
+                                                                       RenderableProteinDrug.class,
+                                                                       RenderableRNADrug.class);
+            Class<Renderable> cls = (Class<Renderable>) component.getClass();
+            if (classesToCheck.contains(cls) && !hasCorrectColors(component)) {
+                // Add line to report.
+                report.addLine(diagram.getDBID().toString(),
+                               pathway.getDisplayName(),
+                               pathway.getReactomeDiagramId().toString(),
+                               component.getDisplayName(),
+                               component.getReactomeId().toString(),
+                               modDate);
+            }
         }
     }
 
@@ -73,26 +77,34 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
      * Check if a component has the appropriate background color for its drug status.
      *
      * Returns true is color matches the status.
-     * Returns false if there is a mismatch (error).
+     * Returns false if there is a mismatch error.
      *
      * @param component
      * @return boolean
      * @throws Exception
      */
-    private boolean checkDrug(Renderable component) throws Exception {
+    private boolean hasCorrectColors(Renderable component) throws Exception {
         GKInstance instance = dba.fetchInstance(component.getReactomeId());
-        if (instance == null)
-            return false;
+        if (component.getReactomeId() == null || instance == null)
+            return true;
 
-        // Drug background check.
-        if (InstanceUtilities.hasDrug(instance)) {
-            if (component.getBackgroundColor() != DefaultRenderConstants.DEFAULT_DRUG_BACKGROUND)
-                return true;
-        }
-        else {
-            if (component.getBackgroundColor() != DefaultRenderConstants.DEFAULT_BACKGROUND)
-                return true;
-        }
+        // Drug color check.
+        if (!InstanceUtilities.hasDrug(instance))
+            return true;
+
+        // Drug background and foreground check.
+        Object background = component.getBackgroundColor();
+        Object foreground = component.getForegroundColor();
+
+        if (background == null || foreground == null)
+            return true;
+
+        boolean correctBackground = background.equals(DefaultRenderConstants.DEFAULT_DRUG_BACKGROUND);
+        boolean correctForeground = foreground.equals(DefaultRenderConstants.DEFAULT_DRUG_FOREGROUND);
+
+        if (correctBackground && correctForeground)
+            return true;
+
         return false;
     }
 
