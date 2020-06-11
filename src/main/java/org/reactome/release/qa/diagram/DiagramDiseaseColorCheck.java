@@ -41,8 +41,8 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
         report.setColumnHeaders("PathwayDiagram_DBID",
                                 "Pathway_DisplayName",
                                 "Pathway_DBID",
-                                "Reaction_DBID",
                                 "Reaction_DisplayName",
+                                "Reaction_DBID",
                                 "MostRecentAuthor");
         return report;
     }
