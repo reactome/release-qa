@@ -48,7 +48,7 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntities extends
      */
     private Set<GKInstance> findAllNonHumanPhysicalEntitiesInReaction(GKInstance reaction) throws Exception {
         Set<GKInstance> nonHumanPEs = new HashSet<>();
-        for (GKInstance physicalEntity : QACheckerHelper.getAllReactionParticipantsIncludingCatalystAndRegulations(reaction)) {
+        for (GKInstance physicalEntity : QACheckerHelper.getAllReactionParticipantsIncludingActiveUnits(reaction)) {
             if (QACheckerHelper.hasOnlyNonHumanSpecies(physicalEntity)) {
                 nonHumanPEs.add(physicalEntity);
             }

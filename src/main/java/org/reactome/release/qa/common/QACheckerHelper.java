@@ -249,6 +249,9 @@ public class QACheckerHelper {
 
 	/**
 	 * Checks if incoming Event is manually inferred by checking inferredFrom referral.
+	 * This method only correctly identifies manual inferences in a curation or slice database.
+	 * This is due to the fact that it only checks the 'inferredFrom' attribute, which is used
+	 * in automatic inferences as well.
 	 * @param event GKInstance -- Event instance being checked for inferredFrom referral.
 	 * @return boolean -- true if inferredFrom referral exists, false if not.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
@@ -286,7 +289,7 @@ public class QACheckerHelper {
 	 * @return Set<GKInstance> -- All distinct participants in the incoming ReactionlikeEvent.
 	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
-	public static Set<GKInstance> getAllReactionParticipantsIncludingCatalystAndRegulations(GKInstance reaction) throws Exception {
+	public static Set<GKInstance> getAllReactionParticipantsIncludingActiveUnits(GKInstance reaction) throws Exception {
 		Set<GKInstance> reactionPEs = new HashSet<>();
 		reactionPEs.addAll(InstanceUtilities.getReactionParticipants(reaction));
 		// Catalysts/Regulations also added to check for incorrect activeUnits.
@@ -314,7 +317,8 @@ public class QACheckerHelper {
 				ReactomeJavaConstants.hasCandidate,
 				ReactomeJavaConstants.hasComponent,
 				ReactomeJavaConstants.repeatedUnit,
-				ReactomeJavaConstants.activeUnit);
+				ReactomeJavaConstants.activeUnit
+		);
 	}
 
 	/**
@@ -334,7 +338,7 @@ public class QACheckerHelper {
 	 * Checks if the incoming DatabaseObject (Event or PhysicalEntity) is non-human.
 	 * @param databaseObject GKInstance -- Event or PhysicalEntity to be checked for non-human species attribute.
 	 * @return boolean -- true if instance has species, and if none of the species are human, false if not.
-	 * @throws Exception -- Thrown by MysqlAdaptor.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
 	 */
 	public static boolean hasOnlyNonHumanSpecies(GKInstance databaseObject) throws Exception {
 		// Check if species is a valid attribute for physicalEntity.

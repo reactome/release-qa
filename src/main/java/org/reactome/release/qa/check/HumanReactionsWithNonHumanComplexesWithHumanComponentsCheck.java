@@ -42,7 +42,7 @@ public class HumanReactionsWithNonHumanComplexesWithHumanComponentsCheck extends
     private Map<GKInstance, Set<GKInstance>> findAllNonHumanComplexesWithHumanComponentInReaction(GKInstance reaction) throws Exception {
         Map<GKInstance, Set<GKInstance>> nonHumanComplexesWithHumanComponentsMap = new HashMap<>();
         // First find all PhysicalEntities in the Reaction, and then filter that list for any non-human or non-species Complexes.
-        for (GKInstance physicalEntity : QACheckerHelper.getAllReactionParticipantsIncludingCatalystAndRegulations(reaction)) {
+        for (GKInstance physicalEntity : QACheckerHelper.getAllReactionParticipantsIncludingActiveUnits(reaction)) {
             if (!QACheckerHelper.isHumanDatabaseObject(physicalEntity)
                     && physicalEntity.getSchemClass().isa(ReactomeJavaConstants.Complex)) {
 
