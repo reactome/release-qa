@@ -292,9 +292,8 @@ public class QACheckerHelper {
 	public static Set<GKInstance> getAllReactionParticipantsIncludingActiveUnits(GKInstance reaction) throws Exception {
 		Set<GKInstance> reactionPEs = new HashSet<>();
 		reactionPEs.addAll(InstanceUtilities.getReactionParticipants(reaction));
-		// Catalysts/Regulations also added to check for incorrect activeUnits.
-		reactionPEs.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity));
-		reactionPEs.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy));
+		// Retrieve activeUnit PEs from Reaction Catalysts/Regulations, if present.
+		reactionPEs.addAll(getContainedActiveUnits(reaction));
 
 		Set<GKInstance> allReactionPEs = new HashSet<>();
 		for (GKInstance reactionPE : reactionPEs) {
@@ -302,6 +301,28 @@ public class QACheckerHelper {
 			allReactionPEs.addAll(getPhysicalEntityContainedInstances(reactionPE));
 		}
 		return allReactionPEs;
+	}
+
+	/**
+	 * This method returns all instances found in the 'activeUnit' slot of the incoming Reaction's 'catalystActivity'
+	 * and 'regulatedBy' instances, if they exist.
+	 * @param reaction GKInstance -- ReactionlikeEvent that will be checked for all activeUnit instances.
+	 * @return Set<GKInstance> -- All distinct activeUnit participants in the incoming ReactionlikeEvent.
+	 * @throws Exception -- Thrown by MySQLAdaptor.
+	 */
+	private static Set<GKInstance> getContainedActiveUnits(GKInstance reaction) throws Exception {
+		Set<GKInstance> reactionCatalystsAndRegulations = new HashSet<>();
+		reactionCatalystsAndRegulations.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.catalystActivity));
+		reactionCatalystsAndRegulations.addAll(reaction.getAttributeValuesList(ReactomeJavaConstants.regulatedBy));
+
+		Set<GKInstance> activeUnits = new HashSet<>();
+		for (GKInstance instance : reactionCatalystsAndRegulations) {
+			activeUnits.addAll(InstanceUtilities.getContainedInstances(
+					instance,
+					ReactomeJavaConstants.activeUnit
+			));
+		}
+		return activeUnits;
 	}
 
 	/**
@@ -316,8 +337,7 @@ public class QACheckerHelper {
 				ReactomeJavaConstants.hasMember,
 				ReactomeJavaConstants.hasCandidate,
 				ReactomeJavaConstants.hasComponent,
-				ReactomeJavaConstants.repeatedUnit,
-				ReactomeJavaConstants.activeUnit
+				ReactomeJavaConstants.repeatedUnit
 		);
 	}
 
