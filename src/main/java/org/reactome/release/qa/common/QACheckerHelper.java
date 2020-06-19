@@ -434,7 +434,7 @@ public class QACheckerHelper {
 	 * @return List<String> -- List of DbIds.
 	 */
 	public static List<String> getNonHumanPathwaySkipList() throws IOException {
-		return Files.readAllLines(Paths.get("src/main/resources/manually_curated_nonhuman_pathways_skip_list.txt"));
+		return Files.readAllLines(Paths.get("resources/manually_curated_nonhuman_pathways_skip_list.txt"));
 	}
 
 	/**
