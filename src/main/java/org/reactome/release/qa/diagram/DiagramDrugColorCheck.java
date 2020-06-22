@@ -96,8 +96,9 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
         Object background = component.getBackgroundColor();
         Object foreground = component.getForegroundColor();
 
+        // If background or foreground is null, default values will be used.
         if (background == null || foreground == null)
-            return true;
+            return false;
 
         boolean correctBackground = background.equals(DefaultRenderConstants.DEFAULT_DRUG_BACKGROUND);
         boolean correctForeground = foreground.equals(DefaultRenderConstants.DEFAULT_DRUG_FOREGROUND);

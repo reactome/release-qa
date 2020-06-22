@@ -97,7 +97,7 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
 
         Object lineColor = component.getLineColor();
         if (lineColor == null)
-            return true;
+            return false;
 
         return lineColor.equals(DefaultRenderConstants.DEFAULT_DISEASE_LINE_COLOR);
     }
