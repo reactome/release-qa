@@ -8,10 +8,7 @@ import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
 import org.gk.render.DefaultRenderConstants;
 import org.gk.render.Renderable;
-import org.gk.render.RenderableComplex;
-import org.gk.render.RenderableEntitySet;
 import org.gk.render.RenderablePathway;
-import org.gk.render.RenderableReaction;
 import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -41,8 +38,8 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
         report.setColumnHeaders("PathwayDiagram_DBID",
                                 "Pathway_DisplayName",
                                 "Pathway_DBID",
-                                "Reaction_DisplayName",
-                                "Reaction_DBID",
+                                "Renderable_DisplayName",
+                                "Renderable_DBID",
                                 "MostRecentAuthor");
         return report;
     }
@@ -58,7 +55,7 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
             boolean hasCorrectColors = true;
 
             // Check correctness of disease outline.
-            if (component instanceof RenderableReaction || component instanceof RenderableEntitySet || component instanceof RenderableComplex)
+            if (component instanceof Renderable)
                 hasCorrectColors = hasCorrectColors(component);
 
             // Continue if there is no line to be added.
@@ -86,11 +83,16 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
      * @throws Exception
      */
     private boolean hasCorrectColors(Renderable component) throws Exception {
-        GKInstance instance = dba.fetchInstance(component.getReactomeId());
-        if (component.getReactomeId() == null || instance == null)
+        if (component.getReactomeId() == null)
             return true;
 
-        // Disease outline check.
+        GKInstance instance = dba.fetchInstance(component.getReactomeId());
+        if (instance == null)
+            return true;
+
+        if (!instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease))
+            return true;
+
         Object isForDisease = instance.getAttributeValue(ReactomeJavaConstants.disease);
         if (isForDisease == null)
             return true;
