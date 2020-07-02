@@ -1,5 +1,6 @@
 package org.reactome.release.qa.diagram;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -93,8 +94,8 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
             return true;
 
         // Drug background and foreground check.
-        Object background = component.getBackgroundColor();
-        Object foreground = component.getForegroundColor();
+        Color background = component.getBackgroundColor();
+        Color foreground = component.getForegroundColor();
 
         // If background or foreground is null, default values will be used.
         if (background == null || foreground == null)
@@ -103,10 +104,7 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
         boolean correctBackground = background.equals(DefaultRenderConstants.DEFAULT_DRUG_BACKGROUND);
         boolean correctForeground = foreground.equals(DefaultRenderConstants.DEFAULT_DRUG_FOREGROUND);
 
-        if (correctBackground && correctForeground)
-            return true;
-
-        return false;
+        return correctBackground && correctForeground;
     }
 
 }

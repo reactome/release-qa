@@ -46,10 +46,12 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
 
     private void checkPathwayDiagram(GKInstance diagram, DiagramGKBReader reader, QAReport report) throws Exception {
         RenderablePathway pathway = reader.openDiagram(diagram);
-        String modDate = QACheckerHelper.getLastModificationAuthor(diagram);
         List<Renderable> components = pathway.getComponents();
         if (components == null || components.size() == 0)
             return;
+
+        String modDate = QACheckerHelper.getLastModificationAuthor(diagram);
+
         // For all rendered components.
         for (Renderable component : components) {
             boolean hasCorrectColors = true;

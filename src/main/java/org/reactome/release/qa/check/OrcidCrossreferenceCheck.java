@@ -34,18 +34,13 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 	    Map<GKInstance, List<GKInstance>> orcidToPeople = new HashMap<GKInstance, List<GKInstance>>();
 
 	    // Fetch all Person instances from database where crossReference attribute 'IS NOT NULL'.
-	    // Verify that ORCHID database id is being used.
+	    // This does not verify that the ORCID database is being used for crossReference.
+	    // However, no other databases have been found, so a verification is not currently needed.
 	    @SuppressWarnings("unchecked")
         Collection<GKInstance> peopleWithOrcid = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Person,
                                                                               ReactomeJavaConstants.crossReference,
                                                                               "IS NOT NULL",
                                                                               null);
-	    for (GKInstance person : peopleWithOrcid) {
-	        GKInstance crossReference = (GKInstance) person.getAttributeValue(ReactomeJavaConstants.crossReference);
-	        GKInstance refDatabase = (GKInstance) crossReference.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
-	        if (!refDatabase.getDBID().equals(5334734L))
-	            peopleWithOrcid.remove(person);
-	    }
 	    // For all person instances:
 	    for (GKInstance person : peopleWithOrcid) {
 	        // Get ORCID for given person.
@@ -53,14 +48,12 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
 	        List<GKInstance> people = orcidToPeople.get(orcid);
 
-	        // If person list is null:
-	        if (people == null) {
-                // Put (ORCID, Arrays.asList(person)) into map.
-	            List<GKInstance> newPeople = new ArrayList<GKInstance>();
-	            newPeople.add(person);
-	            orcidToPeople.put(orcid, newPeople);
-	            continue;
-	        }
+	       orcidToPeople.compute(person, (key, list) -> {
+	           if (list == null)
+	               list = new ArrayList<GKInstance>();
+	           list.add(person);
+	           return list;
+	       });
 
             // Otherwise, map contains ORCID.
             // Add person to list.
@@ -75,17 +68,17 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
              if (people.size() < 2)
                  continue;
 
-             // Person DBID's (e.g. "1168468, 140934, 26636").
+             // Person DBID's (e.g. "1168468,140934,26636").
              String peopleDBIDs = people.stream()
                                         .map(GKInstance::getDBID)
                                         .sorted()
-                                        .map(Object::toString)
+                                        .map(dbid -> dbid.toString())
                                         .collect(Collectors.joining(","));
              // Create report row.
              GKInstance orcid = entry.getKey();
-             report.addLine(orcid.getDBID().toString(),
-                            orcid.getDisplayName().toString(),
-                            orcid.getAttributeValue(ReactomeJavaConstants.identifier).toString(),
+             report.addLine(orcid.getDBID() + "",
+                            orcid.getDisplayName(),
+                            orcid.getAttributeValue(ReactomeJavaConstants.identifier) + "",
                             peopleDBIDs);
 	    }
 
