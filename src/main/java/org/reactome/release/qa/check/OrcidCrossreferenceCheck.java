@@ -22,67 +22,76 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQACheck
 public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
+    private final Long ORCID_DBID = 5334734L;
+
     @Override
     public QAReport executeQACheck() throws Exception {
-	    QAReport report = new QAReport();
-	    report.setColumnHeaders("CrossReference_DBID",
+        QAReport report = new QAReport();
+        report.setColumnHeaders("CrossReference_DBID",
                                 "CrossReference_DisplayName",
                                 "Identifier",
                                 "Person_DBIDs");
 
-	    // Create a map between ORCID and person list.
-	    Map<GKInstance, List<GKInstance>> orcidToPeople = new HashMap<GKInstance, List<GKInstance>>();
+        // Create a map between ORCID and person list.
+        Map<GKInstance, List<GKInstance>> orcidToPeople = new HashMap<GKInstance, List<GKInstance>>();
 
-	    // Fetch all Person instances from database where crossReference attribute 'IS NOT NULL'.
-	    // This does not verify that the ORCID database is being used for crossReference.
-	    // However, no other databases have been found, so a verification is not currently needed.
-	    @SuppressWarnings("unchecked")
-        Collection<GKInstance> peopleWithOrcid = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Person,
-                                                                              ReactomeJavaConstants.crossReference,
-                                                                              "IS NOT NULL",
-                                                                              null);
-	    // For all person instances:
-	    for (GKInstance person : peopleWithOrcid) {
-	        // Get ORCID for given person.
-	        GKInstance orcid = (GKInstance) person.getAttributeValue(ReactomeJavaConstants.crossReference);
+        // Fetch all Person instances from database where crossReference attribute 'IS NOT NULL'.
+        // This does not verify that the ORCID database is being used for crossReference.
+        // However, no other databases have been found, so a verification is not currently needed.
+        @SuppressWarnings("unchecked")
+        Collection<GKInstance> peopleWithCrossreference = dba.fetchInstanceByAttribute(ReactomeJavaConstants.Person,
+                                                                                       ReactomeJavaConstants.crossReference,
+                                                                                       "IS NOT NULL",
+                                                                                       null);
+        // For all person instances:
+        for (GKInstance person : peopleWithCrossreference) {
+            // Get ORCID for given person.
+            List<GKInstance> crossRefs = person.getAttributeValuesList(ReactomeJavaConstants.crossReference);
+            if (crossRefs == null || crossRefs.size() == 0)
+                continue;
 
-	        List<GKInstance> people = orcidToPeople.get(orcid);
+            List<GKInstance> orcids = new ArrayList<GKInstance>();
+            for (GKInstance crossRef : crossRefs) {
+                GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
+                if (refDb.getDBID().equals(ORCID_DBID))
+                    orcids.add(crossRef);
+            }
 
-	       orcidToPeople.compute(person, (key, list) -> {
-	           if (list == null)
-	               list = new ArrayList<GKInstance>();
-	           list.add(person);
-	           return list;
-	       });
+            if (orcids.size() == 0) continue;
 
-            // Otherwise, map contains ORCID.
-            // Add person to list.
-	        people.add(person);
-	    }
+            for (GKInstance orcid : orcids) {
+                orcidToPeople.compute(orcid, (key, list) -> {
+                    if (list == null)
+                        list = new ArrayList<GKInstance>();
+                    list.add(person);
+                    return list;
+                });
+            }
+        }
 
-         // For entry in map:
-	    for (Entry<GKInstance, List<GKInstance>> entry : orcidToPeople.entrySet()) {
-             List<GKInstance> people = entry.getValue();
+        // For entry in map:
+        for (Entry<GKInstance, List<GKInstance>> entry : orcidToPeople.entrySet()) {
+            List<GKInstance> people = entry.getValue();
 
-             // If there are no duplicates, continue.
-             if (people.size() < 2)
-                 continue;
+            // If there are no duplicates, continue.
+            if (people.size() < 2)
+                continue;
 
-             // Person DBID's (e.g. "1168468,140934,26636").
-             String peopleDBIDs = people.stream()
-                                        .map(GKInstance::getDBID)
-                                        .sorted()
-                                        .map(dbid -> dbid.toString())
-                                        .collect(Collectors.joining(","));
-             // Create report row.
-             GKInstance orcid = entry.getKey();
-             report.addLine(orcid.getDBID() + "",
-                            orcid.getDisplayName(),
-                            orcid.getAttributeValue(ReactomeJavaConstants.identifier) + "",
-                            peopleDBIDs);
-	    }
+            // Person DBID's (e.g. "1168468,140934,26636").
+            String peopleDBIDs = people.stream()
+                                       .map(GKInstance::getDBID)
+                                       .sorted()
+                                       .map(dbid -> dbid.toString())
+                                       .collect(Collectors.joining(","));
+            // Create report row.
+            GKInstance orcid = entry.getKey();
+            report.addLine(orcid.getDBID() + "",
+                           orcid.getDisplayName(),
+                           orcid.getAttributeValue(ReactomeJavaConstants.identifier) + "",
+                           peopleDBIDs);
+        }
 
-	    return report;
+        return report;
     }
 
 }
