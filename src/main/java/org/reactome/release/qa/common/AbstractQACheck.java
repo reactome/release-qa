@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
@@ -30,7 +27,6 @@ public abstract class AbstractQACheck implements QACheck {
     private static final Date CUTOFF_DATE = QACheckProperties.getCutoffDate();
 
     protected MySQLAdaptor dba;
-    protected final List<String> EMPTY_SKIP_LIST = Collections.emptyList();
 
     private Set<Long> escDbIds;
     

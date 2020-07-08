@@ -88,7 +88,7 @@ public class MySQLAdaptorManager {
         // Have to add "/" before the file name. Otherwise, the file cannot be found.
         String fileName = File.separator + "auth.properties";
         // Try to get the configuration file first
-        File file = new File("src/main/resources" + fileName);
+        File file = new File("resources" + fileName);
         if (file.exists())
             return new FileInputStream(file);
         return getClass().getResourceAsStream(fileName);

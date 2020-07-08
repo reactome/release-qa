@@ -58,7 +58,7 @@ public class DiagramRenderableTypeCheck extends AbstractQACheck {
     }
     
     @SuppressWarnings("unchecked")
-    private Class getRenderableType(GKInstance inst, SearchDBTypeHelper typeHelper)
+    private Class<? extends Renderable> getRenderableType(GKInstance inst, SearchDBTypeHelper typeHelper)
             throws Exception {
         if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway))
             return ProcessNode.class;
