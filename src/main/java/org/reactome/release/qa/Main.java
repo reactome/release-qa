@@ -1,9 +1,11 @@
 package org.reactome.release.qa;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -103,8 +105,8 @@ public class Main {
                 logger.info("Excluded QA check types: " + excludes);        
             }
             selected = instantiable.stream()
-                        .filter(check -> isPicked(check, includes, excludes))
-                        .collect(Collectors.toSet());
+                                   .filter(check -> isPicked(check, includes, excludes))
+                                   .collect(Collectors.toSet());
         }
         
         File summaryFile = new File(output.getAbsolutePath(), SUMMARY_FILE_NM);
@@ -155,12 +157,12 @@ public class Main {
     }
 
     private static Set<String> getIncludedQAs() throws IOException {
-        File qaSkipListfile = new File("resources/IncludedChecks.txt");
+        File qaSkipListfile = new File("src/main/resources/IncludedChecks.txt");
         return loadQACheckList(qaSkipListfile);
     }
 
     private static Set<String> getExcludedQAs() throws IOException {
-        File qaSkipListfile = new File("resources/ExcludedChecks.txt");
+        File qaSkipListfile = new File("src/main/resources/ExcludedChecks.txt");
         return loadQACheckList(qaSkipListfile);
     }
 
