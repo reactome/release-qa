@@ -1,11 +1,14 @@
 package org.reactome.release.qa.check;
 
 import org.gk.model.GKInstance;
+import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+
+import java.util.Collection;
 
 /**
  * Flags all human Reactions that contain non-disease PhysicalEntities that are non-human, or are human PhysicalEntities with relatedSpecies.
@@ -14,19 +17,25 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQACheck
 public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck extends AbstractQACheck {
 
+    private static final long infectiousDiseasePathwayDbId = 5663205L;
+    private static GKInstance infectiousDiseasePathway = null;
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
+        infectiousDiseasePathway = dba.fetchInstance(infectiousDiseasePathwayDbId);
         // This QA Check is only performed on human ReactionlikeEvents that do not have any inferredFrom referrals.
         for (GKInstance reaction : QACheckerHelper.findHumanReactionsNotUsedForManualInference(dba, EMPTY_SKIP_LIST)) {
-            for (GKInstance reactionPE : QACheckerHelper.getAllReactionParticipantsIncludingActiveUnits(reaction)) {
-                // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
-                // and that do not have a populated disease attribute.
-                if ((QACheckerHelper.hasOnlyNonHumanSpecies(reactionPE) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
-                        && !QACheckerHelper.hasDisease(reactionPE)) {
+            if (InstanceUtilities.isDescendentOf(reaction, infectiousDiseasePathway)) {
+                for (GKInstance reactionPE : QACheckerHelper.getAllReactionParticipantsIncludingActiveUnits(reaction)) {
+                    // Valid PhysicalEntities include those that have a non-human species OR have a human species AND have a relatedSpecies,
+                    // and that do not have a populated disease attribute.
+                    if ((QACheckerHelper.hasOnlyNonHumanSpecies(reactionPE) || hasHumanSpeciesWithRelatedSpecies(reactionPE))
+                            && !QACheckerHelper.hasDisease(reactionPE)) {
 
-                    report.addLine(getReportLine(reactionPE, reaction));
+                        report.addLine(getReportLine(reactionPE, reaction));
+                    }
                 }
             }
         }
@@ -57,15 +66,23 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
     }
 
     private String getReportLine(GKInstance physicalEntity, GKInstance reaction) throws Exception {
-        String speciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.species);
+        String rleSpeciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(reaction, ReactomeJavaConstants.species);
+        String rleRelatedSpeciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(reaction, ReactomeJavaConstants.relatedSpecies);
+        String peSpeciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.species);
+        String peRelatedSpeciesName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.relatedSpecies);
+        String diseaseName = QACheckerHelper.getInstanceAttributeNameForOutputReport(reaction, ReactomeJavaConstants.disease);
         String createdName = QACheckerHelper.getInstanceAttributeNameForOutputReport(physicalEntity, ReactomeJavaConstants.created);
         return String.join("\t",
                 reaction.getDBID().toString(),
                 reaction.getDisplayName(),
+                diseaseName,
+                rleSpeciesName,
+                rleRelatedSpeciesName,
                 physicalEntity.getDBID().toString(),
                 physicalEntity.getDisplayName(),
                 physicalEntity.getSchemClass().getName(),
-                speciesName,
+                peSpeciesName,
+                peRelatedSpeciesName,
                 createdName);
     }
 
@@ -75,6 +92,6 @@ public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck exten
     }
 
     private String[] getColumnHeaders() {
-        return new String[] {"DB_ID_RlE", "DisplayName_RlE", "DB_ID_PE", "DisplayName_PE", "Class_PE", "Species", "Created"};
+        return new String[] {"DBID_RlE", "DisplayName_RlE", "Disease_RlE", "Species_RlE", "RelatedSpecies_RlE", "DBID_PE", "DisplayName_PE", "Class_PE", "Species_PE", "RelatedSpecies_RlE", "Created"};
     }
 }

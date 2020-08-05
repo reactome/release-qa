@@ -505,7 +505,17 @@ public class QACheckerHelper {
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
     public static String getInstanceAttributeNameForOutputReport(GKInstance instance, String attribute) throws Exception {
-        GKInstance attributeInstance = (GKInstance) instance.getAttributeValue(attribute);
+        GKInstance attributeInstance = null;
+        if (instance.getSchemClass().isValidAttribute(attribute)) {
+            if (attribute.equals(ReactomeJavaConstants.relatedSpecies) || attribute.equals(ReactomeJavaConstants.species)) {
+                List<String> relatedSpeciesNames = new ArrayList<>();
+                for (GKInstance relatedSpeciesInst : (Collection<GKInstance>) instance.getAttributeValuesList(attribute)) {
+                    relatedSpeciesNames.add(relatedSpeciesInst.getDisplayName());
+                }
+                return relatedSpeciesNames.size() > 0 ? String.join("|",relatedSpeciesNames) : "N/A";
+            }
+            attributeInstance = (GKInstance) instance.getAttributeValue(attribute);
+        }
         return attributeInstance != null ? attributeInstance.getDisplayName() : "N/A";
     }
     
