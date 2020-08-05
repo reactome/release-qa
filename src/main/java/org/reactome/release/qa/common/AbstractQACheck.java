@@ -4,11 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +23,8 @@ public abstract class AbstractQACheck implements QACheck {
     private static final Date CUTOFF_DATE = QACheckProperties.getCutoffDate();
 
     protected MySQLAdaptor dba;
+
+    protected final List<String> EMPTY_SKIP_LIST = Collections.emptyList();
 
     private Set<Long> escDbIds;
     

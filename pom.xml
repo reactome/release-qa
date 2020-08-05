@@ -12,7 +12,7 @@
         <opencsv.version>4.2</opencsv.version>
         <log4j2.version>2.11.0</log4j2.version>
         <javax.mail.version>1.4</javax.mail.version>
-        <reactome.base.version>1.2.20</reactome.base.version>
+        <reactome.base.version>2.0.0-SNAPSHOT</reactome.base.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
@@ -139,15 +139,15 @@
     </build>
 
     <repositories>
+        <!-- Sonatype repository from which to obtain SNAPSHOT dependencies created by Reactome (or others sources) -->
         <repository>
-            <id>nexus-ebi-repo</id>
-            <name>The EBI internal repository</name>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
+            <id>oss.sonatype.org-snapshot</id>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
             <releases>
-                <enabled>true</enabled>
+                <enabled>false</enabled>
             </releases>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>
@@ -200,8 +200,8 @@
             <groupId>org.reactome.base</groupId>
             <artifactId>reactome-base</artifactId>
             <version>${reactome.base.version}</version>
-            <!-- exclude old log4j 1.x libraries - log4j 1.x has not been 
-                supported for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces 
+            <!-- exclude old log4j 1.x libraries - log4j 1.x has not been
+                supported for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces
                 ) -->
             <exclusions>
                 <exclusion>

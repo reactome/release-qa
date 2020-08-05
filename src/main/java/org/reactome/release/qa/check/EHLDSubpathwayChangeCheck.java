@@ -4,6 +4,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.annotations.ReleaseQACheck;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -23,7 +24,9 @@ import java.util.stream.Collectors;
  * @author weiserj
  *
  */
+
 @ReleaseQACheck
+@SliceQACheck
 public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 	final private String NOT_AVAILABLE = "N/A";
