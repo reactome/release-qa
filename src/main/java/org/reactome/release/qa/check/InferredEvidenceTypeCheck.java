@@ -18,7 +18,7 @@ public class InferredEvidenceTypeCheck extends AbstractQACheck {
         Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         for (GKInstance event : events) {
             GKInstance evidenceType = (GKInstance) event.getAttributeValue(ReactomeJavaConstants.evidenceType);
-            if (evidenceType != null) {
+            if (evidenceType != null && evidenceType.getDisplayName().contains("Inferred from Electronic Annotation")) {
                 report.addLine(getReportLine(event, evidenceType));
             }
 
