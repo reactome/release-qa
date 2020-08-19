@@ -27,16 +27,15 @@ public class InferredModifiedResidueCheck extends AbstractQACheck {
     }
 
     private String getReportLine(GKInstance modifiedResidue) throws Exception {
-        String modifiedResidueCreatedName = QACheckerHelper.getInstanceAttributeNameForOutputReport(modifiedResidue, ReactomeJavaConstants.created);
-        return String.join(
+        return String.join("\t",
                 modifiedResidue.getDBID().toString(),
                 modifiedResidue.getDisplayName(),
-                modifiedResidueCreatedName
+                QACheckerHelper.getLastModificationAuthor(modifiedResidue)
         );
     }
 
     private String[] getColumnHeaders() {
-        return new String[]{"DB_ID_MR", "DisplayName_MR", "Created_MR"};
+        return new String[]{"DB_ID_MR", "DisplayName_MR", "MostRecentAuthor_MR"};
     }
 
     @Override
