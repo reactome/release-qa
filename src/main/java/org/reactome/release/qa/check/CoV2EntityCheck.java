@@ -17,7 +17,6 @@ import java.util.Set;
 public class CoV2EntityCheck extends AbstractQACheck {
 
     private static final long cov1SpeciesDbId = 9678119L;
-    private static final long cov2SpeciesDbId = 9681683L;
     private static final long cov2InfectionPathwayDbId = 9694516L;
 
     @Override
