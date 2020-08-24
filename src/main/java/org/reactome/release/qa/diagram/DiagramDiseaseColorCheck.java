@@ -92,6 +92,9 @@ public class DiagramDiseaseColorCheck extends AbstractDiagramQACheck {
         if (instance == null)
             return true;
 
+        if (instance.getSchemClass().isa(ReactomeJavaConstants.Pathway))
+            return true;
+
         if (!instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease))
             return true;
 
