@@ -91,8 +91,9 @@ public class DiagramDrugColorCheck extends AbstractDiagramQACheck {
         if (component.getReactomeId() == null || instance == null)
             return true;
 
-        // Drug color check.
-        if (!InstanceUtilities.hasDrug(instance))
+        // If instance is not a drug nor has a drug, skip further color tests.
+        if (!instance.getSchemClass().isa(ReactomeJavaConstants.Drug) ||
+            !InstanceUtilities.hasDrug(instance))
             return true;
 
         // Drug background and foreground check.
