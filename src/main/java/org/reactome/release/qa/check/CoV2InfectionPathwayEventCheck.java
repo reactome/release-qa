@@ -90,7 +90,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
 
     private boolean hasCorrectSummationFormat(GKInstance cov2Event) throws Exception {
         // Can't do full 'text' of the COVID inference message since displayNames get truncated.
-        String inferredEventCovidText = "This COVID-19 " + cov2Event.getSchemClass().getName() + " instance was generated";
+        String inferredEventCovidText = "This COVID 19 event has been created by a combination";
         for (GKInstance summation : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.summation)) {
             String displayName = summation.getDisplayName();
             String text = summation.getAttributeValue(ReactomeJavaConstants.text).toString();
