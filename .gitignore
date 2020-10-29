@@ -35,3 +35,7 @@ ContributorsCheck/contributors-check/src/main/resources/auth.properties
 .recommenders
 NullCheck/src/main/resources/auth.properties
 auth.properties
+
+# IntelliJ Files
+.idea/
+release-qa.iml
