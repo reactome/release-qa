@@ -2,6 +2,8 @@ package org.reactome.release.qa.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -169,4 +171,15 @@ public abstract class AbstractQACheck implements QACheck {
         return words;
     }
 
+    /**
+     * Checks contents of skiplist, which should be a list of skippable DbIds, to see if incoming instance should be skipped.
+     * @param inst - GKInstance, instance being checked.
+     * @param skiplistFilename - String, filename of skiplist.
+     * @return - boolean, true if inst DbId is in skiplist, false if not.
+     * @throws IOException, thrown if 'skiplistFilename' doesn't exist as a file.
+     */
+    protected static boolean inSkipList(GKInstance inst, String skiplistFilename) throws IOException {
+        List<String> skiplist = Files.readAllLines(Paths.get(skiplistFilename));
+        return skiplist.contains(inst.getDBID().toString());
+    }
 }

@@ -7,6 +7,8 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -16,13 +18,13 @@ import java.util.*;
 @SliceQACheck
 public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
-    private static final String INNATE_IMMUNITY_PATHWAY_DBID = "168249";
     private List<String> skiplistDbIds = new ArrayList<>();
+    private static final String skiplist = "resources/human_reactions_without_disease_and_have_nonhuman_physicalentities.txt";
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        this.skiplistDbIds.add(INNATE_IMMUNITY_PATHWAY_DBID);
+        this.skiplistDbIds.addAll(Files.readAllLines(Paths.get(skiplist)));
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {

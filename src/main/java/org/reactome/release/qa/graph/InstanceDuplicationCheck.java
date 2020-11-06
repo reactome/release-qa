@@ -37,7 +37,7 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
     private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
-
+    private static final String skiplist = "resources/instance_duplication_skip_list.txt";
     public InstanceDuplicationCheck() {
     }
 
@@ -76,6 +76,9 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
         StringBuilder builder = new StringBuilder();
         for (GKInstance instance : instances) {
             if (isEscaped(instance)) {
+                continue;
+            }
+            if (inSkipList(instance, skiplist)) {
                 continue;
             }
             builder.setLength(0);

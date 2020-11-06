@@ -23,6 +23,7 @@ import org.reactome.release.qa.common.QAReport;
 public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
     private final Long ORCID_DBID = 5334734L;
+    private static final String skiplist = "resources/orcid_crossreference_skip_list.txt";
 
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -52,6 +53,9 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
             List<GKInstance> orcids = new ArrayList<GKInstance>();
             for (GKInstance crossRef : crossRefs) {
+                if (inSkipList(crossRef, skiplist)) {
+                    continue;
+                }
                 GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
                 if (refDb.getDBID().equals(ORCID_DBID))
                     orcids.add(crossRef);

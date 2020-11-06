@@ -22,7 +22,8 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
     public SingleAttributeSoleValueCheck() {
         super("= 1");
     }
-    
+
+    private static final String skiplist = "resources/attribute_has_only_one_value_skip_list.txt";
     /**
      * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
      */
@@ -31,6 +32,11 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         if (super.isEscaped(inst, attName)) {
             return true;
         }
+        // Check if instance DbId is in skiplist.
+        if (super.inSkipList(inst, skiplist)) {
+            return true;
+        }
+
         if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway) && 
                 attName.equals(ReactomeJavaConstants.hasEvent)) {
             GKInstance disease = (GKInstance) inst.getAttributeValue(ReactomeJavaConstants.disease);

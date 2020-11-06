@@ -32,6 +32,7 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQACheck
 public class ChimericInstancesCheck extends AbstractQACheck {
 
+    private static final String skiplist = "resources/chimerism_reference_constraint_violations.txt";
     @Override
     public String getDisplayName() {
         return "Chimerism_Reference_Constraint_Violations";
@@ -67,6 +68,9 @@ public class ChimericInstancesCheck extends AbstractQACheck {
                                                      ReactomeJavaConstants.hasComponent});
         for (GKInstance rle : rles) {
             if (isEscaped(rle)) {
+                continue;
+            }
+            if (inSkipList(rle, skiplist)) {
                 continue;
             }
             if (QACheckerHelper.isChimeric(rle)) {
