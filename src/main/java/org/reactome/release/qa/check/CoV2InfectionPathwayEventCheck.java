@@ -12,24 +12,48 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * These QA checks were mostly used during the CoV-1-to-CoV-2 inference process. For now they are being kept, but may
+ * be removed, given they are for very specific scenarios (August 2020).
+ *
+ * This QA check class evaluates various properties of the Events contained within the 'SARS-CoV-2 Infection' Pathway.
+ * This Pathway was created using a modified version of orthoinference to expedite Reactome's annotations of CoV-2 data.
+ * Reports: 1a) Event Summation instances with discrepancy between their 'created' and modified' dateTimes
+ * or 1b) Summations without a modified instance - they need to have been modified at least once to reflect an update to the
+ * Summation text. 2) Events that don't contain at least 1 2020 literatureReference. Events where the summation format
+ * is not correct, also have the following checks: 3a) Events where the inferredFrom slot is empty despite having received
+ * the correct COVID inference summation text. 3b) Events where the inferredFrom is populated but the updated summation text
+ * hasn't been updated. These are complementary cases, and just served to notify the curator of a possible mistake with
+ * CoV-2 instances.
+ *
+ * @author jcook
+ */
+
 @SliceQACheck
 public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
-
-    private static final long cov2InfectionPathwayDbId = 9694516L;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
-        GKInstance cov2InfectionInst = dba.fetchInstance(cov2InfectionPathwayDbId);
+        GKInstance cov2InfectionInst = dba.fetchInstance(QACheckerHelper.getCoV2InfectionPathwayDbId());
+
+        // Get all Events contained within 'SARS-CoV-2 Infection' pathway.
         for (GKInstance cov2Event : InstanceUtilities.getContainedEvents(cov2InfectionInst)) {
             List<String> issues = new ArrayList<>();
+            // If does not have any modified instances, or if created instance predates most recent modified instance.
             if (!hasRecentlyModifiedSummation(cov2Event)) {
                 issues.add("Summation instance has not been recently modified");
             }
+
+            // inferredFrom being null is a proxy for curator being 'done' with instance. Therefore, if it is null and the
+            // issue is being reported, it indicates they likely made an error.
+            // If literatureReference attribute does not contain at least 1 litRef from 2020.
             if (cov2Event.getAttributeValue(ReactomeJavaConstants.inferredFrom) == null && !hasRecentLiteratureReference(cov2Event)) {
                 issues.add("Does not contain a 2020 literature reference");
             }
+            // Summation text was updated near end of release cycle where CoV-1-to-CoV-2 projections happened.
+            // If it didn't have the updated text, there are two reasons for it, outlined below.
             if (!hasCorrectSummationFormat(cov2Event)) {
                 if (cov2Event.getAttributeValue(ReactomeJavaConstants.inferredFrom) == null) {
                     issues.add("InferredFrom is empty but instance has COVID inference summation text");
@@ -45,6 +69,14 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
         return report;
     }
 
+    /**
+     * Checks if instance created dateTime is before most recent modified instance's dateTime. Also checks if
+     * any modified instance is present -- it should be given that there was at least 1 required modification from the
+     * CoV-1-to-CoV-2 merge.
+     * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
+     * @return - boolean, true if modification property looks correct, false if not.
+     * @throws Exception, thrown by MySQLAdaptor.
+     */
     private boolean hasRecentlyModifiedSummation(GKInstance cov2Event) throws Exception {
        for (GKInstance summation : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.summation)) {
             GKInstance createdInst = (GKInstance) summation.getAttributeValue(ReactomeJavaConstants.created);
@@ -58,6 +90,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
                 if (createdDateTime > modifiedDateTime) {
                     return false;
                 }
+            // Should be at least 1 modified instance in CoV-1-to-CoV-2 instances.
             } else {
                 return false;
             }
@@ -65,10 +98,16 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
         return true;
     }
 
+    /**
+     * Checks if Event has a 2020 literatureReference. This is because CoV-2 evidence was very recent when this was being evaluated.
+     * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
+     * @return - boolean, true if at least 1 2020 literatureReference, false if not.
+     * @throws Exception, thrown by MySQLAdaptor.
+     */
     private boolean hasRecentLiteratureReference(GKInstance cov2Event) throws Exception {
 
         boolean has2020LiteratureReference = false;
-
+        // Iterature through all literatureReference instances, checking the 'year' attribute.
         for (GKInstance literatureReference : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.literatureReference)) {
             if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
                 if (literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString().equals("2020")) {
@@ -88,9 +127,16 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
         return has2020LiteratureReference;
     }
 
+    /**
+     * Checks that the Event's Summation instance contains the updated Summation text, in both the 'text' and 'displayName'.
+     * Since displayNames sometimes truncate summation names, only the first part of the sentence is checked.
+     * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
+     * @return - boolean, true if contains updated Summation text, false if not.
+     * @throws Exception, thrown by MySQLAdaptor.
+     */
     private boolean hasCorrectSummationFormat(GKInstance cov2Event) throws Exception {
         // Can't do full 'text' of the COVID inference message since displayNames get truncated.
-        String inferredEventCovidText = "This COVID 19 event has been created by a combination";
+        String inferredEventCovidText = "This COVID-19 event has been created by a combination";
         for (GKInstance summation : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.summation)) {
             String displayName = summation.getDisplayName();
             String text = summation.getAttributeValue(ReactomeJavaConstants.text).toString();

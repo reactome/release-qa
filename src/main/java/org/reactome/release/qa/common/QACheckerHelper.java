@@ -19,6 +19,13 @@ public class QACheckerHelper {
     
     public static final String IS_NOT_NULL = "IS NOT NULL";
     public static final String IS_NULL = "IS NULL";
+
+    // Variables for CoV-specific QA tests, from the CoV-1-to-CoV-2 projection process (August 2020).
+    private static final long cov2InfectionPathwayDbId = 9694516L;
+    private static final long cov1SpeciesDbId = 9678119L;
+    private static final long cov2SpeciesDbId = 9681683L;
+    private static final long cov1DiseaseDbId = 9678120L;
+    private static final long cov2DiseaseDbId = 9683912L;
     
     /**
      * Filter a list of DB ids by the DB ids in skipList.
@@ -518,5 +525,35 @@ public class QACheckerHelper {
         }
         return attributeInstance != null ? attributeInstance.getDisplayName() : "N/A";
     }
-    
+
+    /**
+     * @return - long, DBID for 'SARS-CoV-2 Infection' Pathway instance.
+     */
+    public static long getCoV2InfectionPathwayDbId() {
+        return cov2InfectionPathwayDbId;
+    }
+    /**
+     * @return - long, DBID for 'Human SARS coronavirus' (CoV-1) Species instance.
+     */
+    public static long getCoV1SpeciesDbId() {
+        return cov1SpeciesDbId;
+    }
+    /**
+     * @return - long, DBID for 'Severe acute respiratory syndrome coronavirus 2' (CoV-2) Species instance.
+     */
+    public static long getCoV2SpeciesDbId() {
+        return cov2SpeciesDbId;
+    }
+    /**
+     * @return - long, DBID for 'severe acute respiratory syndrome' Disease instance.
+     */
+    public static long getCoV1DiseaseDbId() {
+        return cov1DiseaseDbId;
+    }
+    /**
+     * @return - long, DBID for 'COVID-19' Disease instance.
+     */
+    public static long getCoV2DiseaseDbId() {
+        return cov2DiseaseDbId;
+    }
 }

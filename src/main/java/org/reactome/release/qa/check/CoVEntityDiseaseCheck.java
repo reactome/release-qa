@@ -1,7 +1,6 @@
 package org.reactome.release.qa.check;
 
 import org.gk.model.GKInstance;
-import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
@@ -13,19 +12,25 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This QA check was mostly used during the CoV-1-to-CoV-2 inference process. For now it is being kept, but may
+ * be removed, given it was for a specific curations (August 2020).
+ *
+ * This checks for instances that have either a CoV-1 or CoV-2 species without the corresponding disease attribute.
+ * For CoV-1 instances, they would be missing 'severe acute respiratory disease' (9678120). For CoV-2 instances, they
+ * would be missing 'COVID-19' (9683912).
+ *
+ * @author jcook
+ */
+
 @SliceQACheck
 public class CoVEntityDiseaseCheck extends AbstractQACheck {
-
-    private static final long cov1SpeciesDbId = 9678119L;
-    private static final long cov1DiseaseDbId = 9678120L;
-
-    private static final long cov2SpeciesDbId = 9681683L;
-    private static final long cov2DiseaseDbId = 9683912L;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
+        // Fetches all Events and PhysicalEntities in DB
         Collection<GKInstance> eventsAndPhysicalEntities = new ArrayList<>();
         eventsAndPhysicalEntities.addAll(dba.fetchInstancesByClass(ReactomeJavaConstants.Event));
         eventsAndPhysicalEntities.addAll(dba.fetchInstancesByClass(ReactomeJavaConstants.PhysicalEntity));
@@ -33,6 +38,7 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
         for (GKInstance instance : eventsAndPhysicalEntities) {
             Set<Long> speciesDbIds = new HashSet<>();
             Set<Long> diseaseDbIds = new HashSet<>();
+            // Get all species, relatedSpecies, and disease instances within instance being checked
             if (instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
                 for (GKInstance species : (Collection<GKInstance>) instance.getAttributeValuesList(ReactomeJavaConstants.species)) {
                     speciesDbIds.add(species.getDBID());
@@ -48,11 +54,12 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
                     diseaseDbIds.add(disease.getDBID());
                 }
             }
-            if (speciesDbIds.contains(cov2SpeciesDbId) && !diseaseDbIds.contains(cov2DiseaseDbId)) {
-                report.addLine(getReportLine(instance, "COV-2 species without COVID-19 disease"));
-            }
-            if (speciesDbIds.contains(cov1SpeciesDbId) && !diseaseDbIds.contains(cov1DiseaseDbId)) {
+            // Check for missing disease attributes for CoV instances.
+            if (speciesDbIds.contains(QACheckerHelper.getCoV1SpeciesDbId()) && !diseaseDbIds.contains(QACheckerHelper.getCoV1DiseaseDbId())) {
                 report.addLine(getReportLine(instance, "COV-1 species without severe acute respiratory syndrome disease"));
+            }
+            if (speciesDbIds.contains(QACheckerHelper.getCoV2SpeciesDbId()) && !diseaseDbIds.contains(QACheckerHelper.getCoV2DiseaseDbId())) {
+                report.addLine(getReportLine(instance, "COV-2 species without COVID-19 disease"));
             }
         }
 
@@ -76,6 +83,6 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Entities_With_COV_Species_Without_Corresponding_Disease";
+        return "Entities_With_CoV_Species_Without_Corresponding_Disease";
     }
 }

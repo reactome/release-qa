@@ -154,6 +154,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.reactome.release</groupId>
+            <artifactId>release-common-lib</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>

@@ -9,6 +9,15 @@ import org.reactome.release.qa.common.QAReport;
 
 import java.util.Collection;
 
+/**
+ *  This QA check was mostly used during the CoV-1-to-CoV-2 inference process. For now it is being kept, but may
+ *  be removed, given it was for a specific curations (August 2020).
+ *
+ *  Flags an ModifiedResidue instances that have the string '[INFERRED]' in their displayName.
+ *
+ * @author jcook
+ */
+
 @SliceQACheck
 public class InferredModifiedResidueCheck extends AbstractQACheck {
 
