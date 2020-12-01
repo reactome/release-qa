@@ -8,6 +8,7 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -36,10 +37,10 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
-        GKInstance cov2InfectionInst = dba.fetchInstance(QACheckerHelper.getCoV2InfectionPathwayDbId());
+        GKInstance cov2InfectionPathwayInst = dba.fetchInstance(QACheckerHelper.COV_2_INFECTION_PATHWAY_DB_ID);
 
         // Get all Events contained within 'SARS-CoV-2 Infection' pathway.
-        for (GKInstance cov2Event : InstanceUtilities.getContainedEvents(cov2InfectionInst)) {
+        for (GKInstance cov2Event : InstanceUtilities.getContainedEvents(cov2InfectionPathwayInst)) {
             List<String> issues = new ArrayList<>();
             // If does not have any modified instances, or if created instance predates most recent modified instance.
             if (!hasRecentlyModifiedSummation(cov2Event)) {
@@ -85,9 +86,9 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
                 // At time of writing (August 2020), nothing is reported from this clause, but it is a good check.
                 GKInstance mostRecentModifiedInst = modifieds.get(modifieds.size() - 1);
                 // Only check Year/Month/Day since the changes took place more than a day before Curators got to look at them in gk_central.
-                int createdDateTime = Integer.valueOf(createdInst.getAttributeValue(ReactomeJavaConstants.dateTime).toString().split(" ")[0].replaceAll("-", ""));
-                int modifiedDateTime = Integer.valueOf(mostRecentModifiedInst.getAttributeValue(ReactomeJavaConstants.dateTime).toString().split(" ")[0].replaceAll("-", ""));
-                if (createdDateTime > modifiedDateTime) {
+                LocalDate createdDateTime = getDateTimeFromInstance(createdInst);
+                LocalDate modifiedDateTime = getDateTimeFromInstance(mostRecentModifiedInst);
+                if (createdDateTime.isAfter(modifiedDateTime)) {
                     return false;
                 }
             // Should be at least 1 modified instance in CoV-1-to-CoV-2 instances.
@@ -96,6 +97,17 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
             }
        }
         return true;
+    }
+
+    /**
+     * Parses out the Date from dateTime attribute of the incoming InstanceEdit instance type.
+     * This value is formatted as 'yyyy-MM-dd hh:mm:ss', and the 'date' portion (1st half) is all that is needed for this test.
+     * @param instanceEditInst - GKInstance, from either the 'created' or 'modified' attribute of an instance.
+     * @return - LocalDate, in the format 'yyyy-MM-dd'.
+     * @throws Exception, thrown by MySQLAdaptor.
+     */
+    private LocalDate getDateTimeFromInstance(GKInstance instanceEditInst) throws Exception {
+        return LocalDate.parse(instanceEditInst.getAttributeValue(ReactomeJavaConstants.dateTime).toString().split(" ")[0]);
     }
 
     /**
@@ -112,6 +124,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
             if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
                 if (literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString().equals("2020")) {
                     has2020LiteratureReference = true;
+                    break;
                 }
             } else if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.URL)){
                 // Only 10 URL-type LiteratureReferences currently exist in the Database for CoV-2 instances (August 2020).
@@ -121,7 +134,9 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
                 String url = literatureReference.getAttributeValue(ReactomeJavaConstants.uniformResourceLocator).toString();
                 if (url.contains("2020.")) {
                     has2020LiteratureReference = true;
+                    break;
                 }
+
             }
         }
         return has2020LiteratureReference;

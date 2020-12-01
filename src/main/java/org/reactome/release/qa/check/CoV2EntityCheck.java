@@ -29,40 +29,29 @@ public class CoV2EntityCheck extends AbstractQACheck {
         QAReport report = new QAReport();
 
         // Get all contained events within 'SARS-CoV-2 Infection' Pathway, including 'SARS-CoV-2 Infection'.
-        GKInstance cov2InfectionInst = dba.fetchInstance(QACheckerHelper.getCoV2InfectionPathwayDbId());
-        Collection<GKInstance> cov2Events = InstanceUtilities.getContainedEvents(cov2InfectionInst);
-        cov2Events.add(cov2InfectionInst);
+        GKInstance cov2InfectionPathwayInst = dba.fetchInstance(QACheckerHelper.COV_2_INFECTION_PATHWAY_DB_ID);
+        Collection<GKInstance> cov2Events = InstanceUtilities.getContainedEvents(cov2InfectionPathwayInst);
+        cov2Events.add(cov2InfectionPathwayInst);
 
         for (GKInstance cov2Event : cov2Events) {
-            Set<GKInstance> cov2Instances = new HashSet<>();
-            cov2Instances.add(cov2Event);
+            Set<GKInstance> cov2EventAndDirectParticipants = new HashSet<>();
+            cov2EventAndDirectParticipants.add(cov2Event);
             // Find all PhysicalEntities within Event
             if (cov2Event.getSchemClass().isa(ReactomeJavaConstants.ReactionlikeEvent)) {
-                cov2Instances.addAll(InstanceUtilities.getReactionParticipants(cov2Event));
+                cov2EventAndDirectParticipants.addAll(InstanceUtilities.getReactionParticipants(cov2Event));
             }
             // Iterate through all Events/PhysicalEntities
-            for (GKInstance inst : cov2Instances) {
+            for (GKInstance inst : cov2EventAndDirectParticipants) {
                 // Get all instances within 'species' and 'relatedSpecies' attributes
-                Set<Long> speciesDbIds = new HashSet<>();
-                if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
-                    for (GKInstance speciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(ReactomeJavaConstants.species)) {
-                        speciesDbIds.add(speciesInst.getDBID());
-                    }
-                }
-                if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.relatedSpecies)) {
-                    for (GKInstance relatedSpeciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(ReactomeJavaConstants.relatedSpecies)) {
-                        speciesDbIds.add(relatedSpeciesInst.getDBID());
-                    }
-                }
+                Set<Long> speciesDbIds = QACheckerHelper.getSpeciesAndRelatedSpeciesDbIds(inst);
                 // Check if any species instance DbIds match the CoV-1 species DbId
-                if (speciesDbIds.contains(QACheckerHelper.getCoV1SpeciesDbId())) {
+                if (speciesDbIds.contains(QACheckerHelper.COV_1_SPECIES_DB_ID)) {
                     report.addLine(getReportLine(cov2Event, inst, "CoV-1 species found in CoV-2 instance"));
                 }
-                // Check displayName as well
-                if (inst.getDisplayName().contains("V-1")
-                        || inst.getDisplayName().contains("v-1")
-                        || inst.getDisplayName().contains("v1")
-                        || inst.getDisplayName().contains("V1")) {
+                // Check displayName as well for CoV-2 instances that contain any variation of 'CoV-1' in their display name.
+                // This includes capitalized and hyphenated variations (v1, v-1, V1, V-1).
+                String cov1Regex = "^.*?[vV]-?1.*?$";
+                if (inst.getDisplayName().matches(cov1Regex)) {
                     report.addLine(getReportLine(cov2Event, inst, "CoV-1 displayName found in CoV-2 instance"));
                 }
             }

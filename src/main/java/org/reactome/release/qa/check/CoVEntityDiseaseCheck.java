@@ -36,30 +36,19 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
         eventsAndPhysicalEntities.addAll(dba.fetchInstancesByClass(ReactomeJavaConstants.PhysicalEntity));
 
         for (GKInstance instance : eventsAndPhysicalEntities) {
-            Set<Long> speciesDbIds = new HashSet<>();
-            Set<Long> diseaseDbIds = new HashSet<>();
             // Get all species, relatedSpecies, and disease instances within instance being checked
-            if (instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
-                for (GKInstance species : (Collection<GKInstance>) instance.getAttributeValuesList(ReactomeJavaConstants.species)) {
-                    speciesDbIds.add(species.getDBID());
-                }
-            }
-            if (instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.relatedSpecies)) {
-                for (GKInstance relSpecies : (Collection<GKInstance>) instance.getAttributeValuesList(ReactomeJavaConstants.relatedSpecies)) {
-                    speciesDbIds.add(relSpecies.getDBID());
-                }
-            }
+            Set<Long> speciesDbIds = QACheckerHelper.getSpeciesAndRelatedSpeciesDbIds(instance);
+
+            Set<Long> diseaseDbIds = new HashSet<>();
             if (instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease)) {
                 for (GKInstance disease : (Collection<GKInstance>) instance.getAttributeValuesList(ReactomeJavaConstants.disease)) {
                     diseaseDbIds.add(disease.getDBID());
                 }
             }
+
             // Check for missing disease attributes for CoV instances.
-            if (speciesDbIds.contains(QACheckerHelper.getCoV1SpeciesDbId()) && !diseaseDbIds.contains(QACheckerHelper.getCoV1DiseaseDbId())) {
-                report.addLine(getReportLine(instance, "COV-1 species without severe acute respiratory syndrome disease"));
-            }
-            if (speciesDbIds.contains(QACheckerHelper.getCoV2SpeciesDbId()) && !diseaseDbIds.contains(QACheckerHelper.getCoV2DiseaseDbId())) {
-                report.addLine(getReportLine(instance, "COV-2 species without COVID-19 disease"));
+            if (hasCoVSpeciesWithoutDisease(speciesDbIds, diseaseDbIds)) {
+                report.addLine(getReportLine(instance, speciesDbIds));
             }
         }
 
@@ -67,7 +56,24 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
         return report;
     }
 
-    private String getReportLine(GKInstance instance, String issue) {
+    private boolean hasCoVSpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+        return hasCoV1SpeciesWithoutDisease(speciesDbIds, diseaseDbIds) || hasCoV2SpeciesWithoutDisease(speciesDbIds, diseaseDbIds);
+
+    }
+
+    private boolean hasCoV1SpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+        return speciesDbIds.contains(QACheckerHelper.COV_1_SPECIES_DB_ID) && !diseaseDbIds.contains(QACheckerHelper.COV_1_DISEASE_DB_ID);
+    }
+
+    private boolean hasCoV2SpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+        return speciesDbIds.contains(QACheckerHelper.COV_2_SPECIES_DB_ID) && !diseaseDbIds.contains(QACheckerHelper.COV_2_DISEASE_DB_ID);
+    }
+
+    private String getReportLine(GKInstance instance, Set<Long> speciesDbIds) {
+        String issue = hasCoV1Species(speciesDbIds) ?
+                "COV-1 species without severe acute respiratory syndrome disease" :
+                "COV-2 species without COVID-19 disease";
+
         return String.join("\t",
                 instance.getDBID().toString(),
                 instance.getDisplayName(),
@@ -75,6 +81,10 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
                 QACheckerHelper.getLastModificationAuthor(instance),
                 issue
         );
+    }
+
+    private boolean hasCoV1Species(Set<Long> speciesDbIds) {
+        return speciesDbIds.contains(QACheckerHelper.COV_1_SPECIES_DB_ID);
     }
 
     private String[] getColumnHeaders() {

@@ -27,7 +27,7 @@ public class InferredModifiedResidueCheck extends AbstractQACheck {
 
         Collection<GKInstance> modifiedResidues = dba.fetchInstancesByClass(ReactomeJavaConstants.AbstractModifiedResidue);
         for (GKInstance modifiedResidue : modifiedResidues) {
-            if (modifiedResidue.getDisplayName().contains("[INFERRED]")) {
+            if (modifiedResidue.getDisplayName() != null && modifiedResidue.getDisplayName().contains("[INFERRED]")) {
                 report.addLine(getReportLine(modifiedResidue));
             }
         }
