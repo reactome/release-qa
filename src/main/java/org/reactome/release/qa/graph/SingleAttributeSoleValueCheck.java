@@ -3,6 +3,7 @@ package org.reactome.release.qa.graph;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.GraphQACheck;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * This check reports instances with exactly one value in a specified
@@ -23,17 +24,20 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         super("= 1");
     }
 
-    private static final String SKIP_LIST_FILE_PATH = "resources/attribute_has_only_one_value_skip_list.txt";
+    private SkipList skipList;
     /**
      * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
      */
     @Override
     protected boolean isEscaped(GKInstance inst, String attName) throws Exception {
+
+        skipList = new SkipList(this.getDisplayName());
+
         if (super.isEscaped(inst, attName)) {
             return true;
         }
-        // Check if instance DbId is in SKIP_LIST_FILE_PATH.
-        if (super.inSkipList(inst, SKIP_LIST_FILE_PATH)) {
+        // Check if instance DbId is in skipList.
+        if (skipList.inSkipList(inst)) {
             return true;
         }
 

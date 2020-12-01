@@ -13,6 +13,7 @@ import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 @GraphQACheck
 public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck {
@@ -20,7 +21,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
     private static final Logger logger =
             Logger.getLogger(ReactionsSingleInputOutputSchemaClassCheck.class);
 
-    private static final String SKIP_LIST_FILE_PATH = "resources/reaction_single_input_output_schema_not_matched_skip_list.txt";
+    private SkipList skipList;
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "Input_Schema_Class", "Output_Schema_Class", "MostRecentAuthor");
@@ -34,6 +35,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+        skipList = new SkipList(this.getDisplayName());
 
         Collection<GKInstance> rles = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         String[] loadAtts = {
@@ -45,7 +47,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
             if (isEscaped(rle)) {
                 continue;
             }
-            if (inSkipList(rle, SKIP_LIST_FILE_PATH)) {
+            if (skipList.inSkipList(rle)) {
                 continue;
             }
 

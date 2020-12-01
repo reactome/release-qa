@@ -18,6 +18,7 @@ import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * Sometimes two attributes should not refer to the same instance. For example,
@@ -29,11 +30,13 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQACheck
 public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     private static final Logger logger = Logger.getLogger(TwoAttributesReferToSameCheck.class);
-    private static final String SKIP_LIST_FILE_PATH = "resources/two_attributes_refer_to_same_instance_skip_list.txt";
+    private SkipList skipList;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+        skipList = new SkipList(this.getDisplayName());
+
         List<CheckConfiguration> configurations = loadConfiguration();
         if (configurations == null || configurations.size() == 0)
             return report; // Nothing to be checked
@@ -91,7 +94,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
             if (isEscaped(inst)) {
                 continue;
             }
-            if (inSkipList(inst, SKIP_LIST_FILE_PATH)) {
+            if (skipList.inSkipList(inst)) {
                 continue;
             }
             Long valueId = result.getLong(2);

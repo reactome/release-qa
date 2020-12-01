@@ -13,6 +13,7 @@ import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * Reports ReactionlikeEvent and Complexes for which one of the following conditions hold:
@@ -30,9 +31,10 @@ import org.reactome.release.qa.common.QAReport;
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
-public class ChimericInstancesCheck extends AbstractQACheck {
+public class ChimericInstancesCheck extends AbstractQACheck{
 
-    private static final String SKIP_LIST_FILE_PATH = "resources/chimerism_reference_constraint_violations.txt";
+    private SkipList skipList;
+
     @Override
     public String getDisplayName() {
         return "Chimerism_Reference_Constraint_Violations";
@@ -41,7 +43,9 @@ public class ChimericInstancesCheck extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        
+
+        skipList = new SkipList(this.getDisplayName());
+
         String[] clsNames = {ReactomeJavaConstants.ReactionlikeEvent,
                              ReactomeJavaConstants.Complex};
         for (String cls : clsNames) {
@@ -70,7 +74,7 @@ public class ChimericInstancesCheck extends AbstractQACheck {
             if (isEscaped(rle)) {
                 continue;
             }
-            if (inSkipList(rle, SKIP_LIST_FILE_PATH)) {
+            if (skipList.inSkipList(rle)) {
                 continue;
             }
             if (QACheckerHelper.isChimeric(rle)) {

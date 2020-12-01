@@ -23,6 +23,7 @@ import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * This class is used to check if two or more instances in the same class are duplicated.
@@ -37,13 +38,14 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
     private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
-    private static final String SKIP_LIST_FILE_PATH = "resources/instance_duplication_skip_list.txt";
+    private SkipList skipList;
     public InstanceDuplicationCheck() {
     }
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+        skipList = new SkipList(this.getDisplayName());
         List<String> classes = loadConfiguration();
         if (classes == null || classes.size() == 0)
             return report; // Nothing to be checked
@@ -78,7 +80,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             if (isEscaped(instance)) {
                 continue;
             }
-            if (inSkipList(instance, SKIP_LIST_FILE_PATH)) {
+            if (skipList.inSkipList(instance)) {
                 continue;
             }
             builder.setLength(0);

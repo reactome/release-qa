@@ -13,6 +13,7 @@ import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * WeeklyQA check to detect person instances that share the same ORCID id (crossreference).
@@ -23,11 +24,12 @@ import org.reactome.release.qa.common.QAReport;
 public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
     private final Long ORCID_DBID = 5334734L;
-    private static final String SKIP_LIST_FILE_PATH = "resources/orcid_crossreference_skip_list.txt";
+    private SkipList skipList;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+        skipList = new SkipList(this.getDisplayName());
         report.setColumnHeaders("CrossReference_DBID",
                                 "CrossReference_DisplayName",
                                 "Identifier",
@@ -53,7 +55,7 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
             List<GKInstance> orcids = new ArrayList<GKInstance>();
             for (GKInstance crossRef : crossRefs) {
-                if (inSkipList(crossRef, SKIP_LIST_FILE_PATH)) {
+                if (skipList.inSkipList(crossRef)) {
                     continue;
                 }
                 GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);

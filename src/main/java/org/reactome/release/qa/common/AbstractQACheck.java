@@ -169,38 +169,4 @@ public abstract class AbstractQACheck implements QACheck {
 
         return words;
     }
-
-    /**
-     * Checks contents of skipList, which should be a list of skippable DbIds, to see if incoming instance should be skipped.
-     * @param inst - GKInstance, instance being checked.
-     * @param skipListFileName - String, filename of skipList.
-     * @return - boolean, true if inst DbId is in skipList, false if not.
-     * @throws IOException, thrown if 'SKIP_LIST_FILE_NAME' doesn't exist as a file.
-     */
-    protected boolean inSkipList(GKInstance inst, String skipListFileName) throws IOException {
-        List<String> skiplist = readDbIdsFromFile(skipListFileName);
-        return skiplist.contains(inst.getDBID().toString());
-    }
-
-    /**
-     * Parses file that is formatted as a list of Reactome DbIds.
-     * @param skipListFileName - String, name of skip list file.
-     * @return - List<String>, Reactome database ids.
-     * @throws IOException, thrown if value in file can't be parsed as an integer.
-     */
-    protected List<String> readDbIdsFromFile(String skipListFileName) throws IOException {
-        List<String> skipList = new ArrayList<>();
-        for (String dbId : Files.readAllLines(Paths.get(skipListFileName))) {
-            // Ignore commenting lines
-            if (!dbId.startsWith("#")) {
-                try {
-                    Integer.parseInt(dbId);
-                    skipList.add(dbId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return skipList;
-    }
 }
