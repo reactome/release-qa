@@ -32,7 +32,7 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQACheck
 public class ChimericInstancesCheck extends AbstractQACheck {
 
-    private static final String skiplist = "resources/chimerism_reference_constraint_violations.txt";
+    private static final String SKIP_LIST_FILE_PATH = "resources/chimerism_reference_constraint_violations.txt";
     @Override
     public String getDisplayName() {
         return "Chimerism_Reference_Constraint_Violations";
@@ -70,7 +70,7 @@ public class ChimericInstancesCheck extends AbstractQACheck {
             if (isEscaped(rle)) {
                 continue;
             }
-            if (inSkipList(rle, skiplist)) {
+            if (inSkipList(rle, SKIP_LIST_FILE_PATH)) {
                 continue;
             }
             if (QACheckerHelper.isChimeric(rle)) {

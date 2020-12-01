@@ -8,15 +8,12 @@ import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
-import java.util.Collection;
-
 /**
  * Flags all human Reactions that contain non-disease PhysicalEntities that are non-human, or are human PhysicalEntities with relatedSpecies.
  */
 
-//NOTE: This QA test was turned off, as requested by Curation, in November 2020.
-//Uncomment below line to turn it back on.
-//@SliceQACheck
+
+@SliceQACheck
 public class HumanReactionsWithNonHumanPhysicalEntitiesWithoutDiseaseCheck extends AbstractQACheck {
 
     private static final long infectiousDiseasePathwayDbId = 5663205L;

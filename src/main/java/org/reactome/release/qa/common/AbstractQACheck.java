@@ -109,7 +109,6 @@ public abstract class AbstractQACheck implements QACheck {
     
     /**
      * Opens the file consisting of escaped instance DB ids.
-     * @param class the QA class
      * @throws IOException
      */
     private Set<Long> loadEscapedDbIds() throws IOException {
@@ -172,14 +171,36 @@ public abstract class AbstractQACheck implements QACheck {
     }
 
     /**
-     * Checks contents of skiplist, which should be a list of skippable DbIds, to see if incoming instance should be skipped.
+     * Checks contents of skipList, which should be a list of skippable DbIds, to see if incoming instance should be skipped.
      * @param inst - GKInstance, instance being checked.
-     * @param skiplistFilename - String, filename of skiplist.
-     * @return - boolean, true if inst DbId is in skiplist, false if not.
-     * @throws IOException, thrown if 'skiplistFilename' doesn't exist as a file.
+     * @param skipListFileName - String, filename of skipList.
+     * @return - boolean, true if inst DbId is in skipList, false if not.
+     * @throws IOException, thrown if 'SKIP_LIST_FILE_NAME' doesn't exist as a file.
      */
-    protected static boolean inSkipList(GKInstance inst, String skiplistFilename) throws IOException {
-        List<String> skiplist = Files.readAllLines(Paths.get(skiplistFilename));
+    protected boolean inSkipList(GKInstance inst, String skipListFileName) throws IOException {
+        List<String> skiplist = readDbIdsFromFile(skipListFileName);
         return skiplist.contains(inst.getDBID().toString());
+    }
+
+    /**
+     * Parses file that is formatted as a list of Reactome DbIds.
+     * @param skipListFileName - String, name of skip list file.
+     * @return - List<String>, Reactome database ids.
+     * @throws IOException, thrown if value in file can't be parsed as an integer.
+     */
+    protected List<String> readDbIdsFromFile(String skipListFileName) throws IOException {
+        List<String> skipList = new ArrayList<>();
+        for (String dbId : Files.readAllLines(Paths.get(skipListFileName))) {
+            // Ignore commenting lines
+            if (!dbId.startsWith("#")) {
+                try {
+                    Integer.parseInt(dbId);
+                    skipList.add(dbId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return skipList;
     }
 }

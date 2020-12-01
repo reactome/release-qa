@@ -23,7 +23,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         super("= 1");
     }
 
-    private static final String skiplist = "resources/attribute_has_only_one_value_skip_list.txt";
+    private static final String SKIP_LIST_FILE_PATH = "resources/attribute_has_only_one_value_skip_list.txt";
     /**
      * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
      */
@@ -32,8 +32,8 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         if (super.isEscaped(inst, attName)) {
             return true;
         }
-        // Check if instance DbId is in skiplist.
-        if (super.inSkipList(inst, skiplist)) {
+        // Check if instance DbId is in SKIP_LIST_FILE_PATH.
+        if (super.inSkipList(inst, SKIP_LIST_FILE_PATH)) {
             return true;
         }
 

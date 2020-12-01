@@ -29,7 +29,7 @@ import org.reactome.release.qa.common.QAReport;
 @GraphQACheck
 public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     private static final Logger logger = Logger.getLogger(TwoAttributesReferToSameCheck.class);
-    private static final String skiplist = "resources/two_attributes_refer_to_same_instance_skip_list.txt";
+    private static final String SKIP_LIST_FILE_PATH = "resources/two_attributes_refer_to_same_instance_skip_list.txt";
 
     @Override
     public QAReport executeQACheck() throws Exception {
@@ -91,7 +91,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
             if (isEscaped(inst)) {
                 continue;
             }
-            if (inSkipList(inst, skiplist)) {
+            if (inSkipList(inst, SKIP_LIST_FILE_PATH)) {
                 continue;
             }
             Long valueId = result.getLong(2);

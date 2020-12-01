@@ -20,7 +20,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
     private static final Logger logger =
             Logger.getLogger(ReactionsSingleInputOutputSchemaClassCheck.class);
 
-    private static final String skiplist = "resources/reaction_single_input_output_schema_not_matched_skip_list.txt";
+    private static final String SKIP_LIST_FILE_PATH = "resources/reaction_single_input_output_schema_not_matched_skip_list.txt";
 
     private static final List<String> HEADERS = Arrays.asList(
             "DBID", "DisplayName", "Input_Schema_Class", "Output_Schema_Class", "MostRecentAuthor");
@@ -45,7 +45,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
             if (isEscaped(rle)) {
                 continue;
             }
-            if (inSkipList(rle, skiplist)) {
+            if (inSkipList(rle, SKIP_LIST_FILE_PATH)) {
                 continue;
             }
 
