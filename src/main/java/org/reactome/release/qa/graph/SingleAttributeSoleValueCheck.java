@@ -37,7 +37,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
             return true;
         }
         // Check if instance DbId is in skipList.
-        if (skipList.inSkipList(inst)) {
+        if (skipList.containsInstanceDbId(inst)) {
             return true;
         }
 

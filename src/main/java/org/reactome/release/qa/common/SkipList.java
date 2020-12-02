@@ -16,8 +16,8 @@ public class SkipList {
 
     /**
      * The SkipList class contains functions for reading in an assumed skiplist, and checking its contents.
-     * The main assumption is that the skiplist file will be stored in a "resources" folder, and
-     * be in the format "step_name_skip_list.txt".
+     * The main assumption is that the skiplist file will be stored in a "resources" folder, which needs to be located
+     * in the same directory as the executor, and be in the format "step_name_skip_list.txt".
      * @param displayName - String, displayName of class calling SkipList class.
      * @throws IOException, thrown when file does not exist. Note: Does not terminate program.
      */
@@ -68,11 +68,11 @@ public class SkipList {
      * @param inst - GKInstance, instance being checked.
      * @return - boolean, true if inst DbId is in skipList, false if not.
      */
-    public boolean inSkipList(GKInstance inst) {
+    public boolean containsInstanceDbId(GKInstance inst) {
         return skipList.contains(inst.getDBID().toString());
     }
 
-    public List<String> getSkipList() {
+    public List<String> getSkipListDbIds() {
         return skipList;
     }
 }

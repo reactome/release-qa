@@ -74,36 +74,34 @@ public class ChimericInstancesCheck extends AbstractQACheck{
             if (isEscaped(rle)) {
                 continue;
             }
-            if (skipList.inSkipList(rle)) {
-                continue;
-            }
-            if (QACheckerHelper.isChimeric(rle)) {
-                if (!hasMultipleSpecies(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Chimeric but one or null species",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-                if (isNotUsedForInference(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Chimeric but not used for inference",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-            }
-            else {
-                if (hasMultipleSpecies(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Not chimeric but with multiple species",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-                if (isParticipantChimeric(rle)) {
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Not chimeric but with chimeric participant",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
+            if (!skipList.containsInstanceDbId(rle)) {
+                if (QACheckerHelper.isChimeric(rle)) {
+                    if (!hasMultipleSpecies(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Chimeric but one or null species",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    if (isNotUsedForInference(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Chimeric but not used for inference",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                } else {
+                    if (hasMultipleSpecies(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Not chimeric but with multiple species",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    if (isParticipantChimeric(rle)) {
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Not chimeric but with chimeric participant",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    }
                 }
             }
         }

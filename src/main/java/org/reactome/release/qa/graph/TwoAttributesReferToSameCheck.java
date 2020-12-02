@@ -94,20 +94,19 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
             if (isEscaped(inst)) {
                 continue;
             }
-            if (skipList.inSkipList(inst)) {
-                continue;
+            if (!skipList.containsInstanceDbId(inst)) {
+                Long valueId = result.getLong(2);
+                GKInstance value = dba.fetchInstance(valueId);
+                if (value == null)
+                    throw new IllegalStateException("Instance cannot be found for " + valueId + ".");
+                report.addLine(inst.getDBID() + "",
+                        inst.getDisplayName(),
+                        inst.getSchemClass().getName(),
+                        config.toString(),
+                        value.getDBID() + "",
+                        value.getDisplayName(),
+                        QACheckerHelper.getLastModificationAuthor(inst));
             }
-            Long valueId = result.getLong(2);
-            GKInstance value = dba.fetchInstance(valueId);
-            if (value == null)
-                throw new IllegalStateException("Instance cannot be found for " + valueId + ".");
-            report.addLine(inst.getDBID() + "",
-                           inst.getDisplayName(),
-                           inst.getSchemClass().getName(),
-                           config.toString(),
-                           value.getDBID() + "",
-                           value.getDisplayName(),
-                           QACheckerHelper.getLastModificationAuthor(inst));
         }
         result.close();
         stat.close();

@@ -27,7 +27,7 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck ex
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
             // isHumanDatabaseObject checks that the species attribute only contains a Homo sapiens species instance. Multi-species RlEs are excluded.
-            if (!QACheckerHelper.memberSkipListPathway(reaction, skipList.getSkipList())
+            if (!QACheckerHelper.memberSkipListPathway(reaction, skipList.getSkipListDbIds())
                     && QACheckerHelper.isHumanDatabaseObject(reaction)
                     && !QACheckerHelper.hasDisease(reaction)) {
 

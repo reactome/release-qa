@@ -80,30 +80,29 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             if (isEscaped(instance)) {
                 continue;
             }
-            if (skipList.inSkipList(instance)) {
-                continue;
+            if (!skipList.containsInstanceDbId(instance)) {
+                builder.setLength(0);
+                // Since the check may be run again subclass, which may have different
+                // defined attributes as the super class, we need to get the defined attributes
+                // directly from instance
+                GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
+                Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
+                List<SchemaAttribute> sorted = instDefinedAttributes.stream()
+                        .sorted((att1, att2) -> att1.getName().compareTo(att2.getName()))
+                        .collect(Collectors.toList());
+                for (SchemaAttribute att : sorted) {
+                    // att may be defined in the superclass and should not be used for query
+                    List<?> values = instance.getAttributeValuesList(att.getName());
+                    generateKeyFromValues(values, att, builder);
+                    builder.append("||");
+                }
+                keyToInsts.compute(builder.toString(), (key, set) -> {
+                    if (set == null)
+                        set = new HashSet<>();
+                    set.add(instance);
+                    return set;
+                });
             }
-            builder.setLength(0);
-            // Since the check may be run again subclass, which may have different
-            // defined attributes as the super class, we need to get the defined attributes
-            // directly from instance
-            GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
-            Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
-            List<SchemaAttribute> sorted = instDefinedAttributes.stream()
-                    .sorted((att1, att2) -> att1.getName().compareTo(att2.getName()))
-                    .collect(Collectors.toList());
-            for (SchemaAttribute att : sorted) {
-                // att may be defined in the superclass and should not be used for query
-                List<?> values = instance.getAttributeValuesList(att.getName());
-                generateKeyFromValues(values, att, builder);
-                builder.append("||");
-            }
-            keyToInsts.compute(builder.toString(), (key, set) -> {
-                if (set == null)
-                    set = new HashSet<>();
-                set.add(instance);
-                return set;
-            });
         }
         // Check duplication
         for (Set<GKInstance> duplicates : keyToInsts.values()) {

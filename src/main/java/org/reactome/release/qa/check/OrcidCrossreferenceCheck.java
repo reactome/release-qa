@@ -55,12 +55,11 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
             List<GKInstance> orcids = new ArrayList<GKInstance>();
             for (GKInstance crossRef : crossRefs) {
-                if (skipList.inSkipList(crossRef)) {
-                    continue;
+                if (!skipList.containsInstanceDbId(crossRef)) {
+                    GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
+                    if (refDb.getDBID().equals(ORCID_DBID))
+                        orcids.add(crossRef);
                 }
-                GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
-                if (refDb.getDBID().equals(ORCID_DBID))
-                    orcids.add(crossRef);
             }
 
             if (orcids.size() == 0) continue;
