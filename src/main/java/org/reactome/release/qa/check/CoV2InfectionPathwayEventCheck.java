@@ -121,22 +121,19 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
         boolean has2020LiteratureReference = false;
         // Iterature through all literatureReference instances, checking the 'year' attribute.
         for (GKInstance literatureReference : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.literatureReference)) {
-            if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
-                if (literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString().equals("2020")) {
+            if (!has2020LiteratureReference) {
+                if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference) && literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString().equals("2020")) {
                     has2020LiteratureReference = true;
-                    break;
+                } else if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.URL)) {
+                    // Only 10 URL-type LiteratureReferences currently exist in the Database for CoV-2 instances (August 2020).
+                    // All URLs are to pre-prints, and contain the string 'yyyy.mm.dd' in the URL.
+                    // Example: https://www.biorxiv.org/content/10.1101/2020.04.26.061705v1.full
+                    // This just simply checks for the existence of '2020.' in the URL string.
+                    String url = literatureReference.getAttributeValue(ReactomeJavaConstants.uniformResourceLocator).toString();
+                    if (url.contains("2020.")) {
+                        has2020LiteratureReference = true;
+                    }
                 }
-            } else if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.URL)){
-                // Only 10 URL-type LiteratureReferences currently exist in the Database for CoV-2 instances (August 2020).
-                // All URLs are to pre-prints, and contain the string 'yyyy.mm.dd' in the URL.
-                // Example: https://www.biorxiv.org/content/10.1101/2020.04.26.061705v1.full
-                // This just simply checks for the existence of '2020.' in the URL string.
-                String url = literatureReference.getAttributeValue(ReactomeJavaConstants.uniformResourceLocator).toString();
-                if (url.contains("2020.")) {
-                    has2020LiteratureReference = true;
-                    break;
-                }
-
             }
         }
         return has2020LiteratureReference;
