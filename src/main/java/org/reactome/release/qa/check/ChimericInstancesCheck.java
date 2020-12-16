@@ -44,7 +44,11 @@ public class ChimericInstancesCheck extends AbstractQACheck{
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
 
-        skipList = new SkipList(this.getDisplayName());
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         String[] clsNames = {ReactomeJavaConstants.ReactionlikeEvent,
                              ReactomeJavaConstants.Complex};

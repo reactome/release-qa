@@ -35,7 +35,12 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        skipList = new SkipList(this.getDisplayName());
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Collection<GKInstance> rles = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         String[] loadAtts = {

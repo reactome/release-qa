@@ -31,7 +31,11 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
     @Override
     protected boolean isEscaped(GKInstance inst, String attName) throws Exception {
 
-        skipList = new SkipList(this.getDisplayName());
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (super.isEscaped(inst, attName)) {
             return true;

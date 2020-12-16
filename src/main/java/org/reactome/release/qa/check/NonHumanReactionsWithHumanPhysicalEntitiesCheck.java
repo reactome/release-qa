@@ -16,7 +16,7 @@ import java.util.*;
 @SliceQACheck
 public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
-    private List<String> skiplistDbIds = new ArrayList<>();
+    private List<Long> skiplistDbIds = new ArrayList<>();
 
     @Override
     public QAReport executeQACheck() throws Exception {

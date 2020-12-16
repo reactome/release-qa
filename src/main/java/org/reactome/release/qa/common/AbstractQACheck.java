@@ -26,7 +26,7 @@ public abstract class AbstractQACheck implements QACheck {
 
     protected MySQLAdaptor dba;
 
-    protected final List<String> EMPTY_SKIP_LIST = Collections.emptyList();
+    protected final List<Long> EMPTY_SKIP_LIST = Collections.emptyList();
 
     private Set<Long> escDbIds;
     

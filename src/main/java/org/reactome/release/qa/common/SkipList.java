@@ -12,21 +12,21 @@ import java.util.List;
 
 public class SkipList {
 
-    public List<String> skipList = new ArrayList<>();
+    public List<Long> skipList;
 
     /**
      * The SkipList class contains functions for reading in an assumed skiplist, and checking its contents.
      * The main assumption is that the skiplist file will be stored in a "resources" folder, which needs to be located
      * in the same directory as the executor, and be in the format "step_name_skip_list.txt".
      * @param displayName - String, displayName of class calling SkipList class.
-     * @throws IOException, thrown when file does not exist. Note: Does not terminate program.
+     * @throws IOException, thrown when file does not exist or if contents of file can't be parsed into an Integer.
      */
     public SkipList(String displayName) throws IOException {
-        if (Files.exists(getSkipListFilePath(displayName))) {
-            skipList = readDbIdsFromSkipListFile(getSkipListFilePath(displayName));
+        Path skipListFilePath = getSkipListFilePath(displayName);
+        if (Files.exists(skipListFilePath)) {
+            skipList = readDbIdsFromSkipListFile(skipListFilePath);
         } else {
-            FileNotFoundException e = new FileNotFoundException();
-            e.printStackTrace();
+            throw new FileNotFoundException("Unable to open " + skipListFilePath.toString() + ", file not found!");
         }
     }
 
@@ -47,16 +47,15 @@ public class SkipList {
      * @return - List<String>, Reactome database ids.
      * @throws IOException, thrown if value in file can't be parsed as an integer.
      */
-    public List<String> readDbIdsFromSkipListFile(Path skipListFilePath) throws IOException {
-        List<String> skipListFromFile = new ArrayList<>();
+    public List<Long> readDbIdsFromSkipListFile(Path skipListFilePath) throws IOException {
+        List<Long> skipListFromFile = new ArrayList<>();
         for (String dbId : Files.readAllLines((skipListFilePath))) {
             // Ignore commenting lines
             if (!dbId.startsWith("#")) {
                 try {
-                    Integer.parseInt(dbId);
-                    skipListFromFile.add(dbId);
+                    skipListFromFile.add(Long.parseLong(dbId));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new IOException(e);
                 }
             }
         }
@@ -69,10 +68,10 @@ public class SkipList {
      * @return - boolean, true if inst DbId is in skipList, false if not.
      */
     public boolean containsInstanceDbId(GKInstance inst) {
-        return skipList.contains(inst.getDBID().toString());
+        return skipList.contains(inst.getDBID());
     }
 
-    public List<String> getSkipListDbIds() {
+    public List<Long> getSkipListDbIds() {
         return skipList;
     }
 }

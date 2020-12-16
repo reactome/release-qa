@@ -35,7 +35,12 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        skipList = new SkipList(this.getDisplayName());
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         List<CheckConfiguration> configurations = loadConfiguration();
         if (configurations == null || configurations.size() == 0)
@@ -89,13 +94,13 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
         PreparedStatement stat = connection.prepareStatement(query);
         ResultSet result = stat.executeQuery();
         while (result.next()) {
-            Long dbId = result.getLong(1);
+            long dbId = result.getLong(1);
             GKInstance inst = dba.fetchInstance(dbId);
             if (isEscaped(inst)) {
                 continue;
             }
             if (!skipList.containsInstanceDbId(inst)) {
-                Long valueId = result.getLong(2);
+                long valueId = result.getLong(2);
                 GKInstance value = dba.fetchInstance(valueId);
                 if (value == null)
                     throw new IllegalStateException("Instance cannot be found for " + valueId + ".");

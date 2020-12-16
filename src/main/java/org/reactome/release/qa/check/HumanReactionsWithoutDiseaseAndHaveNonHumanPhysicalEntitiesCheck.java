@@ -22,7 +22,12 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck ex
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        skipList = new SkipList(this.getDisplayName());
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {

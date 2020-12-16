@@ -45,7 +45,13 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        skipList = new SkipList(this.getDisplayName());
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         List<String> classes = loadConfiguration();
         if (classes == null || classes.size() == 0)
             return report; // Nothing to be checked
@@ -82,7 +88,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             }
             if (!skipList.containsInstanceDbId(instance)) {
                 builder.setLength(0);
-                // Since the check may be run again subclass, which may have different
+                // Since the check may be run against subclass, which may have different
                 // defined attributes as the super class, we need to get the defined attributes
                 // directly from instance
                 GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
