@@ -53,7 +53,7 @@ public class ReactionsSingleInputOutputSchemaClassCheck extends AbstractQACheck 
             if (isEscaped(rle)) {
                 continue;
             }
-            if (!skipList.containsInstanceDbId(rle)) {
+            if (!skipList.containsInstanceDbId(rle.getDBID())) {
 
                 SchemaClass cls = rle.getSchemClass();
                 if (cls.isa(ReactomeJavaConstants.Polymerisation) ||

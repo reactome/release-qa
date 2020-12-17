@@ -83,7 +83,7 @@ public class ChimericInstancesCheck extends AbstractQACheck{
             if (isEscaped(rle)) {
                 continue;
             }
-            if (!skipList.containsInstanceDbId(rle)) {
+            if (!skipList.containsInstanceDbId(rle.getDBID())) {
                 if (QACheckerHelper.isChimeric(rle)) {
                     if (!hasMultipleSpecies(rle))
                         report.addLine(rle.getDBID() + "",

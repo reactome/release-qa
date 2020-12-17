@@ -88,7 +88,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             if (isEscaped(instance)) {
                 continue;
             }
-            if (!skipList.containsInstanceDbId(instance)) {
+            if (!skipList.containsInstanceDbId(instance.getDBID())) {
                 builder.setLength(0);
                 // Since the check may be run against subclass, which may have different
                 // defined attributes as the super class, we need to get the defined attributes

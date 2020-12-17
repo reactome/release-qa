@@ -100,7 +100,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
             if (isEscaped(inst)) {
                 continue;
             }
-            if (!skipList.containsInstanceDbId(inst)) {
+            if (!skipList.containsInstanceDbId(inst.getDBID())) {
                 long valueId = result.getLong(2);
                 GKInstance value = dba.fetchInstance(valueId);
                 if (value == null)

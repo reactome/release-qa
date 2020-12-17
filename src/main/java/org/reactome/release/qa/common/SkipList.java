@@ -64,11 +64,11 @@ public class SkipList {
 
     /**
      * Checks contents of skipList, which should be a list of skippable DbIds, to see if incoming instance should be skipped.
-     * @param inst - GKInstance, instance being checked.
+     * @param dbId - long, DbId of instance being checked.
      * @return - boolean, true if inst DbId is in skipList, false if not.
      */
-    public boolean containsInstanceDbId(GKInstance inst) {
-        return skipList.contains(inst.getDBID());
+    public boolean containsInstanceDbId(long dbId) {
+        return skipList.contains(dbId);
     }
 
     public List<Long> getSkipListDbIds() {
