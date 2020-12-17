@@ -35,20 +35,20 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
         eventsAndPhysicalEntities.addAll(dba.fetchInstancesByClass(ReactomeJavaConstants.Event));
         eventsAndPhysicalEntities.addAll(dba.fetchInstancesByClass(ReactomeJavaConstants.PhysicalEntity));
 
-        for (GKInstance instance : eventsAndPhysicalEntities) {
+        for (GKInstance eventOrPhysicalEntityInst : eventsAndPhysicalEntities) {
             // Get all species, relatedSpecies, and disease instances within instance being checked
-            Set<Long> speciesDbIds = QACheckerHelper.getSpeciesAndRelatedSpeciesDbIds(instance);
+            Set<Long> speciesDbIds = QACheckerHelper.getSpeciesAndRelatedSpeciesDbIds(eventOrPhysicalEntityInst);
 
             Set<Long> diseaseDbIds = new HashSet<>();
-            if (instance.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease)) {
-                for (GKInstance disease : (Collection<GKInstance>) instance.getAttributeValuesList(ReactomeJavaConstants.disease)) {
+            if (eventOrPhysicalEntityInst.getSchemClass().isValidAttribute(ReactomeJavaConstants.disease)) {
+                for (GKInstance disease : (Collection<GKInstance>) eventOrPhysicalEntityInst.getAttributeValuesList(ReactomeJavaConstants.disease)) {
                     diseaseDbIds.add(disease.getDBID());
                 }
             }
 
             // Check for missing disease attributes for CoV instances.
-            if (hasCoVSpeciesWithoutDisease(speciesDbIds, diseaseDbIds)) {
-                report.addLine(getReportLine(instance, speciesDbIds));
+            if (hasCoVSpeciesWithoutCoVDisease(speciesDbIds, diseaseDbIds)) {
+                report.addLine(getReportLine(eventOrPhysicalEntityInst, speciesDbIds));
             }
         }
 
@@ -56,16 +56,16 @@ public class CoVEntityDiseaseCheck extends AbstractQACheck {
         return report;
     }
 
-    private boolean hasCoVSpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
-        return hasCoV1SpeciesWithoutDisease(speciesDbIds, diseaseDbIds) || hasCoV2SpeciesWithoutDisease(speciesDbIds, diseaseDbIds);
+    private boolean hasCoVSpeciesWithoutCoVDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+        return hasCoV1SpeciesWithoutCoV1Disease(speciesDbIds, diseaseDbIds) || hasCoV2SpeciesWithoutCoV2Disease(speciesDbIds, diseaseDbIds);
 
     }
 
-    private boolean hasCoV1SpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+    private boolean hasCoV1SpeciesWithoutCoV1Disease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
         return speciesDbIds.contains(QACheckerHelper.COV_1_SPECIES_DB_ID) && !diseaseDbIds.contains(QACheckerHelper.COV_1_DISEASE_DB_ID);
     }
 
-    private boolean hasCoV2SpeciesWithoutDisease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
+    private boolean hasCoV2SpeciesWithoutCoV2Disease(Set<Long> speciesDbIds, Set<Long> diseaseDbIds) {
         return speciesDbIds.contains(QACheckerHelper.COV_2_SPECIES_DB_ID) && !diseaseDbIds.contains(QACheckerHelper.COV_2_DISEASE_DB_ID);
     }
 

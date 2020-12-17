@@ -456,18 +456,16 @@ public class QACheckerHelper {
      * Helper method that finds all unique DbIds in the 'species' and 'relatedSpecies' attributes of the instance.
      * @param inst - GKInstance, an Event or PhysicalEntity.
      * @return - Set<Long>, DbIds from species/relatedSpecies attributes.
-     * @throws Exception, thrown by MySQLAdaptor.
+     * @throws Exception, thrown by MySQLAdaptor when unable to get species or relatedSpecies values from instance.
      */
     public static Set<Long> getSpeciesAndRelatedSpeciesDbIds(GKInstance inst) throws Exception {
         Set<Long> speciesDbIds = new HashSet<>();
-        if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.species)) {
-            for (GKInstance speciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(ReactomeJavaConstants.species)) {
-                speciesDbIds.add(speciesInst.getDBID());
-            }
-        }
-        if (inst.getSchemClass().isValidAttribute(ReactomeJavaConstants.relatedSpecies)) {
-            for (GKInstance relatedSpeciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(ReactomeJavaConstants.relatedSpecies)) {
-                speciesDbIds.add(relatedSpeciesInst.getDBID());
+        List<String> speciesAttributes = Arrays.asList(ReactomeJavaConstants.species, ReactomeJavaConstants.relatedSpecies);
+        for (String speciesAttribute: speciesAttributes) {
+            if(inst.getSchemClass().isValidAttribute(speciesAttribute)) {
+                for (GKInstance speciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(speciesAttribute)) {
+                    speciesDbIds.add(speciesInst.getDBID());
+                }
             }
         }
         return speciesDbIds;

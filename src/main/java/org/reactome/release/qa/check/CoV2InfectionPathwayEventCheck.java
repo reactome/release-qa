@@ -76,7 +76,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * CoV-1-to-CoV-2 merge.
      * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
      * @return - boolean, true if modification property looks correct, false if not.
-     * @throws Exception, thrown by MySQLAdaptor.
+     * @throws Exception, thrown by MySQLAdaptor if unable to retrieve attribute values from Summation instance.
      */
     private boolean hasRecentlyModifiedSummation(GKInstance cov2Event) throws Exception {
        for (GKInstance summation : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.summation)) {
@@ -104,7 +104,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * This value is formatted as 'yyyy-MM-dd hh:mm:ss', and the 'date' portion (1st half) is all that is needed for this test.
      * @param instanceEditInst - GKInstance, from either the 'created' or 'modified' attribute of an instance.
      * @return - LocalDate, in the format 'yyyy-MM-dd'.
-     * @throws Exception, thrown by MySQLAdaptor.
+     * @throws Exception, thrown if the MySQLAdaptor throw an exception when trying to obtain the 'dateTime' attribute from an InstanceEdit.
      */
     private LocalDate getDateTimeFromInstance(GKInstance instanceEditInst) throws Exception {
         return LocalDate.parse(instanceEditInst.getAttributeValue(ReactomeJavaConstants.dateTime).toString().split(" ")[0]);
@@ -114,7 +114,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * Checks if Event has a 2020 literatureReference. This is because CoV-2 evidence was very recent when this was being evaluated.
      * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
      * @return - boolean, true if at least 1 2020 literatureReference, false if not.
-     * @throws Exception, thrown by MySQLAdaptor.
+     * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from Event or LiteratureReference instances.
      */
     private boolean hasRecentLiteratureReference(GKInstance cov2Event) throws Exception {
 

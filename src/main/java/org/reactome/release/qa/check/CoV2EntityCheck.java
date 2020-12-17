@@ -50,8 +50,8 @@ public class CoV2EntityCheck extends AbstractQACheck {
                 }
                 // Check displayName as well for CoV-2 instances that contain any variation of 'CoV-1' in their display name.
                 // This includes capitalized and hyphenated variations (v1, v-1, V1, V-1).
-                String cov1Regex = "^.*?[vV]-?1.*?$";
-                if (inst.getDisplayName().matches(cov1Regex)) {
+                String cov1DisplayNamePattern = "^.*?[vV]-?1.*?$";
+                if (inst.getDisplayName().matches(cov1DisplayNamePattern)) {
                     report.addLine(getReportLine(cov2Event, inst, "CoV-1 displayName found in CoV-2 instance"));
                 }
             }
