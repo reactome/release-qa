@@ -37,9 +37,10 @@ import org.reactome.release.qa.common.SkipList;
  */
 @GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
-    private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
-    private SkipList skipList;
-    public InstanceDuplicationCheck() {
+
+        private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
+        private SkipList skipList;
+        public InstanceDuplicationCheck() {
     }
 
     @Override
@@ -49,6 +50,7 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
 

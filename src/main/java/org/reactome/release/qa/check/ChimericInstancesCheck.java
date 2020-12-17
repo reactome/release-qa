@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
@@ -33,6 +35,7 @@ import org.reactome.release.qa.common.SkipList;
 @SliceQACheck
 public class ChimericInstancesCheck extends AbstractQACheck{
 
+    private static final Logger logger = LogManager.getLogger();
     private SkipList skipList;
 
     @Override
@@ -47,7 +50,9 @@ public class ChimericInstancesCheck extends AbstractQACheck{
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
+
         }
 
         String[] clsNames = {ReactomeJavaConstants.ReactionlikeEvent,

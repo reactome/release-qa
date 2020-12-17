@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
@@ -23,6 +25,7 @@ import org.reactome.release.qa.common.SkipList;
 @SliceQACheck
 public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
+    private static final Logger logger = LogManager.getLogger();
     private final Long ORCID_DBID = 5334734L;
     private SkipList skipList;
 
@@ -33,6 +36,7 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
 

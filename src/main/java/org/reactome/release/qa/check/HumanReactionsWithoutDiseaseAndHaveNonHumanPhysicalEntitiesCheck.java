@@ -1,5 +1,7 @@
 package org.reactome.release.qa.check;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
@@ -17,6 +19,7 @@ import java.util.*;
 @SliceQACheck
 public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
+    private static final Logger logger = LogManager.getLogger();
     private SkipList skipList;
 
     @Override
@@ -26,6 +29,7 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck ex
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
 

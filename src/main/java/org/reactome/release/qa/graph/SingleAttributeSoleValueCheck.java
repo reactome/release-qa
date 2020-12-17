@@ -1,5 +1,7 @@
 package org.reactome.release.qa.graph;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.GraphQACheck;
@@ -24,6 +26,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         super("= 1");
     }
 
+    private static final Logger logger = LogManager.getLogger();
     private SkipList skipList;
     /**
      * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
@@ -34,6 +37,7 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityChe
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
 
