@@ -104,7 +104,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * This value is formatted as 'yyyy-MM-dd hh:mm:ss', and the 'date' portion (1st half) is all that is needed for this test.
      * @param instanceEditInst - GKInstance, from either the 'created' or 'modified' attribute of an instance.
      * @return - LocalDate, in the format 'yyyy-MM-dd'.
-     * @throws Exception, thrown if the MySQLAdaptor throw an exception when trying to obtain the 'dateTime' attribute from an InstanceEdit.
+     * @throws Exception, thrown if the MySQLAdaptor throws an exception when trying to obtain the 'dateTime' attribute from an InstanceEdit.
      */
     private LocalDate getDateTimeFromInstance(GKInstance instanceEditInst) throws Exception {
         return LocalDate.parse(instanceEditInst.getAttributeValue(ReactomeJavaConstants.dateTime).toString().split(" ")[0]);
