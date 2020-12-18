@@ -302,7 +302,7 @@ public class QACheckerHelper {
      * @return Set<GKInstance> -- All Events in DB that are not used for manual inference.
      * @throws Exception -- Thrown by MySQLAdaptor
      */
-    public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
+    public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba, List<Long> skiplistDbIds) throws Exception {
         Set<GKInstance> eventsNotUsedForInference = new HashSet<>();
         Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         for (GKInstance event : events) {
@@ -333,7 +333,7 @@ public class QACheckerHelper {
      * @return Set<GKInstance> -- All Human ReactionlikeEvents that are not used for manual inference.
      * @throws Exception-- Thrown by MySQLAdaptor
      */
-    public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
+    public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba, List<Long> skiplistDbIds) throws Exception {
         Set<GKInstance> reactionsNotUsedForManualInference = new HashSet<>();
         for (GKInstance event : findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
             // Filter for Human ReactionlikeEvents
@@ -489,9 +489,9 @@ public class QACheckerHelper {
      * @return boolean -- true if member of skiplist Pathway, false if not.
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
-    public static boolean memberSkipListPathway(GKInstance event, List<String> skiplistDbIds) throws Exception {
+    public static boolean memberSkipListPathway(GKInstance event, List<Long> skiplistDbIds) throws Exception {
         // Finds all parent Event DbIds.
-        Set<String> hierarchyDbIds = findEventHierarchyDbIds(event);
+        Set<Long> hierarchyDbIds = findEventHierarchyDbIds(event);
         // Check if any returned Event DbIds (including original Events) are in skiplist.
         return skiplistDbIds.stream().anyMatch(dbId -> hierarchyDbIds.contains(dbId));
     }
@@ -502,9 +502,9 @@ public class QACheckerHelper {
      * @return Set<String> -- Once TopLevelPathway has been found, returns all DbIds, inclusive, between TopLevelPathway and original Event.
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
-    private static Set<String> findEventHierarchyDbIds(GKInstance event) throws Exception {
-        Set<String> dbIds = new HashSet<>();
-        dbIds.add(event.getDBID().toString());
+    private static Set<Long> findEventHierarchyDbIds(GKInstance event) throws Exception {
+        Set<Long> dbIds = new HashSet<>();
+        dbIds.add(event.getDBID());
         Collection<GKInstance> hasEventReferrals = event.getReferers(ReactomeJavaConstants.hasEvent);
         if (hasEventReferrals != null) {
             for (GKInstance hasEventReferral : hasEventReferrals) {
@@ -518,8 +518,12 @@ public class QACheckerHelper {
      * Reads skiplist file that contains Pathway DbIds that should not be included in QA check.
      * @return List<String> -- List of DbIds.
      */
-    public static List<String> getNonHumanPathwaySkipList() throws IOException {
-        return Files.readAllLines(Paths.get("resources/manually_curated_nonhuman_pathways_skip_list.txt"));
+    public static List<Long> getNonHumanPathwaySkipList() throws IOException {
+        List<Long> skiplistDbIds = new ArrayList<>();
+        for (String dbId : Files.readAllLines(Paths.get("resources/manually_curated_nonhuman_pathways_skip_list.txt"))) {
+            skiplistDbIds.add(Long.parseLong(dbId));
+        }
+        return skiplistDbIds;
     }
 
     /**
