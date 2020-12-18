@@ -29,7 +29,7 @@ public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck ex
         try {
             skipList = new SkipList(this.getDisplayName());
         } catch (Exception e) {
-            logger.info(e.getMessage());
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
 
