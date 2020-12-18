@@ -1,11 +1,14 @@
 package org.reactome.release.qa.check;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 import java.util.*;
 
@@ -16,18 +19,24 @@ import java.util.*;
 @SliceQACheck
 public class HumanReactionsWithoutDiseaseAndHaveNonHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
-    private static final String INNATE_IMMUNITY_PATHWAY_DBID = "168249";
-    private List<String> skiplistDbIds = new ArrayList<>();
+    private static final Logger logger = LogManager.getLogger();
+    private SkipList skipList;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        this.skiplistDbIds.add(INNATE_IMMUNITY_PATHWAY_DBID);
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
 
         Collection<GKInstance> reactions = dba.fetchInstancesByClass(ReactomeJavaConstants.ReactionlikeEvent);
         for (GKInstance reaction : reactions) {
             // isHumanDatabaseObject checks that the species attribute only contains a Homo sapiens species instance. Multi-species RlEs are excluded.
-            if (!QACheckerHelper.memberSkipListPathway(reaction, skiplistDbIds)
+            if (!QACheckerHelper.memberSkipListPathway(reaction, skipList.getSkipListDbIds())
                     && QACheckerHelper.isHumanDatabaseObject(reaction)
                     && !QACheckerHelper.hasDisease(reaction)) {
 

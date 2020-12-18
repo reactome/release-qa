@@ -2,6 +2,8 @@ package org.reactome.release.qa.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,7 +26,7 @@ public abstract class AbstractQACheck implements QACheck {
 
     protected MySQLAdaptor dba;
 
-    protected final List<String> EMPTY_SKIP_LIST = Collections.emptyList();
+    protected final List<Long> EMPTY_SKIP_LIST = Collections.emptyList();
 
     private Set<Long> escDbIds;
     
@@ -107,7 +109,6 @@ public abstract class AbstractQACheck implements QACheck {
     
     /**
      * Opens the file consisting of escaped instance DB ids.
-     * @param class the QA class
      * @throws IOException
      */
     private Set<Long> loadEscapedDbIds() throws IOException {
@@ -168,5 +169,4 @@ public abstract class AbstractQACheck implements QACheck {
 
         return words;
     }
-
 }

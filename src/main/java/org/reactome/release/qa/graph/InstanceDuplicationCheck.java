@@ -23,6 +23,7 @@ import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * This class is used to check if two or more instances in the same class are duplicated.
@@ -36,14 +37,23 @@ import org.reactome.release.qa.common.QAReport;
  */
 @GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
-    private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
 
-    public InstanceDuplicationCheck() {
+        private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
+        private SkipList skipList;
+        public InstanceDuplicationCheck() {
     }
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
         List<String> classes = loadConfiguration();
         if (classes == null || classes.size() == 0)
             return report; // Nothing to be checked
@@ -78,27 +88,29 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             if (isEscaped(instance)) {
                 continue;
             }
-            builder.setLength(0);
-            // Since the check may be run again subclass, which may have different
-            // defined attributes as the super class, we need to get the defined attributes
-            // directly from instance
-            GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
-            Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
-            List<SchemaAttribute> sorted = instDefinedAttributes.stream()
-                    .sorted((att1, att2) -> att1.getName().compareTo(att2.getName()))
-                    .collect(Collectors.toList());
-            for (SchemaAttribute att : sorted) {
-                // att may be defined in the superclass and should not be used for query
-                List<?> values = instance.getAttributeValuesList(att.getName());
-                generateKeyFromValues(values, att, builder);
-                builder.append("||");
+            if (!skipList.containsInstanceDbId(instance.getDBID())) {
+                builder.setLength(0);
+                // Since the check may be run against subclass, which may have different
+                // defined attributes as the super class, we need to get the defined attributes
+                // directly from instance
+                GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
+                Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
+                List<SchemaAttribute> sorted = instDefinedAttributes.stream()
+                        .sorted((att1, att2) -> att1.getName().compareTo(att2.getName()))
+                        .collect(Collectors.toList());
+                for (SchemaAttribute att : sorted) {
+                    // att may be defined in the superclass and should not be used for query
+                    List<?> values = instance.getAttributeValuesList(att.getName());
+                    generateKeyFromValues(values, att, builder);
+                    builder.append("||");
+                }
+                keyToInsts.compute(builder.toString(), (key, set) -> {
+                    if (set == null)
+                        set = new HashSet<>();
+                    set.add(instance);
+                    return set;
+                });
             }
-            keyToInsts.compute(builder.toString(), (key, set) -> {
-                if (set == null)
-                    set = new HashSet<>();
-                set.add(instance);
-                return set;
-            });
         }
         // Check duplication
         for (Set<GKInstance> duplicates : keyToInsts.values()) {

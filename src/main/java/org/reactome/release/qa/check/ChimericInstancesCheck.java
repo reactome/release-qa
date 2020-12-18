@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.model.ReactomeJavaConstants;
@@ -13,6 +15,7 @@ import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * Reports ReactionlikeEvent and Complexes for which one of the following conditions hold:
@@ -30,7 +33,10 @@ import org.reactome.release.qa.common.QAReport;
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
-public class ChimericInstancesCheck extends AbstractQACheck {
+public class ChimericInstancesCheck extends AbstractQACheck{
+
+    private static final Logger logger = LogManager.getLogger();
+    private SkipList skipList;
 
     @Override
     public String getDisplayName() {
@@ -40,7 +46,15 @@ public class ChimericInstancesCheck extends AbstractQACheck {
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-        
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+
+        }
+
         String[] clsNames = {ReactomeJavaConstants.ReactionlikeEvent,
                              ReactomeJavaConstants.Complex};
         for (String cls : clsNames) {
@@ -69,33 +83,34 @@ public class ChimericInstancesCheck extends AbstractQACheck {
             if (isEscaped(rle)) {
                 continue;
             }
-            if (QACheckerHelper.isChimeric(rle)) {
-                if (!hasMultipleSpecies(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Chimeric but one or null species",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-                if (isNotUsedForInference(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Chimeric but not used for inference",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-            }
-            else {
-                if (hasMultipleSpecies(rle))
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Not chimeric but with multiple species",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
-                if (isParticipantChimeric(rle)) {
-                    report.addLine(rle.getDBID() + "",
-                                   rle.getDisplayName(),
-                                   rle.getSchemClass().getName(),
-                                   "Not chimeric but with chimeric participant",
-                                   QACheckerHelper.getLastModificationAuthor(rle));
+            if (!skipList.containsInstanceDbId(rle.getDBID())) {
+                if (QACheckerHelper.isChimeric(rle)) {
+                    if (!hasMultipleSpecies(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Chimeric but one or null species",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    if (isNotUsedForInference(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Chimeric but not used for inference",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                } else {
+                    if (hasMultipleSpecies(rle))
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Not chimeric but with multiple species",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    if (isParticipantChimeric(rle)) {
+                        report.addLine(rle.getDBID() + "",
+                                rle.getDisplayName(),
+                                rle.getSchemClass().getName(),
+                                "Not chimeric but with chimeric participant",
+                                QACheckerHelper.getLastModificationAuthor(rle));
+                    }
                 }
             }
         }

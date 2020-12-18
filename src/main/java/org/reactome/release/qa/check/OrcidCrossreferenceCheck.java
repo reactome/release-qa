@@ -8,11 +8,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * WeeklyQA check to detect person instances that share the same ORCID id (crossreference).
@@ -22,11 +25,21 @@ import org.reactome.release.qa.common.QAReport;
 @SliceQACheck
 public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
+    private static final Logger logger = LogManager.getLogger();
     private final Long ORCID_DBID = 5334734L;
+    private SkipList skipList;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
         report.setColumnHeaders("CrossReference_DBID",
                                 "CrossReference_DisplayName",
                                 "Identifier",
@@ -52,9 +65,11 @@ public class OrcidCrossreferenceCheck extends AbstractQACheck {
 
             List<GKInstance> orcids = new ArrayList<GKInstance>();
             for (GKInstance crossRef : crossRefs) {
-                GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
-                if (refDb.getDBID().equals(ORCID_DBID))
-                    orcids.add(crossRef);
+                if (!skipList.containsInstanceDbId(crossRef.getDBID())) {
+                    GKInstance refDb = (GKInstance) crossRef.getAttributeValue(ReactomeJavaConstants.referenceDatabase);
+                    if (refDb.getDBID().equals(ORCID_DBID))
+                        orcids.add(crossRef);
+                }
             }
 
             if (orcids.size() == 0) continue;
