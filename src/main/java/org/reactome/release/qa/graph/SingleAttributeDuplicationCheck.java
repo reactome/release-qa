@@ -91,6 +91,6 @@ public class SingleAttributeDuplicationCheck extends MultipleAttributesMissingCh
 
     @Override
     public String getDisplayName() {
-        return "Attrinute_Value_Duplication";
+        return "Attribute_Value_Duplication";
     }
 }

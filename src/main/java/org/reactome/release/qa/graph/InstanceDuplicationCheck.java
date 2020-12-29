@@ -66,42 +66,44 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
         // of places). 
         // Note: The following check may miss some duplications if multiple values
         // existing in ANY slot!
-        Collection<SchemaAttribute> definedAttributes = cls.getDefiningAttributes();
-        // Key instances by a string of defined attribute values to simple check
-        Collection<GKInstance> instances = dba.fetchInstancesByClass(cls);
-        dba.loadInstanceAttributeValues(instances, definedAttributes);
-        Map<String, Set<GKInstance>> keyToInsts = new HashMap<>();
-        StringBuilder builder = new StringBuilder();
-        for (GKInstance instance : instances) {
-            builder.setLength(0);
-            // Since the check may be run again subclass, which may have different
-            // defined attributes as the super class, we need to get the defined attributes
-            // directly from instance
-            GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
-            Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
-            for (SchemaAttribute att : instDefinedAttributes) {
-                // att may be defined in the superclass and should not be used for query
-                List<?> values = instance.getAttributeValuesList(att.getName());
-                generateKeyFromValues(values, att, builder);
-                builder.append("||");
+        if (cls != null) {
+            Collection<SchemaAttribute> definedAttributes = cls.getDefiningAttributes();
+            // Key instances by a string of defined attribute values to simple check
+            Collection<GKInstance> instances = dba.fetchInstancesByClass(cls);
+            dba.loadInstanceAttributeValues(instances, definedAttributes);
+            Map<String, Set<GKInstance>> keyToInsts = new HashMap<>();
+            StringBuilder builder = new StringBuilder();
+            for (GKInstance instance : instances) {
+                builder.setLength(0);
+                // Since the check may be run again subclass, which may have different
+                // defined attributes as the super class, we need to get the defined attributes
+                // directly from instance
+                GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
+                Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
+                for (SchemaAttribute att : instDefinedAttributes) {
+                    // att may be defined in the superclass and should not be used for query
+                    List<?> values = instance.getAttributeValuesList(att.getName());
+                    generateKeyFromValues(values, att, builder);
+                    builder.append("||");
+                }
+                keyToInsts.compute(builder.toString(), (key, set) -> {
+                    if (set == null)
+                        set = new HashSet<>();
+                    set.add(instance);
+                    return set;
+                });
             }
-            keyToInsts.compute(builder.toString(), (key, set) -> {
-                if (set == null)
-                    set = new HashSet<>();
-                set.add(instance);
-                return set;
-            });
-        }
-        // Check duplication
-        for (String key : keyToInsts.keySet()) {
-            Set<GKInstance> insts = keyToInsts.get(key);
-            if (insts.size() == 1)
-                continue;
-            // Create report
-            report.addLine(clsName,
-                           insts.stream().map(inst -> inst.getDBID() + "").collect(Collectors.joining("|")),
-                           insts.stream().map(inst -> inst.getDisplayName()).collect(Collectors.joining("|")),
-                           insts.stream().map(inst -> QACheckerHelper.getLastModificationAuthor(inst)).collect(Collectors.joining("|")));
+            // Check duplication
+            for (String key : keyToInsts.keySet()) {
+                Set<GKInstance> insts = keyToInsts.get(key);
+                if (insts.size() == 1)
+                    continue;
+                // Create report
+                report.addLine(clsName,
+                        insts.stream().map(inst -> inst.getDBID() + "").collect(Collectors.joining("|")),
+                        insts.stream().map(inst -> inst.getDisplayName()).collect(Collectors.joining("|")),
+                        insts.stream().map(inst -> QACheckerHelper.getLastModificationAuthor(inst)).collect(Collectors.joining("|")));
+            }
         }
     }
     
