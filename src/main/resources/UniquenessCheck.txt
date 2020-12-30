@@ -1,0 +1,7 @@
+# Configuration for running the UniquenessCheck to list
+# instances with a conflicting attribute value in any of the
+# configured attributes.
+#
+# There are currently no attributes to check. Orginially,
+# this QA check was created to verify Species abbreviation
+# uniqueness, but duplicates were subsequently allowed.

@@ -14,10 +14,11 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
  * Sometimes two attributes should not refer to the same instance. For example,
@@ -26,13 +27,22 @@ import org.reactome.release.qa.common.QAReport;
  * @author wug
  *
  */
-@GraphQATest
+@GraphQACheck
 public class TwoAttributesReferToSameCheck extends AbstractQACheck {
     private static final Logger logger = Logger.getLogger(TwoAttributesReferToSameCheck.class);
+    private SkipList skipList;
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
         List<CheckConfiguration> configurations = loadConfiguration();
         if (configurations == null || configurations.size() == 0)
             return report; // Nothing to be checked
@@ -42,7 +52,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
             logger.info("Check " + config.clsName + " for " + config.toString() + "...");
             executeQACheck(config, report);
         }
-        report.setColumnHeaders("DB_ID",
+        report.setColumnHeaders("DBID",
                 "DisplayName",
                 "Class",
                 "Attributes",
@@ -85,19 +95,24 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
         PreparedStatement stat = connection.prepareStatement(query);
         ResultSet result = stat.executeQuery();
         while (result.next()) {
-            Long dbId = result.getLong(1);
+            long dbId = result.getLong(1);
             GKInstance inst = dba.fetchInstance(dbId);
-            Long valueId = result.getLong(2);
-            GKInstance value = dba.fetchInstance(valueId);
-            if (value == null)
-                throw new IllegalStateException("Instance cannot be found for " + valueId + ".");
-            report.addLine(inst.getDBID() + "",
-                           inst.getDisplayName(),
-                           inst.getSchemClass().getName(),
-                           config.toString(),
-                           value.getDBID() + "",
-                           value.getDisplayName(),
-                           QACheckerHelper.getLastModificationAuthor(inst));
+            if (isEscaped(inst)) {
+                continue;
+            }
+            if (!skipList.containsInstanceDbId(inst.getDBID())) {
+                long valueId = result.getLong(2);
+                GKInstance value = dba.fetchInstance(valueId);
+                if (value == null)
+                    throw new IllegalStateException("Instance cannot be found for " + valueId + ".");
+                report.addLine(inst.getDBID() + "",
+                        inst.getDisplayName(),
+                        inst.getSchemClass().getName(),
+                        config.toString(),
+                        value.getDBID() + "",
+                        value.getDisplayName(),
+                        QACheckerHelper.getLastModificationAuthor(inst));
+            }
         }
         result.close();
         stat.close();
@@ -105,7 +120,7 @@ public class TwoAttributesReferToSameCheck extends AbstractQACheck {
 
     @Override
     public String getDisplayName() {
-        return "Two_Attributes_Refer_Same_Instance";
+        return "Two_Attributes_Refer_To_Same_Instance";
     }
     
     protected List<CheckConfiguration> loadConfiguration() throws Exception {

@@ -22,17 +22,21 @@ import org.gk.schema.GKSchema;
 import org.gk.schema.Schema;
 import org.gk.schema.SchemaAttribute;
 import org.gk.schema.SchemaClass;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This class is used to check if a one-hop circular reference existing between two instances. 
+ * This QA check reports one-hop circular references between two instances.
+ * The check corresponds to the graph-qa T027_EntriesWithOtherCyclicRelations
+ * check.
+ * 
+ * This check's escape list can include both preceding and following RLEs.
+
  * @author wug
- *
  */
-@GraphQATest
+@GraphQACheck
 @SuppressWarnings("unchecked")
 public class OneHopCircularReferenceCheck extends AbstractQACheck {
     private final static Logger logger = Logger.getLogger(OneHopCircularReferenceCheck.class);
@@ -66,12 +70,12 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
             }
         }
         
-        report.setColumnHeaders("DB_ID_1",
+        report.setColumnHeaders("DBID_1",
                 "DisplayName_1",
                 "Class_1",
                 "Attribute_1",
                 "MostRecentAuthor_1",
-                "DB_ID_2",
+                "DBID_2",
                 "DisplayName_2",
                 "Class_2",
                 "Attribute_2",
@@ -126,8 +130,14 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
         while (rs.next()) {
             Long dbId = new Long(rs.getLong(1));
             GKInstance instance = dba.fetchInstance(dbId);
+            if (isEscaped(instance)) {
+                continue;
+            }
             Long otherDbId = new Long(rs.getLong(2));
             GKInstance other = dba.fetchInstance(otherDbId);
+            if (isEscaped(other)) {
+                continue;
+            }
             report.addLine(dbId + "",
                            instance.getDisplayName(),
                            instance.getSchemClass().getName(),
@@ -141,12 +151,6 @@ public class OneHopCircularReferenceCheck extends AbstractQACheck {
         }
         rs.close();
         ps.close();
-        
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "One_Hop_Circular_Reference";
     }
 
     private Set<String[]> loadEscapedAttributes() throws IOException {

@@ -1,32 +1,56 @@
 package org.reactome.release.qa.graph;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.GraphQATest;
-import org.reactome.release.qa.common.QACheckerHelper;
-import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.annotations.GraphQACheck;
+import org.reactome.release.qa.common.SkipList;
 
 /**
- * This check is to make sure more than one value should be provided in a specific attribute.
- * For example, hasMember in DefinedSet or hasComponent in Complex should have more than one value.
- * @author wug
+ * This check reports instances with exactly one value in a specified
+ * attribute. For example, hasMember in DefinedSet or hasComponent in
+ * Complex should have more than one value. Checking for no value of a
+ * non-mandatory attribute can be done in the
+ * {@link SingleAttributeMissingCheck}.
  *
+ * The attributes are specified in the resources file corresponding to
+ * this class.
+ * 
+ * @author wug
  */
-@GraphQATest
-public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
-    private static final Logger logger = Logger.getLogger(SingleAttributeSoleValueCheck.class);
+@GraphQACheck
+public class SingleAttributeSoleValueCheck extends SingleAttributeCardinalityCheck {
     
     public SingleAttributeSoleValueCheck() {
+        super("= 1");
     }
-    
-    private boolean shouldEscape(GKInstance inst, String attName) throws Exception {
+
+    private static final Logger logger = LogManager.getLogger();
+    private SkipList skipList;
+    /**
+     * Escapes <code>Pathway.hasEvent</code> check non-disease instances.
+     */
+    @Override
+    protected boolean isEscaped(GKInstance inst, String attName) throws Exception {
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
+        if (super.isEscaped(inst, attName)) {
+            return true;
+        }
+        // Check if instance DbId is in skipList.
+        if (skipList.containsInstanceDbId(inst.getDBID())) {
+            return true;
+        }
+
         if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway) && 
-            attName.equals(ReactomeJavaConstants.hasEvent)) {
+                attName.equals(ReactomeJavaConstants.hasEvent)) {
             GKInstance disease = (GKInstance) inst.getAttributeValue(ReactomeJavaConstants.disease);
             if (disease != null)
                 return true;
@@ -35,41 +59,8 @@ public class SingleAttributeSoleValueCheck extends SingleAttributeMissingCheck {
     }
 
     @Override
-    protected void executeQACheck(String clsName, String attName, QAReport report) throws Exception {
-        // For quick performance, we will use SQL query directly
-        String tableName = QACheckerHelper.getAttributeTableName(clsName, attName, dba);
-        if (!tableName.contains("_2_")) {
-            logger.error("SingleAttributeSoleValueCheck should be used for multiple-valued attributes only. " + attName + " in " + clsName + " is not!");
-            return;
-        }
-        String query = "SELECT DB_ID FROM " + tableName + " GROUP BY DB_ID HAVING COUNT(*) = 1";
-        Connection conn = dba.getConnection();
-        PreparedStatement ps = conn.prepareStatement(query);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Long dbId = rs.getLong(1);
-            GKInstance instance = dba.fetchInstance(dbId);
-            // Since the attribute may be defined in a superclass, the above SQL query may pick out
-            // instances in another class (e.g. an CandidateSet for DefinedSet checking). Therefore
-            // the following check.
-            if (!instance.getSchemClass().isa(clsName))
-                continue;
-            // Escape the special case
-            if (shouldEscape(instance, attName))
-                continue;
-            report.addLine(instance.getDBID() + "",
-                           instance.getDisplayName(),
-                           clsName,
-                           attName,
-                           QACheckerHelper.getLastModificationAuthor(instance));
-        }
-        rs.close();
-        ps.close();
-    }
-
-    @Override
     public String getDisplayName() {
-        return "Single_Attribute_Sole_Value";
+        return "Attribute_Has_Only_One_Value";
     }
 
 }

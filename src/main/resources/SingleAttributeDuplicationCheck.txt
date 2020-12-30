@@ -1,7 +1,13 @@
-# Configuration to check duplication in a slot. For example, a member should not be used
-# twice in the hasMember slot of EntitySet.
-# One class per line: the first token is class name, followed by attributes. They are tab-delimited.
-DatabaseObject	modified
+# Configuration for running the SingleAttributeDuplicationCheck to list
+# instances not having a value duplicated in the configured attributes.
+# For example, a member should not be used twice in the hasMember slot
+# of EntitySet. There is one line per class with tab-separated tokens.
+# The first token is the class name. The remaining tokens are the
+# attributes. Each attribute is checked separately.
+#
+# DatabaseObject.modified is the predominant issue reported. It is disabled since
+# the duplicate is generated programmatically and is not correctible by a curator.
+#DatabaseObject modified
 EntitySet	hasMember
 Pathway	hasEvent
 Event	summation
@@ -9,5 +15,4 @@ PhysicalEntity	summation
 CandidateSet	hasCandidate
 Regulation	summation
 ReplacedResidue	psiMod
-TranslationalModification	psiMod
 

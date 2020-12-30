@@ -2,7 +2,7 @@ package org.reactome.release.qa.check;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -13,7 +13,7 @@ import java.util.*;
  * QA check that finds non-human Complexes that contain human Components, that are members of human, non-manually inferred ReactionlikeEvents.
  */
 
-@SliceQATest
+@SliceQACheck
 public class HumanReactionsWithNonHumanComplexesWithHumanComponentsCheck extends AbstractQACheck {
 
     @Override

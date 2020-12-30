@@ -4,25 +4,41 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
 import org.junit.Test;
-import org.reactome.release.qa.check.*;
+import org.reactome.release.qa.check.ChecksTwoDatabases;
+import org.reactome.release.qa.check.ChimericInstancesCheck;
+import org.reactome.release.qa.check.EHLDSubpathwayChangeCheck;
+import org.reactome.release.qa.check.ReactionlikeEventDiseaseCheck;
+import org.reactome.release.qa.check.SpeciesInstanceCountCheck;
+import org.reactome.release.qa.check.SpeciesPrecedingRelationCheck;
+import org.reactome.release.qa.check.StableIdentifierCheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
 import org.reactome.release.qa.common.QAReport;
-import org.reactome.release.qa.graph.CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex;
+import org.reactome.release.qa.diagram.DiagramDuplicateReactionParticipantsCheck;
+import org.reactome.release.qa.diagram.DiagramEmptyCheck;
+import org.reactome.release.qa.diagram.DiagramExtraReactionlikeEventsCheck;
+import org.reactome.release.qa.diagram.DiagramOverlappingEntityCheck;
+import org.reactome.release.qa.diagram.DiagramOverlappingReactionCheck;
+import org.reactome.release.qa.diagram.DiagramRenderableTypeCheck;
+import org.reactome.release.qa.diagram.DiagramReactionBranchCheck;
+import org.reactome.release.qa.diagram.DiagramCompartmentLabelMissingCheck;
+import org.reactome.release.qa.diagram.DiagramCompartmentLabelOccludedCheck;
+import org.reactome.release.qa.graph.CatalystActivityComplexCheck;
 import org.reactome.release.qa.graph.InferredFromInOtherAttributeCheck;
 import org.reactome.release.qa.graph.InstanceDuplicationCheck;
 import org.reactome.release.qa.graph.MultipleAttributesCrossClassesMissingCheck;
 import org.reactome.release.qa.graph.MultipleAttributesMissingCheck;
 import org.reactome.release.qa.graph.OneHopCircularReferenceCheck;
-import org.reactome.release.qa.graph.OrphanEvents;
-import org.reactome.release.qa.graph.OtherRelationsThatPointToTheSameEntry;
-import org.reactome.release.qa.graph.PhysicalEntitiesWithMoreThanOneCompartment;
-import org.reactome.release.qa.graph.PrecedingEventOutputsNotUsedInReaction;
-import org.reactome.release.qa.graph.ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch;
+import org.reactome.release.qa.graph.OrphanEventsCheck;
+import org.reactome.release.qa.graph.RelationsReferToSameInstanceCheck;
+import org.reactome.release.qa.graph.PhysicalEntitiesCompartmentCheck;
+import org.reactome.release.qa.graph.PrecedingEventUsageCheck;
+import org.reactome.release.qa.graph.ReactionsSingleInputOutputSchemaClassCheck;
 import org.reactome.release.qa.graph.SingleAttributeDuplicationCheck;
 import org.reactome.release.qa.graph.SingleAttributeMissingCheck;
 import org.reactome.release.qa.graph.SingleAttributeSoleValueCheck;
 import org.reactome.release.qa.graph.TwoAttributesReferToSameCheck;
+import org.reactome.release.qa.graph.UniquenessCheck;
 
 /**
  * Make sure the class name ends with "Test" to be included in maven test automatically.
@@ -60,38 +76,38 @@ public class QACheckTest {
     }
     
     @Test
-    public void testReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch() throws Exception {
-        ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch checker = new ReactionsWithOnlyOneInputAndOutputWhereSchemaClassDoNotMatch();
+    public void testReactionsSingleInputOutputSchemaClassCheck() throws Exception {
+        ReactionsSingleInputOutputSchemaClassCheck checker = new ReactionsSingleInputOutputSchemaClassCheck();
         runTest(checker);
     }
     
     @Test
-    public void testOrphanEvents() throws Exception {
-        OrphanEvents checker = new OrphanEvents();
+    public void testOrphanEventsCheck() throws Exception {
+        OrphanEventsCheck checker = new OrphanEventsCheck();
         runTest(checker);
     }
     
     @Test
-    public void testPrecedingEventOutputsNotUsedInReaction() throws Exception {
-        PrecedingEventOutputsNotUsedInReaction checker = new PrecedingEventOutputsNotUsedInReaction();
+    public void testPrecedingEventUsageCheck() throws Exception {
+        PrecedingEventUsageCheck checker = new PrecedingEventUsageCheck();
         runTest(checker);
     }
     
     @Test
-    public void testCatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex() throws Exception {
-        CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex checker = new CatalystActivityWherePhysicalEntityAndActiveUnitPointToComplex();
+    public void testCatalystActivityComplexCheck() throws Exception {
+        AbstractQACheck checker = new CatalystActivityComplexCheck();
         runTest(checker);
     }
     
     @Test
-    public void testPhysicalEntitiesWithMoreThanOneCompartment() throws Exception {
-        PhysicalEntitiesWithMoreThanOneCompartment checker = new PhysicalEntitiesWithMoreThanOneCompartment();
+    public void testPhysicalEntitiesCompartmentCheck() throws Exception {
+        PhysicalEntitiesCompartmentCheck checker = new PhysicalEntitiesCompartmentCheck();
         runTest(checker);
     }
     
     @Test
-    public void testOtherRelationsThatPointToTheSameEntry() throws Exception {
-        OtherRelationsThatPointToTheSameEntry checker = new OtherRelationsThatPointToTheSameEntry();
+    public void testRelationsReferToSameInstanceCheck() throws Exception {
+        RelationsReferToSameInstanceCheck checker = new RelationsReferToSameInstanceCheck();
         runTest(checker);
     }
     
@@ -138,50 +154,111 @@ public class QACheckTest {
     }
     
     @Test
+    public void testUniquenessCheck() throws Exception {
+        AbstractQACheck checker = new UniquenessCheck();
+        runTest(checker);
+    }
+    
+    @Test
     public void testMultipleAttributesMissingCheck() throws Exception {
         AbstractQACheck checker = new MultipleAttributesMissingCheck();
         runTest(checker);
     }
     
     @Test
-    public void testChimericInstancesChecker() throws Exception {
-        AbstractQACheck checker = new ChimericInstancesChecker();
+    public void testChimericInstancesCheck() throws Exception {
+        AbstractQACheck checker = new ChimericInstancesCheck();
         runTest(checker);
     }
     
     @Test
-    public void testHumanEventNotInHierarchyChecker() throws Exception {
-        AbstractQACheck checker = new HumanEventNotInHierarchyChecker();
-        runTest(checker);
-    }
-    
-    @Test
-    public void testHumanStableIdentifierChecker() throws Exception {
+    public void testStableIdentifierCheck() throws Exception {
         AbstractQACheck checker = new StableIdentifierCheck();
         runTest(checker);
     }
     
     @Test
-    public void testSpeciesInPrecedingRelationChecker() throws Exception {
-        AbstractQACheck checker = new SpeciesInPrecedingRelationChecker();
+    public void testSpeciesPrecedingRelationCheck() throws Exception {
+        AbstractQACheck checker = new SpeciesPrecedingRelationCheck();
         runTest(checker);
     }
     
     @Test
-    public void testCompareSpeciesByClasses() throws Exception {
-        AbstractQACheck checker = new CompareSpeciesByClasses();
+    public void testSpeciesInstanceCountCheck() throws Exception {
+        AbstractQACheck checker = new SpeciesInstanceCountCheck();
         runTest(checker);
     }
         
     @Test
-    public void testPathwayDiagramRenderableTypeChecker() throws Exception {
-        AbstractQACheck checker = new PathwayDiagramRenderableTypeChecker();
+    public void testDiagramRenderableTypeCheck() throws Exception {
+        AbstractQACheck checker = new DiagramRenderableTypeCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramEmptyCheck() throws Exception {
+        AbstractQACheck checker = new DiagramEmptyCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramDuplicateReactionParticipantsCheck() throws Exception {
+        AbstractQACheck checker = new DiagramDuplicateReactionParticipantsCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramExtraParticipantCheck() throws Exception {
+        AbstractQACheck checker = new DiagramExtraReactionlikeEventsCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramUnlabeledCompartmentCheck() throws Exception {
+        AbstractQACheck checker = new DiagramCompartmentLabelMissingCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramOverlappingEntityCheck() throws Exception {
+        AbstractQACheck checker = new DiagramOverlappingEntityCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramOverlappingReactionCheck() throws Exception {
+        AbstractQACheck checker = new DiagramOverlappingReactionCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramReactionBranchCheck() throws Exception {
+        AbstractQACheck checker = new DiagramReactionBranchCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramCompartmentCheck() throws Exception {
+        AbstractQACheck checker = new DiagramCompartmentLabelMissingCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testDiagramCompartmentLabelOccludedCheck() throws Exception {
+        AbstractQACheck checker = new DiagramCompartmentLabelOccludedCheck();
+        runTest(checker);
+    }
+    
+    @Test
+    public void testEHLDSubPathwayChangeCheck() throws Exception {
+        AbstractQACheck checker = new EHLDSubpathwayChangeCheck();
         runTest(checker);
     }
 
     @Test
-    public void testEHLDSubPathwayChangeChecker() throws Exception {
-        AbstractQACheck checker = new EHLDSubpathwayChangeChecker();
+    public void testReactionlikeEventDiseaseCheck() throws Exception {
+        AbstractQACheck checker = new ReactionlikeEventDiseaseCheck();
         runTest(checker);
     }
+
 }

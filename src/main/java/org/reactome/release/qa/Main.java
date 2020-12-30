@@ -2,24 +2,21 @@ package org.reactome.release.qa;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.gk.persistence.MySQLAdaptor;
+import org.gk.util.FileUtilities;
 import org.gk.util.GKApplicationUtilities;
 import org.reactome.release.qa.check.ChecksTwoDatabases;
 import org.reactome.release.qa.common.MySQLAdaptorManager;
@@ -33,11 +30,23 @@ import org.reflections.Reflections;
  *
  */
 public class Main {
-    
-    private static final String CHECKS_OPT = "checks";
 
     private static final Logger logger = LogManager.getLogger();
 
+    // TODO - on QA check refactoring, get the summary constants
+    // below from a common class.
+    
+    private static final String SUMMARY_DELIMITER = "\t";
+
+    private static final String SUMMARY_FILE_NM = "summary.tsv";
+
+    /** The summary file headings. */
+    private static final String[] SUMMARY_HDGS = {
+            "Report", "Issue Count"
+    };
+
+    private static final String CHECKS_OPT = "checks";
+    
     public static void main(String[] args) throws Exception {
         // Parse command line arguments.
         Map<String, Object> cmdOpts = parseCommandArguments(args);
@@ -47,95 +56,163 @@ public class Main {
         MySQLAdaptor dba = manager.getDBA();
         MySQLAdaptor altDBA = null;
         
-        Set<String> testTypes = getTestTypes();
-        logger.info("Will execute tests of type: " + testTypes);
-        
         // Get the list of QAs from packages
-        Reflections reflections = new Reflections("org.reactome.release.qa.check",
-                                                  "org.reactome.release.qa.graph");
+        Reflections reflections = new Reflections(
+                "org.reactome.release.qa.check",
+                "org.reactome.release.qa.diagram",
+                "org.reactome.release.qa.graph");
 
-        Set<Class<? extends QACheck>> releaseQAs = reflections.getSubTypesOf(QACheck.class)
-                                                              .stream()
-                                                              .filter(checker -> isPicked(checker, testTypes))
-                                                              .collect(Collectors.toSet());
+        // The QA checks to run must have at least one annotation and
+        // be instantiable. Every runnable QA check must have an annotation
+        // that can be used as an inclusion critieria.
+        Set<Class<? extends QACheck>> allQAClasses = reflections.getSubTypesOf(QACheck.class);
+        Set<Class<? extends QACheck>> instantiable = allQAClasses.stream()
+                .filter(cls -> cls.getAnnotations().length > 0 &&
+                               !Modifier.isAbstract(cls.getModifiers()) &&
+                               !cls.isInterface())
+                .collect(Collectors.toSet());
         
-        // If checks were specified on the command line, then filter for those checks.
-        @SuppressWarnings("unchecked")
-        Collection<String> includes = (Collection<String>) cmdOpts.get(CHECKS_OPT);
-        if (includes != null && !includes.isEmpty()) {
-            releaseQAs = releaseQAs.stream()
-                    .filter(check -> includes.contains(check.getSimpleName()))
+        // The optional QA checks to include.
+        final Set<String> includes;
+        // The optional QA checks to exclude.
+        final Set<String> excludes;
+        // The QA checks to run.
+        Set<Class<? extends QACheck>> selected;
+        
+        // If checks were specified on the command line, then filter
+        // for those checks. Otherwise, check the configuration.
+        // The command line checks take precedence over the
+        // configuration.
+       @SuppressWarnings("unchecked")
+        Set<String> cmdIncludes = (Set<String>) cmdOpts.get(CHECKS_OPT);
+        if (cmdIncludes != null && !cmdIncludes.isEmpty()) {
+            selected = instantiable.stream()
+                    .filter(check -> cmdIncludes.contains(check.getSimpleName()))
                     .collect(Collectors.toSet());
+        } else {
+            // The optional QA checks to include.
+            includes = getIncludedQAs();
+            // The optional QA checks to exclude.
+            excludes = getExcludedQAs();
+            // Excludes take precedence.
+            includes.removeAll(excludes);
+            if (!includes.isEmpty()) {
+                logger.info("Included QA check types: " + includes);        
+            }
+            if (!excludes.isEmpty()) {
+                logger.info("Excluded QA check types: " + excludes);        
+            }
+            selected = instantiable.stream()
+                        .filter(check -> isPicked(check, includes, excludes))
+                        .collect(Collectors.toSet());
         }
         
-        // Omit checks in the check skip list, if necessary.
-        File file = new File("resources/QASkipList.txt");
-        if (file.exists()) {
-            Set<String> skipList = Files.lines(Paths.get(file.getPath()))
-                    .collect(Collectors.toSet());
-            releaseQAs = releaseQAs.stream()
-                    .filter(check -> !skipList.contains(check.getSimpleName()))
-                    .collect(Collectors.toSet());
-        }
-
+        File summaryFile = new File(output.getAbsolutePath(), SUMMARY_FILE_NM);
+        FileUtilities summary = new FileUtilities();
+        summary.setOutput(summaryFile.getPath());
+        summary.printLine(String.join(SUMMARY_DELIMITER, SUMMARY_HDGS));
         // Run the QA checks.
-        for (Class<? extends QACheck> cls : releaseQAs) {
-            QACheck check = cls.newInstance();
+        for (Class<? extends QACheck> cls : selected) {
+            QACheck check;
+            try {
+                check = cls.newInstance();
+            } catch (InstantiationException e) {
+                // Instantiation errors are remarkably uninformative.
+                logger.error("Could not instantiate " + cls.getName());
+                throw e;
+            }
             logger.info("Perform " + check.getDisplayName() + "...");
             check.setMySQLAdaptor(dba);
-            // Some checks might compare two databases to each other (usually test_reactome_## and test_reactome_##-1)
-            // So far, this only happens with CompareSpeciesByClasses, but there could be other multi-database checks in the future.
+            // Some checks compare two databases to each other
+            // (usually test_reactome_## and test_reactome_##-1).
+            // These checks require the alternate database authorization
+            // properties.
             if (check instanceof ChecksTwoDatabases) {
                 if (altDBA == null) {
-                    // Let the exception thrown to the top level to stop the whole execution
+                    // If the adaptor throws an exception, it will be passed
+                    // up the call stack to the top level to stop process
+                    // execution.
                     altDBA = MySQLAdaptorManager.getManager().getAlternateDBA();
                 }
                 ((ChecksTwoDatabases)check).setOtherDBAdaptor(altDBA);
             }
-            QAReport qaReport = check.executeQACheck();
-            if (qaReport.isEmpty()) {
+
+            QAReport report = check.executeQACheck();
+            String title = check.getDisplayName().replace('_', ' ');
+            String summaryLine = String.join(SUMMARY_DELIMITER, title,
+                    Integer.toString(report.getReportLines().size()));
+            summary.printLine(summaryLine);
+            if (report.isEmpty()) {
                 logger.info("Nothing to report!");
                 continue;
-            }
-            else {
-                String fileName = check.getDisplayName();
-                qaReport.output(fileName + ".txt", output.getAbsolutePath());
-                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + ".txt for report details.");
+            } else {
+                String fileName = check.getFileName();
+                report.output(fileName, output.getAbsolutePath());
+                logger.info("Check "+ output.getAbsolutePath() + "/" + fileName + " for report details.");
             }
         }
+        summary.close();
     }
-    
-    private static boolean isPicked(Class<? extends QACheck> checker, Set<String> testTypes) {
-        Annotation[] annotations = checker.getAnnotations();
-        if (annotations == null)
-            return false;
-        for (Annotation annotation : annotations) {
-            if (testTypes.contains(annotation.annotationType().getSimpleName()))
-                return true;
+
+    private static Set<String> getIncludedQAs() throws IOException {
+        File qaSkipListfile = new File("resources/IncludedChecks.txt");
+        return loadQACheckList(qaSkipListfile);
+    }
+
+    private static Set<String> getExcludedQAs() throws IOException {
+        File qaSkipListfile = new File("resources/ExcludedChecks.txt");
+        return loadQACheckList(qaSkipListfile);
+    }
+
+    protected static Set<String> loadQACheckList(File qaSkipListfile) throws IOException {
+        if (qaSkipListfile.exists()) {
+            Path path = Paths.get(qaSkipListfile.getPath());
+            return Files.lines(path)
+                    .filter(line -> !line.isEmpty() && line.charAt(0) != '#')
+                    .collect(Collectors.toSet());
         }
-        return false;
+        return Collections.emptySet();
     }
     
     /**
-     * Get pre-configured test types from auth.properties.
-     * @return
-     * @throws IOException
+     * Determines whether the given QA class should be run. A QA
+     * class is run if and only if both of the following conditions
+     * hold:
+     * <ul>
+     * <li>the includes is either empty or the includes contains
+     *     the QA class or any of its annotations</li>
+     * <li>the excludes does not contain the class or any of its
+     *     annotations</li>
+     * </ul>
+     * 
+     * @param check the QA check to examine
+     * @param includes the QA check class and annotation names to include 
+     * @param excludes the excluded QA check class and annotation names
+     * @return whether the check should be run
      */
-    private static Set<String> getTestTypes() throws IOException {
-        Set<String> rtn = new HashSet<>();
-        InputStream is = MySQLAdaptorManager.getManager().getAuthConfig();
-        Properties prop = new Properties();
-        prop.load(is);
-        String testTypes = prop.getProperty("testTypes");
-        if (testTypes == null) {
-            rtn.add("SliceQATest");
-            rtn.add("GraphQATest");
+    private static boolean isPicked(Class<? extends QACheck> check,
+            Set<String> includes, Set<String> excludes) {
+        // Check the class.
+        String checkName = check.getSimpleName();
+        if (excludes.contains(checkName)) {
+            return false;
         }
-        else {
-            String[] tokens = testTypes.split(",");
-            Stream.of(tokens).forEach(token -> rtn.add(token.trim()));
+        if (includes.contains(checkName)) {
+            return true;
         }
-        return rtn;
+        // Check the annotations.
+        Annotation[] annotations = check.getAnnotations();
+        for (Annotation annotation : annotations) {
+            String annName = annotation.annotationType().getSimpleName();
+            if (excludes.contains(annName)) {
+                return false;
+            } else if (includes.contains(annName)) {
+                return true;
+            }
+        }
+        // Not included or excluded.
+        // If there are includes, then only those are picked.
+        return includes.isEmpty();
     }
 
     private static File prepareOutput() throws IOException {
@@ -175,7 +252,7 @@ public class Main {
     private static Map<String, Object> parseCommandArguments(String[] args) {
         Map<String, Object> cmdOpts = new HashMap<String, Object>();
         String option = null;
-        List<String> checks = new ArrayList<String>();
+        Set<String> checks = new HashSet<String>();
         for (String arg: args) {
             if (CHECKS_OPT.equals(option)) {
                 checks.add(arg);
@@ -207,5 +284,5 @@ public class Main {
         
         return cmdOpts;
     }
-   
+  
 }

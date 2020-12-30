@@ -2,7 +2,7 @@ package org.reactome.release.qa.check;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
-import org.reactome.release.qa.annotations.SliceQATest;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -13,10 +13,10 @@ import java.util.*;
  * Flags all human PhysicalEntities that are participants in a non-human ReactionlikeEvent.
  */
 
-@SliceQATest
+@SliceQACheck
 public class NonHumanReactionsWithHumanPhysicalEntitiesCheck extends AbstractQACheck {
 
-    private List<String> skiplistDbIds = new ArrayList<>();
+    private List<Long> skiplistDbIds = new ArrayList<>();
 
     @Override
     public QAReport executeQACheck() throws Exception {

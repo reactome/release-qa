@@ -1,0 +1,3 @@
+SliceQACheck
+GraphQACheck
+DiagramQACheck

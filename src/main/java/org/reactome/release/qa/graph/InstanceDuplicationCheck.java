@@ -19,28 +19,41 @@ import org.gk.model.GKInstance;
 import org.gk.model.InstanceUtilities;
 import org.gk.schema.GKSchemaClass;
 import org.gk.schema.SchemaAttribute;
-import org.reactome.release.qa.annotations.GraphQATest;
+import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
+import org.reactome.release.qa.common.SkipList;
 
 /**
- * This class is used to check if two or more instances in the same class are duplicated. The implementation
- * of this check if based on the list of defined attributes listed in the schema, and is different from the
- * implementation from graph QA check in some cases (e.g. EntitySet duplication).
+ * This class is used to check if two or more instances in the same class are duplicated.
+ * The implementation of this check is based on the list of defined attributes listed
+ * in the schema, and is different from the implementation from graph QA check in some
+ * cases (e.g. EntitySet duplication).
+ * 
+ * Note: a skip list is supported but not recommended for this check.
+ * 
  * @author wug
- *
  */
-@GraphQATest
+@GraphQACheck
 public class InstanceDuplicationCheck extends AbstractQACheck {
-    private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
 
-    public InstanceDuplicationCheck() {
+        private static Logger logger = Logger.getLogger(InstanceDuplicationCheck.class);
+        private SkipList skipList;
+        public InstanceDuplicationCheck() {
     }
 
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
+
+        try {
+            skipList = new SkipList(this.getDisplayName());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+
         List<String> classes = loadConfiguration();
         if (classes == null || classes.size() == 0)
             return report; // Nothing to be checked
@@ -48,11 +61,10 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
             logger.info("Check " + cls + "...");
             executeQACheck(cls, report);
         }
-        
         report.setColumnHeaders("Class",
-                                "DuplicatedDBIDs",
-                                "DuplicatedDisplayNames",
-                                "DuplicatedMostRecentAuthor");
+                                "Duplicated_DBIDs",
+                                "Duplicated_DisplayNames",
+                                "MostRecentAuthor");
         
         return report;
     }
@@ -66,21 +78,28 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
         // of places). 
         // Note: The following check may miss some duplications if multiple values
         // existing in ANY slot!
-        if (cls != null) {
-            Collection<SchemaAttribute> definedAttributes = cls.getDefiningAttributes();
-            // Key instances by a string of defined attribute values to simple check
-            Collection<GKInstance> instances = dba.fetchInstancesByClass(cls);
-            dba.loadInstanceAttributeValues(instances, definedAttributes);
-            Map<String, Set<GKInstance>> keyToInsts = new HashMap<>();
-            StringBuilder builder = new StringBuilder();
-            for (GKInstance instance : instances) {
+        Collection<SchemaAttribute> definedAttributes = cls.getDefiningAttributes();
+        // Key instances by a string of defined attribute values to simple check
+        Collection<GKInstance> instances = dba.fetchInstancesByClass(cls);
+        dba.loadInstanceAttributeValues(instances, definedAttributes);
+        Map<String, Set<GKInstance>> keyToInsts = new HashMap<>();
+        StringBuilder builder = new StringBuilder();
+        for (GKInstance instance : instances) {
+            if (isEscaped(instance)) {
+                continue;
+            }
+            if (!skipList.containsInstanceDbId(instance.getDBID())) {
                 builder.setLength(0);
-                // Since the check may be run again subclass, which may have different
+                // Since the check may be run against subclass, which may have different
                 // defined attributes as the super class, we need to get the defined attributes
                 // directly from instance
                 GKSchemaClass instCls = (GKSchemaClass) instance.getSchemClass();
                 Collection<SchemaAttribute> instDefinedAttributes = instCls.getDefiningAttributes();
-                for (SchemaAttribute att : instDefinedAttributes) {
+
+                List<SchemaAttribute> sorted = instDefinedAttributes.stream()
+                        .sorted((att1, att2) -> att1.getName().compareTo(att2.getName()))
+                        .collect(Collectors.toList());
+                for (SchemaAttribute att : sorted) {
                     // att may be defined in the superclass and should not be used for query
                     List<?> values = instance.getAttributeValuesList(att.getName());
                     generateKeyFromValues(values, att, builder);
@@ -93,17 +112,32 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
                     return set;
                 });
             }
-            // Check duplication
-            for (String key : keyToInsts.keySet()) {
-                Set<GKInstance> insts = keyToInsts.get(key);
-                if (insts.size() == 1)
-                    continue;
-                // Create report
-                report.addLine(clsName,
-                        insts.stream().map(inst -> inst.getDBID() + "").collect(Collectors.joining("|")),
-                        insts.stream().map(inst -> inst.getDisplayName()).collect(Collectors.joining("|")),
-                        insts.stream().map(inst -> QACheckerHelper.getLastModificationAuthor(inst)).collect(Collectors.joining("|")));
+        }
+        // Check duplication
+        for (Set<GKInstance> duplicates : keyToInsts.values()) {
+            Collection<GKInstance> unescapedDups = new ArrayList<GKInstance>();
+            for (GKInstance duplicate: duplicates) {
+                if (!isEscaped(duplicate)) {
+                    unescapedDups.add(duplicate);
+                }
             }
+            if (unescapedDups.size() < 2)
+                continue;
+            // Sort dups by db id.
+            List<GKInstance> sortedDups = unescapedDups.stream()
+                    .sorted((inst1, inst2) -> inst1.getDBID().compareTo(inst2.getDBID()))
+                    .collect(Collectors.toList());
+            // Create report
+            String dbIds = sortedDups.stream()
+                    .map(inst -> inst.getDBID() + "")
+                    .collect(Collectors.joining("|"));
+            String names = sortedDups.stream()
+                    .map(inst -> inst.getDisplayName())
+                    .collect(Collectors.joining("|"));
+            String authors = sortedDups.stream()
+                    .map(inst -> QACheckerHelper.getLastModificationAuthor(inst))
+                    .collect(Collectors.joining("|"));
+            report.addLine(clsName, dbIds, names, authors);
         }
     }
     
@@ -134,11 +168,6 @@ public class InstanceDuplicationCheck extends AbstractQACheck {
                                       .collect(Collectors.toList());
             return names;
         }
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Instance_Duplication";
     }
     
 }

@@ -1,0 +1,3 @@
+# Skiplist for InferredFromInOtherAttribute QA test
+# This class inherits from TwoAttributesReferToSameCheck, so its skiplist is the same.
+259431
