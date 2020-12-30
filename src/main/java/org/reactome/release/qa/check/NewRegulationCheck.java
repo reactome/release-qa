@@ -47,14 +47,18 @@ public class NewRegulationCheck extends AbstractQACheck implements ChecksTwoData
         for (GKInstance currentRlE : currentRlEsWithRegulations) {
             GKInstance previousRlE = priorAdaptor.fetchInstance(currentRlE.getDBID());
             // QA check
-            if (changedRegulatedByWithoutNewReviewed(currentRlE, previousRlE)){
-                report.addLine(
-                        currentRlE.getDBID().toString(),
-                        currentRlE.getDisplayName(),
-                        currentRlE.getSchemClass().getName(),
-                        "ReactionlikeEvent with new regulatedBy instance but has not yet been reviewed",
-                        QACheckerHelper.getLastModificationAuthor(currentRlE)
-                );
+            if (previousRlE != null && currentRlE.getSchemClass().getName().equals(previousRlE.getSchemClass().getName())) {
+                if (changedRegulatedByWithoutNewReviewed(currentRlE, previousRlE)) {
+                    report.addLine(
+                            currentRlE.getDBID().toString(),
+                            currentRlE.getDisplayName(),
+                            currentRlE.getSchemClass().getName(),
+                            "ReactionlikeEvent with new regulatedBy instance but has not yet been reviewed",
+                            QACheckerHelper.getLastModificationAuthor(currentRlE)
+                    );
+                }
+            } else {
+                System.out.println(currentRlE + " is not the same class as " + previousRlE);
             }
         }
         return report;
