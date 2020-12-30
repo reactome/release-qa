@@ -14,7 +14,7 @@ import org.reactome.release.qa.common.QAReport;
 /**
  *
  * This class is to check two things for FailedReaction: 1). A FailedReaction must have
- * a normalReaction (Mandatory); 2). A FaiedReaction cannot have output (Note: We may have
+ * a normalReaction (Mandatory); 2). A FailedReaction cannot have output (Note: We may have
  * to change the data model to enforce this!)
  *
  */
