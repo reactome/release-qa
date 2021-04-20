@@ -11,7 +11,7 @@ import java.util.List;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.schema.GKSchemaAttribute;
-import org.gk.schema.SchemaClass;
+import org.gk.schema.GKSchemaClass;
 import org.reactome.release.qa.annotations.GraphQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.JavaConstants;
@@ -36,17 +36,17 @@ public class PhysicalEntitiesCompartmentCheck extends AbstractQACheck {
     @SuppressWarnings("unchecked")
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
-
-
-        for (SchemaClass sc : ((Collection<SchemaClass>) this.dba.getSchema().getClasses()))
+        // We are interested in all subclasses of PhysicalEntity.
+        GKSchemaClass physicalEntitySchemaClass = (GKSchemaClass) this.dba.getSchema().getClassByName(ReactomeJavaConstants.PhysicalEntity);
+        for (GKSchemaClass schemaClass : (Collection<GKSchemaClass>)physicalEntitySchemaClass.getSubClasses())
         {
             // we can't check the compartment of PhysicalEntity, but we can check all subclasses that have a compartment attribute.
-            if (sc.isa(ReactomeJavaConstants.PhysicalEntity))
+            if (schemaClass.isa(ReactomeJavaConstants.PhysicalEntity))
             {
-                boolean hasCompartment = ((Collection<GKSchemaAttribute>)sc.getAttributes()).stream().anyMatch(a -> a.getName().equals(ReactomeJavaConstants.compartment));
+                boolean hasCompartment = ((Collection<GKSchemaAttribute>)schemaClass.getAttributes()).stream().anyMatch(a -> a.getName().equals(ReactomeJavaConstants.compartment));
                 if (hasCompartment)
                 {
-                    String e2c = QACheckerHelper.getAttributeTableName(sc.getName(),
+                    String e2c = QACheckerHelper.getAttributeTableName(schemaClass.getName(),
                                                                        ReactomeJavaConstants.compartment,
                                                                        dba);
                     String sql = "SELECT DB_ID" +
