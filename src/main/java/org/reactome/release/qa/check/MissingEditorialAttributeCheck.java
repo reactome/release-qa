@@ -31,7 +31,7 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 	{
 		GKSchemaClass eventClass = (GKSchemaClass) this.dba.getSchema().getClassByName(ReactomeJavaConstants.Event);
 		QAReport report = new QAReport();
-		report.setColumnHeaders("Event instance", "Stable Identifier", "Edited?", "Authored?", "Reviewed?");
+		report.setColumnHeaders("DB_ID", "Name", "Edited?", "Authored?", "Reviewed?", "Created");
 		Collection<GKSchemaClass> classesToCheck = (Collection<GKSchemaClass>) eventClass.getSubClasses();
 		// make sure Event is in there with its subclasses.
 		classesToCheck = new ArrayList<>(classesToCheck);
@@ -55,8 +55,13 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 					boolean reviewedIsNull = reviewed == null;
 					if (editedIsNull || authoredIsNull || reviewedIsNull)
 					{
+						// We also need the creator info for the report.
+						GKInstance creator = (GKInstance) eventInstance.getAttributeValue(ReactomeJavaConstants.created);
+
 						// Report on this instance.
-						report.addLine(eventInstance.toString(), stableIdentifier.toString(), editedIsNull ? NO : YES , authoredIsNull ? NO : YES , reviewedIsNull ? NO : YES);
+						report.addLine(eventInstance.getDBID().toString(), (String)eventInstance.getAttributeValue(ReactomeJavaConstants.name),
+											editedIsNull ? NO : YES, authoredIsNull ? NO : YES, reviewedIsNull ? NO : YES,
+											creator.getAttributeValue(ReactomeJavaConstants._displayName).toString());
 					}
 				}
 			}
