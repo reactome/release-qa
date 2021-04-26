@@ -3,6 +3,7 @@ package org.reactome.release.qa.check;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.gk.model.GKInstance;
@@ -36,9 +37,8 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 		GKSchemaClass eventClass = (GKSchemaClass) this.dba.getSchema().getClassByName(ReactomeJavaConstants.Event);
 		QAReport report = new QAReport();
 		report.setColumnHeaders("DB_ID", "Name", "Edited?", "Authored?", "Reviewed?", "Created");
-		Collection<GKSchemaClass> classesToCheck = (Collection<GKSchemaClass>) eventClass.getSubClasses();
 		// make sure Event is in there with its subclasses.
-		classesToCheck = new ArrayList<>(classesToCheck);
+		List<GKSchemaClass> classesToCheck = new ArrayList<>((Collection<GKSchemaClass>) eventClass.getSubClasses());
 		classesToCheck.add(eventClass);
 		for (GKSchemaClass schemaClass : classesToCheck)
 		{
@@ -58,14 +58,20 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 	/**
 	 * Returns an array of Strings that will be added as a line to the report - IFF the eventInstance meets the criteria:
 	 * StableIdentifier is NOT released; Any of: authored, edited, reviewed are null.
-	 * @param eventInstance
-	 * @return
+	 * @param eventInstance The instance to get a report line for.
+	 * @return An array of strings that will be added to the report. Elements in the array, by position:
+	 *  0 - DBID;
+	 *  1 - Event name;
+	 *  2 - Edited?;
+	 *  3 - Authored?;
+	 *  4 - Reviewed?;
+	 *  5 - creator.
 	 * @throws InvalidAttributeException
 	 * @throws Exception
 	 */
 	private String[] getReportLine(GKInstance eventInstance) throws InvalidAttributeException, Exception
 	{
-		ArrayList<String> line = new ArrayList<>();
+		List<String> line = new ArrayList<>();
 		GKInstance stableIdentifier = (GKInstance) eventInstance.getAttributeValue(ReactomeJavaConstants.stableIdentifier);
 		Boolean released = (Boolean) stableIdentifier.getAttributeValue(ReactomeJavaConstants.released);
 		String dbId = eventInstance.getDBID().toString();
@@ -89,7 +95,7 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 				line.add(editedIsNull ? NO : YES);
 				line.add(authoredIsNull ? NO : YES);
 				line.add(reviewedIsNull ? NO : YES);
-				line.add(creator.getAttributeValue(ReactomeJavaConstants._displayName).toString());
+				line.add(creator.getDisplayName());
 				reportedEntities.add(dbId);
 			}
 		}
