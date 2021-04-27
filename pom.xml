@@ -12,7 +12,7 @@
         <opencsv.version>4.2</opencsv.version>
         <log4j2.version>2.11.0</log4j2.version>
         <javax.mail.version>1.4</javax.mail.version>
-        <reactome.base.version>2.0.0-SNAPSHOT</reactome.base.version>
+        <reactome.base.version>2.1.0-SNAPSHOT</reactome.base.version>
     </properties>
 
     <modelVersion>4.0.0</modelVersion>
