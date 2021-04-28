@@ -6,13 +6,13 @@
 	<properties>
 		<bundle.symbolicName>reactome-release-qa</bundle.symbolicName>
 		<bundle.namespace>org.reactome</bundle.namespace>
-		<!-- Prevent Using platform encoding (UTF-8 actually) to copy filtered 
+		<!-- Prevent Using platform encoding (UTF-8 actually) to copy filtered
 			resources, i.e. build is platform dependent! See: https://maven.apache.org/general.html -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<opencsv.version>4.2</opencsv.version>
 		<log4j2.version>2.11.0</log4j2.version>
 		<javax.mail.version>1.4</javax.mail.version>
-		<reactome.base.version>2.0.0-SNAPSHOT</reactome.base.version>
+		<reactome.base.version>2.1.0-SNAPSHOT</reactome.base.version>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -139,11 +139,11 @@
 	</build>
 
 	<repositories>
-		<!-- Sonatype repository from which to obtain SNAPSHOT dependencies created 
+		<!-- Sonatype repository from which to obtain SNAPSHOT dependencies created
 			by Reactome (or others sources) -->
 		<repository>
 			<id>oss.sonatype.org-snapshot</id>
-			<url>http://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 			<releases>
 				<enabled>false</enabled>
 			</releases>
@@ -198,7 +198,7 @@
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j2.version}</version>
 		</dependency>
-		<!-- Log4j2-to-Log4j1.x bridge - just in case something in reactome-base 
+		<!-- Log4j2-to-Log4j1.x bridge - just in case something in reactome-base
 			depends on log4j 1.x code. -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -216,8 +216,8 @@
 			<groupId>org.reactome.base</groupId>
 			<artifactId>reactome-base</artifactId>
 			<version>${reactome.base.version}</version>
-			<!-- exclude old log4j 1.x libraries - log4j 1.x has not been supported 
-				for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces 
+			<!-- exclude old log4j 1.x libraries - log4j 1.x has not been supported
+				for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces
 				) -->
 			<exclusions>
 				<exclusion>
