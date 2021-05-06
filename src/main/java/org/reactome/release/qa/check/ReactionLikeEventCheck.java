@@ -17,7 +17,11 @@ import org.reactome.release.qa.common.QAReport;
  * Consider to add some new attributes to avoid skip lists: e.g. allowInputNull etc.
  *
  */
-@SliceQACheck
+
+/**
+ * Note: This class was originally on the old 'develop' branch before 'master' was merged into it in December 2020.
+ * It was added to 'master', but as it was an old QA test its utility was questionable, and so it was turned off. (JCook 2020)
+ */
 public class ReactionLikeEventCheck extends AbstractQACheck {
 
     private String rleCompartmentSkipList;

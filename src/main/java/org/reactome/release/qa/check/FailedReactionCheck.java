@@ -18,7 +18,13 @@ import org.reactome.release.qa.common.QAReport;
  * to change the data model to enforce this!)
  *
  */
-@SliceQACheck
+
+/**
+ * Note: This class was originally on the old 'develop' branch before 'master' was merged into it in December 2020.
+ * It was added to 'master', but as it was an old QA test its utility was questionable, and so it was turned off. (JCook 2020)
+ */
+
+
 public class FailedReactionCheck extends AbstractQACheck {
 
     private static final String schemaClassName = ReactomeJavaConstants.FailedReaction;

@@ -4,6 +4,7 @@ import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.reactome.release.qa.annotations.ReleaseQACheck;
+import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
@@ -18,6 +19,7 @@ import java.util.*;
 import static java.util.stream.Collectors.toSet;
 
 @ReleaseQACheck
+@SliceQACheck
 public class NewRegulationCheck extends AbstractQACheck implements ChecksTwoDatabases
 {
 
