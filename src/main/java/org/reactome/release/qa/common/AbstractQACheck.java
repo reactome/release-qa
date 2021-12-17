@@ -102,7 +102,7 @@ public abstract class AbstractQACheck implements QACheck {
         if (ieDateValue == null) {
             return true;
         }
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date ieDate = df.parse(ieDateValue);
         return !ieDate.after(CUTOFF_DATE);
     }
