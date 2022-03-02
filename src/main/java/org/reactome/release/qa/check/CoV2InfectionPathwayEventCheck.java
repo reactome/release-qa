@@ -12,20 +12,23 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * These QA checks were mostly used during the CoV-1-to-CoV-2 inference process. For now they are being kept, but may
  * be removed, given they are for very specific scenarios (August 2020).
  *
  * This QA check class evaluates various properties of the Events contained within the 'SARS-CoV-2 Infection' Pathway.
- * This Pathway was created using a modified version of orthoinference to expedite Reactome's annotations of CoV-2 data.
+ * This Pathway was created using a modified version of orthoinference to expedite Reactome's annotations of CoV-2
+ * data.
  * Reports: 1a) Event Summation instances with discrepancy between their 'created' and modified' dateTimes
- * or 1b) Summations without a modified instance - they need to have been modified at least once to reflect an update to the
- * Summation text. 2) Events that don't contain at least 1 2020 literatureReference. Events where the summation format
- * is not correct, also have the following checks: 3a) Events where the inferredFrom slot is empty despite having received
- * the correct COVID inference summation text. 3b) Events where the inferredFrom is populated but the updated summation text
- * hasn't been updated. These are complementary cases, and just served to notify the curator of a possible mistake with
- * CoV-2 instances.
+ * or 1b) Summations without a modified instance - they need to have been modified at least once to reflect an update
+ * to the Summation text. 2) Events that don't contain at least 1 2020 (or later) literatureReference. Events where
+ * the summation format is not correct, also have the following checks: 3a) Events where the inferredFrom slot is
+ * empty despite having received the correct COVID inference summation text. 3b) Events where the inferredFrom is
+ * populated but the updated summation text hasn't been updated. These are complementary cases, and just served to
+ * notify the curator of a possible mistake with CoV-2 instances.
  *
  * @author jcook
  */
@@ -111,32 +114,74 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
     }
 
     /**
-     * Checks if Event has a 2020 literatureReference. This is because CoV-2 evidence was very recent when this was being evaluated.
+     * Checks if Event has a 2020 or later literatureReference. This is because CoV-2 evidence was very recent when
+     * this was being evaluated.
      * @param cov2Event - GKInstance, Event contained within 'SARS-CoV-2 Infection' Pathway.
-     * @return - boolean, true if at least 1 2020 literatureReference, false if not.
-     * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from Event or LiteratureReference instances.
+     * @return - boolean, true if at least one 2020 or later literatureReference, false if not.
+     * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from Event or LiteratureReference
+     * instances.
      */
     private boolean hasRecentLiteratureReference(GKInstance cov2Event) throws Exception {
+        // Iterate through all literatureReference instances, checking the 'year' attribute.
+        Collection<GKInstance> literatureReferences =
+            (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.literatureReference);
 
-        boolean has2020LiteratureReference = false;
-        // Iterature through all literatureReference instances, checking the 'year' attribute.
-        for (GKInstance literatureReference : (Collection<GKInstance>) cov2Event.getAttributeValuesList(ReactomeJavaConstants.literatureReference)) {
-            if (!has2020LiteratureReference) {
-                if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference) && literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString().equals("2020")) {
-                    has2020LiteratureReference = true;
-                } else if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.URL)) {
-                    // Only 10 URL-type LiteratureReferences currently exist in the Database for CoV-2 instances (August 2020).
-                    // All URLs are to pre-prints, and contain the string 'yyyy.mm.dd' in the URL.
-                    // Example: https://www.biorxiv.org/content/10.1101/2020.04.26.061705v1.full
-                    // This just simply checks for the existence of '2020.' in the URL string.
-                    String url = literatureReference.getAttributeValue(ReactomeJavaConstants.uniformResourceLocator).toString();
-                    if (url.contains("2020.")) {
-                        has2020LiteratureReference = true;
-                    }
-                }
+        for (GKInstance literatureReference : literatureReferences) {
+            if (literatureReferenceFromOrLaterThan2020(literatureReference) ||
+                urlFromOrLaterThan2020(literatureReference)) {
+                return true;
             }
         }
-        return has2020LiteratureReference;
+        return false;
+    }
+
+    /**
+     * Checks if the instance is a literature reference and is from 2020 or later
+     * @param literatureReference - GKInstance, literatureReference to check when it publishes
+     * @return - boolean, true if instance argument is a literature reference and from 2020 or later
+     * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from the Literature Reference
+     * instance
+     */
+    private boolean literatureReferenceFromOrLaterThan2020(GKInstance literatureReference) throws Exception {
+        if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
+            return false;
+        }
+
+        String year = literatureReference.getAttributeValue(ReactomeJavaConstants.year).toString();
+
+        return publicationYearFromOrLaterThan2020(year);
+    }
+
+    /**
+     * Checks if the instance is a URL and is from 2020 or later
+     * @param url - GKInstance, URL to check when it publishes
+     * @return - boolean, true if instance argument is a URL and from 2020 or later
+     * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from the URL instance
+     */
+    private boolean urlFromOrLaterThan2020(GKInstance url) throws Exception {
+        if (url.getSchemClass().isa(ReactomeJavaConstants.URL)) {
+            return false;
+        }
+
+        // Only 10 URL-type LiteratureReferences currently exist in the Database for CoV-2 instances (August 2020).
+        // All URLs are to pre-prints, and contain the string 'yyyy.mm.dd' in the URL.
+        // Example: https://www.biorxiv.org/content/10.1101/2020.04.26.061705v1.full
+        // This just simply checks for the existence of '2020.' in the URL string.
+        String urlString = url.getAttributeValue(ReactomeJavaConstants.uniformResourceLocator).toString();
+
+        Pattern dateInURLPattern = Pattern.compile("(\\d{4})\\.\\d{2}\\.\\d{2}");
+        Matcher dateInURLMatcher = dateInURLPattern.matcher(urlString);
+
+        if (!dateInURLMatcher.find()) {
+            return false;
+        }
+
+        String year = dateInURLMatcher.group(1);
+        return publicationYearFromOrLaterThan2020(year);
+    }
+
+    private boolean publicationYearFromOrLaterThan2020(String year) {
+        return Integer.parseInt(year) >= 2020;
     }
 
     /**
