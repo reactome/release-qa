@@ -143,7 +143,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * instance
      */
     private boolean literatureReferenceFromOrLaterThan2020(GKInstance literatureReference) throws Exception {
-        if (literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
+        if (!literatureReference.getSchemClass().isa(ReactomeJavaConstants.LiteratureReference)) {
             return false;
         }
 
@@ -159,7 +159,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
      * @throws Exception, thrown by MySQLAdaptor if unable to get attribute values from the URL instance
      */
     private boolean urlFromOrLaterThan2020(GKInstance url) throws Exception {
-        if (url.getSchemClass().isa(ReactomeJavaConstants.URL)) {
+        if (!url.getSchemClass().isa(ReactomeJavaConstants.URL)) {
             return false;
         }
 
