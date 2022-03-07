@@ -54,7 +54,7 @@ public class CoV2InfectionPathwayEventCheck extends AbstractQACheck {
             // issue is being reported, it indicates they likely made an error.
             // If literatureReference attribute does not contain at least 1 litRef from 2020.
             if (cov2Event.getAttributeValue(ReactomeJavaConstants.inferredFrom) == null && !hasRecentLiteratureReference(cov2Event)) {
-                issues.add("Does not contain a 2020 literature reference");
+                issues.add("Does not contain a literature reference from 2020 or later");
             }
             // Summation text was updated near end of release cycle where CoV-1-to-CoV-2 projections happened.
             // If it didn't have the updated text, there are two reasons for it, outlined below.
