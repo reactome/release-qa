@@ -36,3 +36,5 @@ ContributorsCheck/contributors-check/src/main/resources/auth.properties
 NullCheck/src/main/resources/auth.properties
 auth.properties
 /target/
+./src/main/resources/qa.properties
+
