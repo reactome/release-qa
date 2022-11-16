@@ -125,7 +125,7 @@ public abstract class AbstractQACheck implements QACheck {
                 String[] tokens = line.split("\t");
                 // Make sure only number will be got
                 if (tokens[0].matches("\\d+")) {
-                    Long dbId = new Long(tokens[0]);
+                    Long dbId = Long.valueOf(tokens[0]);
                     escapedDbIds.add(dbId);
                 }
             }

@@ -50,7 +50,7 @@ public class DatabaseObjectSelfLoopCheck extends AbstractQACheck {
                             PreparedStatement ps = conn.prepareStatement(sql);
                             ResultSet rs = ps.executeQuery();
                             while (rs.next()) {
-                                Long dbId = new Long(rs.getLong(1));
+                                Long dbId = rs.getLong(1);
                                 GKInstance instance = dba.fetchInstance(dbId);
                                 if (!isEscaped(instance)) {
                                     addReportLine(report, instance, attName);
