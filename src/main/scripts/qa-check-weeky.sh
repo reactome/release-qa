@@ -28,7 +28,7 @@ echo "Starting the $date_hyphenated weekly QA checks..."
 # The Slicing Tool location.
 slicing_dir="$share/SlicingTool"
 # The Slicing Tool jar file.
-slicing_jar="$share/lib/SlicingTool-jar-with-dependencies.jar"
+slicing_jar="$share/lib/SlicingTool-exec"
 # The slice database name.
 slice_db="test_slice_$date"
 
@@ -62,7 +62,7 @@ if [ ! -e "$curator_qa_dir" ]; then
     exit 1
 fi
 # The Curator QA jar file.
-curator_qa_jar="$share/lib/CuratorQA-jar-with-dependencies.jar"
+curator_qa_jar="$share/lib/CuratorQA-exec"
 # The Curator QA output area.
 curator_qa_out_dir="$curator_qa_dir/QA_Output"
 [ -e "$curator_qa_out_dir" ] || mkdir $curator_qa_out_dir
@@ -94,7 +94,7 @@ rls_qa_out_dir="$rls_qa_dir/output"
 [ -n "$(ls -A $rls_qa_out_dir)" ] && rm -f $rls_qa_out_dir/*
 
 # Run the Release QA.
-rls_qa_jar="$share/lib/ReleaseQA-jar-with-dependencies.jar"
+rls_qa_jar="$share/lib/ReleaseQA-exec"
 echo "Running the Release QA checks..."
 (cd $rls_qa_dir; java -Xmx8G -jar $rls_qa_jar $db_opt)
 rc=$?
@@ -122,7 +122,7 @@ if [ ! -e "$notify_dir" ]; then
 fi
 
 # Run the notifier.
-notify_jar="$share/lib/Notify-jar-with-dependencies.jar"
+notify_jar="$share/lib/Notify-exec"
 # For some reason, the log config is not picked up in the
 # notifier. Work around this by specifying it in an option.
 java_opts="-Dlog4j.configurationFile=resources/log4j2.properties"
