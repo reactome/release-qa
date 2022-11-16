@@ -1,20 +1,18 @@
 package org.reactome.release.qa.common;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.MySQLAdaptor;
 import org.gk.util.FileUtilities;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractQACheck implements QACheck {
 
@@ -102,7 +100,7 @@ public abstract class AbstractQACheck implements QACheck {
         if (ieDateValue == null) {
             return true;
         }
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date ieDate = df.parse(ieDateValue);
         return !ieDate.after(CUTOFF_DATE);
     }
