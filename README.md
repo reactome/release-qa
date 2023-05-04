@@ -23,7 +23,7 @@ This QA check requires additional config settings in `auth.properties` to connec
 ### Running the code
 You can run the checks like this:
 ```
-java -Xmx8G -jar release-qa-0.1.0-jar-with-dependencies.jar
+java -Xmx8G -jar release-qa-0.1.0-exec
 ```
 This will run a set of QAs for release. Before running the above, make sure you have edited
 `resources/auth.properties` to provide required database connection information. All outputs
@@ -31,7 +31,7 @@ will be generated in the output folder.
 
 You can run a specific check like this:
 ```
-java -Xmx8G -jar release-qa-0.1.0-jar-with-dependencies.jar [CHECK]
+java -Xmx8G -jar release-qa-0.1.0-exec [CHECK]
 ```
 where `CHECK` is the QA check simple class name without file extension.
 
