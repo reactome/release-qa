@@ -120,7 +120,7 @@ public class EHLDSubpathwayChangeCheck extends AbstractQACheck implements Checks
 	}
 
 	private Pattern getSVGFileNamePattern() {
-		return Pattern.compile("\"(\\d+)\\.svg\"");
+		return Pattern.compile("\"R-HSA-(\\d+)\\.svg\"");
 	}
 
 	private List<EHLDPathway> getEHLDPathways(Collection<Long> dbIds, MySQLAdaptor database) {
