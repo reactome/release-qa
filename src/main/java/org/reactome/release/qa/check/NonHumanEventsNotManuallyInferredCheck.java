@@ -17,7 +17,7 @@ import java.util.List;
 @SliceQACheck
 public class NonHumanEventsNotManuallyInferredCheck extends AbstractQACheck {
 
-    private List<String> skiplistDbIds = new ArrayList<>();
+    private List<Long> skiplistDbIds = new ArrayList<>();
 
     @Override
     public QAReport executeQACheck() throws Exception {

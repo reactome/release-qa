@@ -19,6 +19,13 @@ public class QACheckerHelper {
     
     public static final String IS_NOT_NULL = "IS NOT NULL";
     public static final String IS_NULL = "IS NULL";
+
+    // Variables for CoV-specific QA tests, from the CoV-1-to-CoV-2 projection process (August 2020).
+    public static final long COV_2_INFECTION_PATHWAY_DB_ID = 9694516L;
+    public static final long COV_1_SPECIES_DB_ID = 9678119L;
+    public static final long COV_2_SPECIES_DB_ID = 9681683L;
+    public static final long COV_1_DISEASE_DB_ID = 9678120L;
+    public static final long COV_2_DISEASE_DB_ID = 9683912L;
     
     /**
      * Filter a list of DB ids by the DB ids in skipList.
@@ -295,7 +302,7 @@ public class QACheckerHelper {
      * @return Set<GKInstance> -- All Events in DB that are not used for manual inference.
      * @throws Exception -- Thrown by MySQLAdaptor
      */
-    public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
+    public static Set<GKInstance> findEventsNotUsedForManualInference(MySQLAdaptor dba, List<Long> skiplistDbIds) throws Exception {
         Set<GKInstance> eventsNotUsedForInference = new HashSet<>();
         Collection<GKInstance> events = dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         for (GKInstance event : events) {
@@ -326,7 +333,7 @@ public class QACheckerHelper {
      * @return Set<GKInstance> -- All Human ReactionlikeEvents that are not used for manual inference.
      * @throws Exception-- Thrown by MySQLAdaptor
      */
-    public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba, List<String> skiplistDbIds) throws Exception {
+    public static Set<GKInstance> findHumanReactionsNotUsedForManualInference(MySQLAdaptor dba, List<Long> skiplistDbIds) throws Exception {
         Set<GKInstance> reactionsNotUsedForManualInference = new HashSet<>();
         for (GKInstance event : findEventsNotUsedForManualInference(dba, skiplistDbIds)) {
             // Filter for Human ReactionlikeEvents
@@ -446,6 +453,25 @@ public class QACheckerHelper {
     }
 
     /**
+     * Helper method that finds all unique DbIds in the 'species' and 'relatedSpecies' attributes of the instance.
+     * @param inst - GKInstance, an Event or PhysicalEntity.
+     * @return - Set<Long>, DbIds from species/relatedSpecies attributes.
+     * @throws Exception, thrown by MySQLAdaptor when unable to get species or relatedSpecies values from instance.
+     */
+    public static Set<Long> getSpeciesAndRelatedSpeciesDbIds(GKInstance inst) throws Exception {
+        Set<Long> speciesDbIds = new HashSet<>();
+        List<String> speciesAttributes = Arrays.asList(ReactomeJavaConstants.species, ReactomeJavaConstants.relatedSpecies);
+        for (String speciesAttribute: speciesAttributes) {
+            if(inst.getSchemClass().isValidAttribute(speciesAttribute)) {
+                for (GKInstance speciesInst : (Collection<GKInstance>) inst.getAttributeValuesList(speciesAttribute)) {
+                    speciesDbIds.add(speciesInst.getDBID());
+                }
+            }
+        }
+        return speciesDbIds;
+    }
+
+    /**
      * Checks if the incoming databaseObject has a popalated disease attribute.
      * @param databaseObject GKInstance -- Instance to be checked for populated disease attribute.
      * @return boolean -- true if has filled disease attribute, false if not.
@@ -463,9 +489,9 @@ public class QACheckerHelper {
      * @return boolean -- true if member of skiplist Pathway, false if not.
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
-    public static boolean memberSkipListPathway(GKInstance event, List<String> skiplistDbIds) throws Exception {
+    public static boolean memberSkipListPathway(GKInstance event, List<Long> skiplistDbIds) throws Exception {
         // Finds all parent Event DbIds.
-        Set<String> hierarchyDbIds = findEventHierarchyDbIds(event);
+        Set<Long> hierarchyDbIds = findEventHierarchyDbIds(event);
         // Check if any returned Event DbIds (including original Events) are in skiplist.
         return skiplistDbIds.stream().anyMatch(dbId -> hierarchyDbIds.contains(dbId));
     }
@@ -476,9 +502,9 @@ public class QACheckerHelper {
      * @return Set<String> -- Once TopLevelPathway has been found, returns all DbIds, inclusive, between TopLevelPathway and original Event.
      * @throws Exception -- Thrown by MySQLAdaptor.
      */
-    private static Set<String> findEventHierarchyDbIds(GKInstance event) throws Exception {
-        Set<String> dbIds = new HashSet<>();
-        dbIds.add(event.getDBID().toString());
+    private static Set<Long> findEventHierarchyDbIds(GKInstance event) throws Exception {
+        Set<Long> dbIds = new HashSet<>();
+        dbIds.add(event.getDBID());
         Collection<GKInstance> hasEventReferrals = event.getReferers(ReactomeJavaConstants.hasEvent);
         if (hasEventReferrals != null) {
             for (GKInstance hasEventReferral : hasEventReferrals) {
@@ -492,8 +518,12 @@ public class QACheckerHelper {
      * Reads skiplist file that contains Pathway DbIds that should not be included in QA check.
      * @return List<String> -- List of DbIds.
      */
-    public static List<String> getNonHumanPathwaySkipList() throws IOException {
-        return Files.readAllLines(Paths.get("resources/manually_curated_nonhuman_pathways_skip_list.txt"));
+    public static List<Long> getNonHumanPathwaySkipList() throws IOException {
+        List<Long> skiplistDbIds = new ArrayList<>();
+        for (String dbId : Files.readAllLines(Paths.get("resources/manually_curated_nonhuman_pathways_skip_list.txt"))) {
+            skiplistDbIds.add(Long.parseLong(dbId));
+        }
+        return skiplistDbIds;
     }
 
     /**
@@ -518,5 +548,4 @@ public class QACheckerHelper {
         }
         return attributeInstance != null ? attributeInstance.getDisplayName() : "N/A";
     }
-    
 }

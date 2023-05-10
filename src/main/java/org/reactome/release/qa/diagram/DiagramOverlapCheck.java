@@ -80,7 +80,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         }
         // Not a disease pathway; take the first pathway as representative.
         GKInstance pathwayInst = pathwayInsts.get(0);
-        logger.debug("Checking " + pathwayDiagram.getDisplayName() + "...");
+        logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
@@ -90,7 +90,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         
         // Check for overlaps.
         List<Renderable> overlaps = new ArrayList<Renderable>();
-        for (int i = 0; i < filtered.size(); i++) {
+        for (int i = 0; i < filtered.size() - 1; i++) {
             Renderable renderable = filtered.get(i);
             overlaps.clear();
             for (int j = i + 1; j < filtered.size(); j++) {
@@ -122,6 +122,8 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
     }
 
     private boolean isOverlapping(Renderable renderable, Renderable other) {
+        logger.debug("isOverlapping: " + renderable.getDisplayName() + " (" + renderable.getID() + ") and " +
+                                         other.getDisplayName() + " (" + other.getID() + ").");
         Rectangle bounds = getBounds(renderable);
         Rectangle otherBounds = getBounds(other);
     

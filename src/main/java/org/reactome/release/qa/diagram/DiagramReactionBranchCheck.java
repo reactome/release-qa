@@ -79,24 +79,26 @@ public class DiagramReactionBranchCheck extends AbstractDiagramQACheck {
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
         List<Renderable> components = pathway.getComponents();
-        List<RenderableReaction> rxns = components.stream()
-                .filter(cmpnt -> cmpnt instanceof RenderableReaction)
-                .map(renderable -> (RenderableReaction)renderable)
-                .collect(Collectors.toList());
-        GKInstance pathwayInst = (GKInstance)
-                pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
-        GKInstance created = (GKInstance) pathwayDiagram.getAttributeValue("created");
-        GKInstance modified = QACheckerHelper.getLastModification(pathwayDiagram);
-        for (RenderableReaction rxn: rxns) {
-            // Report the overlaps.
-            if (isOverlapping(rxn)) {
-                report.addLine(pathwayDiagram.getDBID().toString(),
-                        pathwayInst.getDisplayName(),
-                        pathwayInst.getDBID().toString(),
-                        rxn.getReactomeId().toString(),
-                        rxn.getDisplayName(),
-                        created.getDisplayName(),
-                        modified.getDisplayName());
+        if (components != null) {
+            List<RenderableReaction> rxns = components.stream()
+                    .filter(cmpnt -> cmpnt instanceof RenderableReaction)
+                    .map(renderable -> (RenderableReaction) renderable)
+                    .collect(Collectors.toList());
+            GKInstance pathwayInst = (GKInstance)
+                    pathwayDiagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
+            GKInstance created = (GKInstance) pathwayDiagram.getAttributeValue("created");
+            GKInstance modified = QACheckerHelper.getLastModification(pathwayDiagram);
+            for (RenderableReaction rxn : rxns) {
+                // Report the overlaps.
+                if (isOverlapping(rxn)) {
+                    report.addLine(pathwayDiagram.getDBID().toString(),
+                            pathwayInst.getDisplayName(),
+                            pathwayInst.getDBID().toString(),
+                            rxn.getReactomeId().toString(),
+                            rxn.getDisplayName(),
+                            created.getDisplayName(),
+                            modified.getDisplayName());
+                }
             }
         }
     }
