@@ -13,7 +13,7 @@
         <log4j2.version>2.11.0</log4j2.version>
         <javax.mail.version>1.4</javax.mail.version>
         <junit.version>5.7.2</junit.version>
-        <reactome.base.version>2.2.0-SNAPSHOT</reactome.base.version>
+        <reactome.base.version>2.2.2-SNAPSHOT</reactome.base.version>
         <java.version>11</java.version>
     </properties>
 
