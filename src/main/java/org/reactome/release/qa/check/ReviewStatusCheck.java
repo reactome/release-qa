@@ -6,9 +6,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
+import org.gk.persistence.MySQLAdaptor;
 import org.gk.util.GKApplicationUtilities;
 import org.reactome.release.qa.annotations.SliceQACheck;
 import org.reactome.release.qa.common.AbstractQACheck;
@@ -24,15 +26,23 @@ import org.reactome.release.qa.common.QAReport;
  */
 @SuppressWarnings("unchecked")
 @SliceQACheck
-public class ReviewStatusCheck extends AbstractQACheck {
+public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatabases {
+    private MySQLAdaptor priorDBA;
     
     public ReviewStatusCheck() {
     }
 
     @Override
+    public void setOtherDBAdaptor(MySQLAdaptor adaptor) {
+        this.priorDBA = adaptor;
+    }
+
+    @Override
     public QAReport executeQACheck() throws Exception {
+        if (priorDBA == null)
+            throw new IllegalStateException("Need to specify the prior database for " + getClass().getName());
         QAReport report = new QAReport();
-        report.setColumnHeaders("DB_ID", "DisplayName", "Issue", "LastIE");
+        report.setColumnHeaders("DB_ID", "DisplayName", "Issue", "LastIE", "Note");
         Collection<GKInstance> events = this.dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         for (GKInstance event : events) {
             String[] line = validateReviewStatus(event);
@@ -53,15 +63,17 @@ public class ReviewStatusCheck extends AbstractQACheck {
         if (!inst.getSchemClass().isValidAttribute("reviewStatus"))
             return null;
         GKInstance reviewStatus = (GKInstance) inst.getAttributeValue("reviewStatus");
-        if (reviewStatus == null) {
-            return null; // Treat as old release
-        }
         String[] line = null;
-        if (reviewStatus.getDisplayName().equals("one star")) {
+        if (reviewStatus == null) {
+            line = createQALine("no review status assigned", inst);
+        }
+        else if (reviewStatus.getDisplayName().equals("one star")) {
             line = createQALine("one star event", inst);
         }
         else if (reviewStatus.getDisplayName().equals("two stars")) {
-            line = createQALine("two stars event", inst);
+            // Get note for two stars
+            String note = getNoteForTwoStars(inst);
+            line = createQALine("two stars event", note, inst);
         }
         else if (reviewStatus.getDisplayName().equals("three stars")) {
             // Check the time between the last reviewed
@@ -90,12 +102,87 @@ public class ReviewStatusCheck extends AbstractQACheck {
         return line;
     }
     
+    
+    /**
+     * Per request from Lisa, generate the structure changes for two star Events.
+     * @param inst
+     * @return
+     * @throws Exception
+     */
+    private String getNoteForTwoStars(GKInstance inst) throws Exception {
+        GKInstance oldInst = priorDBA.fetchInstance(inst.getDBID());
+        if (oldInst == null)
+            return "Cannot find the instance in the prior database";
+        if (!inst.getSchemClass().getName().equals(oldInst.getSchemClass().getName()))
+            return "The class of the instance in the prior database is different";
+        if (inst.getSchemClass().isa(ReactomeJavaConstants.Pathway)) {
+            return getNodeForTwoStars(inst, oldInst, ReactomeJavaConstants.hasEvent);
+        }
+        if (inst.getSchemClass().isa(ReactomeJavaConstants.ReactionlikeEvent)) {
+            String[] attNames = {ReactomeJavaConstants.input, 
+                                 ReactomeJavaConstants.output,
+                                 ReactomeJavaConstants.catalystActivity,
+                                 ReactomeJavaConstants.regulatedBy};
+            StringBuilder notes = new StringBuilder();
+            for (String attName : attNames) {
+                String note = getNodeForTwoStars(inst, oldInst, attName);
+                if (note.startsWith("Same"))
+                    continue;
+                if (notes.length() > 0)
+                    notes.append("; ");
+                notes.append(note);
+            }
+            if (notes.length() == 0)
+                notes.append("No structural update found");
+            return notes.toString();
+        }
+        return null;
+    }
+
+    private String getNodeForTwoStars(GKInstance inst, 
+                                      GKInstance oldInst,
+                                      String attName) throws Exception {
+        List<GKInstance> current = inst.getAttributeValuesList(attName);
+        List<GKInstance> prior = oldInst.getAttributeValuesList(attName);
+        List<Long> currentIDs = current.stream().map(i -> i.getDBID()).collect(Collectors.toList());
+        List<Long> priorIDs = prior.stream().map(i -> i.getDBID()).collect(Collectors.toList());
+        if (currentIDs.size() > priorIDs.size()) {
+            priorIDs.removeAll(currentIDs);
+            if (priorIDs.size() == 0)
+                return "Added " + attName;
+            else
+                return "Added/Removed " + attName;
+        }
+        else if (currentIDs.size() == priorIDs.size()) {
+            priorIDs.removeAll(currentIDs);
+            if (priorIDs.size() == 0)
+                return "Same " + attName;
+            else
+                return "Added/Removed " + attName;
+        }
+        else {
+            currentIDs.removeAll(priorIDs);
+            if (currentIDs.size() == 0)
+                return "Removed " + attName;
+            else
+                return "Added/Removed " + attName;
+        }
+    }
+    
     private String[] createQALine(String issue, GKInstance inst)  throws Exception {
-        String[] line = new String[4];
+        return createQALine(issue, null, inst);
+    }
+    
+    private String[] createQALine(String issue, 
+                                  String note,
+                                  GKInstance inst)  throws Exception {
+        String[] line = new String[5];
         line[0] = inst.getDBID() + "";
         line[1] = inst.getDisplayName();
         line[2] = issue;
         line[3] = QACheckUtilities.getLatestCuratorIEFromInstance(inst) + "";
+        // Add some note if needed
+        line[4] = note == null ? "" : note;
         return line;
     }
     
