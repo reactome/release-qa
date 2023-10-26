@@ -18,7 +18,7 @@ import org.reactome.release.qa.common.QACheckUtilities;
 import org.reactome.release.qa.common.QAReport;
 
 /**
- * This check is to make sure the ReviewStatus setting for Events follow the following:
+ * This check is to make sure the ReviewStatus setting for Events follows the following:
  *  1). Only events having three, four, and five stars are released. Otherwise, blocked error.
     2). Three stars: internal review is more than 6 months. Otherwise, warning (not blocked)
  * @author wug
@@ -90,11 +90,13 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
                 }
                 else {
                     // Now
-                    Calendar sixMonthAgo = GKApplicationUtilities.getCalendar();
+                    Calendar previousTime = GKApplicationUtilities.getCalendar();
                     // Six months ago
-                    sixMonthAgo.set(Calendar.MONTH, sixMonthAgo.get(Calendar.MONTH) - 6);
-                    if (date.after(sixMonthAgo.getTime())) {
-                        line = createQALine("three stars with internal review shorter than 6 months", inst);
+//                    previousTime.set(Calendar.MONTH, previousTime.get(Calendar.MONTH) - 6);
+                    // Per Lisa's request, the time period has been changed to 15 weeks (NB by GW on October 26, 2023)
+                    previousTime.set(Calendar.WEEK_OF_YEAR, previousTime.get(Calendar.WEEK_OF_YEAR) - 15);
+                    if (date.after(previousTime.getTime())) {
+                        line = createQALine("three stars with internal review shorter than 15 weeks", inst);
                     }
                 }
             }
