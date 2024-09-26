@@ -10,9 +10,9 @@
 			resources, i.e. build is platform dependent! See: https://maven.apache.org/general.html -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<opencsv.version>4.2</opencsv.version>
-		<log4j2.version>2.11.0</log4j2.version>
+		<log4j2.version>2.17.0</log4j2.version>
 		<javax.mail.version>1.4</javax.mail.version>
-		<reactome.base.version>2.1.0-SNAPSHOT</reactome.base.version>
+		<reactome.base.core.version>1.0.0-SNAPSHOT</reactome.base.core.version>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -167,12 +167,12 @@
 		<dependency>
 			<groupId>org.reactome.release</groupId>
 			<artifactId>release-common-lib</artifactId>
-			<version>1.2.0</version>
+			<version>2.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- The CSV parser. -->
@@ -214,8 +214,8 @@
 		<!--Reactome-base for MYSQL Adapter -->
 		<dependency>
 			<groupId>org.reactome.base</groupId>
-			<artifactId>reactome-base</artifactId>
-			<version>${reactome.base.version}</version>
+			<artifactId>reactome-base-core</artifactId>
+			<version>${reactome.base.core.version}</version>
 			<!-- exclude old log4j 1.x libraries - log4j 1.x has not been supported
 				for a while ( See: https://blogs.apache.org/foundation/entry/apache_logging_services_project_announces
 				) -->
