@@ -95,7 +95,7 @@ public class MissingEditorialAttributeCheck extends AbstractQACheck {
 				line.add(editedIsNull ? NO : YES);
 				line.add(authoredIsNull ? NO : YES);
 				line.add(reviewedIsNull ? NO : YES);
-				line.add(creator.getDisplayName());
+				line.add(creator != null ? creator.getDisplayName() : "Unknown created author");
 				reportedEntities.add(dbId);
 			}
 		}
