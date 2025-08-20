@@ -109,6 +109,8 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
 
     private Set<Long> getRenderableReactionDbIds(RenderablePathway pathway) {
         List<Renderable> components = (List<Renderable>) pathway.getComponents();
+        System.out.println("Pathway id: " + pathway.getReactomeId());
+
         Set<Long> dbIds = components.stream()
                 .filter(r -> r.getReactomeId() != null)
                 .filter(RenderableReaction.class :: isInstance)
