@@ -69,6 +69,7 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
         String modDate = QACheckerHelper.getLastModificationAuthor(diagram);
         for (Long dbId: drawnIds) {
             GKInstance pathwayInst = pathwayInsts.get(0);
+            System.out.println("Reporting for RLE with dbId of " + dbId);
             GKInstance rle = dba.fetchInstance(dbId);
             report.addLine(diagram.getDBID().toString(),
                            pathwayInst.getDisplayName(),
@@ -108,6 +109,8 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
 
     private Set<Long> getRenderableReactionDbIds(RenderablePathway pathway) {
         List<Renderable> components = (List<Renderable>) pathway.getComponents();
+        System.out.println("Pathway: " + pathway);
+
         Set<Long> dbIds = components.stream()
                 .filter(r -> r.getReactomeId() != null)
                 .filter(RenderableReaction.class :: isInstance)
