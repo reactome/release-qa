@@ -20,7 +20,7 @@ import org.reactome.release.qa.common.QAReport;
 /**
  * This check is to make sure the ReviewStatus setting for Events follows the following:
  *  1). Only events having three, four, and five stars are released. Otherwise, blocked error.
-    2). Three stars: internal review is more than 6 months. Otherwise, warning (not blocked)
+    2). Three stars: internal review is more than 15 weeks. Otherwise, warning (not blocked)
  * @author wug
  *
  */
@@ -42,7 +42,7 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
         if (priorDBA == null)
             throw new IllegalStateException("Need to specify the prior database for " + getClass().getName());
         QAReport report = new QAReport();
-        report.setColumnHeaders("DB_ID", "DisplayName", "Issue", "LastIE", "Note");
+        report.setColumnHeaders("DB_ID", "DisplayName", "Issue", "LastIE", "Note", "Severity");
         Collection<GKInstance> events = this.dba.fetchInstancesByClass(ReactomeJavaConstants.Event);
         for (GKInstance event : events) {
             String[] line = validateReviewStatus(event);
@@ -65,28 +65,28 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
         GKInstance reviewStatus = (GKInstance) inst.getAttributeValue("reviewStatus");
         String[] line = null;
         if (reviewStatus == null) {
-            line = createQALine("no review status assigned", inst);
+            line = createQALine("no review status assigned", inst, "blocked");
         }
         else if (reviewStatus.getDisplayName().equals("one star")) {
-            line = createQALine("one star event", inst);
+            line = createQALine("one star event", inst, "blocked");
         }
         else if (reviewStatus.getDisplayName().equals("two stars")) {
             // Get note for two stars
             String note = getNoteForTwoStars(inst);
-            line = createQALine("two stars event", note, inst);
+            line = createQALine("two stars event", note, inst, "blocked");
         }
         else if (reviewStatus.getDisplayName().equals("three stars")) {
             // Check the time between the last reviewed
             List<GKInstance> internalReviewed = inst.getAttributeValuesList("internalReviewed");
             if (internalReviewed == null || internalReviewed.size() == 0) {
-                line = createQALine("three stars without internal review", inst);
+                line = createQALine("three stars without internal review", inst, "blocked");
             }
             else {
                 GKInstance lastIE = internalReviewed.get(internalReviewed.size() - 1);
                 // Check if the datetime is 6 months old
                 Date date = getDateTimeInInstanceEdit(lastIE);
                 if (date == null) {
-                    line = createQALine("three stars without dateTime in last internal review", inst);
+                    line = createQALine("three stars without dateTime in last internal review", inst, "blocked");
                 }
                 else {
                     // Now
@@ -96,7 +96,7 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
                     // Per Lisa's request, the time period has been changed to 15 weeks (NB by GW on October 26, 2023)
                     previousTime.set(Calendar.WEEK_OF_YEAR, previousTime.get(Calendar.WEEK_OF_YEAR) - 15);
                     if (date.after(previousTime.getTime())) {
-                        line = createQALine("three stars with internal review shorter than 15 weeks", inst);
+                        line = createQALine("three stars with internal review shorter than 15 weeks", inst, "warning");
                     }
                 }
             }
@@ -171,13 +171,14 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
         }
     }
     
-    private String[] createQALine(String issue, GKInstance inst)  throws Exception {
-        return createQALine(issue, null, inst);
+    private String[] createQALine(String issue, GKInstance inst, String severity)  throws Exception {
+        return createQALine(issue, null, inst, severity);
     }
     
     private String[] createQALine(String issue, 
                                   String note,
-                                  GKInstance inst)  throws Exception {
+                                  GKInstance inst,
+                                  String severity)  throws Exception {
         String[] line = new String[5];
         line[0] = inst.getDBID() + "";
         line[1] = inst.getDisplayName();
@@ -185,6 +186,7 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
         line[3] = QACheckUtilities.getLatestCuratorIEFromInstance(inst) + "";
         // Add some note if needed
         line[4] = note == null ? "" : note;
+        line[5] = severity;
         return line;
     }
     
