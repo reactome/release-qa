@@ -18,6 +18,8 @@ import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import static org.reactome.util.general.CollectionUtils.safeList;
+
 /**
  * This checks is to find extra ReactionLikeEvents that are drawn but should not drawn in a pathway 
  * diagram. This usually should not occur since the slicing tool should have take a check.
@@ -108,7 +110,7 @@ public class DiagramExtraReactionlikeEventsCheck extends AbstractDiagramQACheck 
     }
 
     private Set<Long> getRenderableReactionDbIds(RenderablePathway pathway) {
-        List<Renderable> components = (List<Renderable>) pathway.getComponents();
+        List<Renderable> components = safeList((List<Renderable>) pathway.getComponents());
         System.out.println("Pathway: " + pathway);
 
         Set<Long> dbIds = components.stream()

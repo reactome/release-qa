@@ -16,6 +16,8 @@ import org.gk.render.RenderablePathway;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import static org.reactome.util.general.CollectionUtils.safeList;
+
 /**
  * The base class for checking diagram rendering overlap. Subclasses are
  * responsible for providing a renderable filter, a bounds factory and
@@ -83,7 +85,7 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         logger.info("Checking " + pathwayDiagram.getDisplayName() + "...");
         RenderablePathway pathway = reader.openDiagram(pathwayDiagram);
         @SuppressWarnings("unchecked")
-        List<Renderable> components = pathway.getComponents();
+        List<Renderable> components = safeList(pathway.getComponents());
         List<Renderable> filtered = components.stream()
                 .filter(filter)
                 .collect(Collectors.toList());
