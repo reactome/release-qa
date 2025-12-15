@@ -179,7 +179,7 @@ public class ReviewStatusCheck extends AbstractQACheck implements ChecksTwoDatab
                                   String note,
                                   GKInstance inst,
                                   String severity)  throws Exception {
-        String[] line = new String[5];
+        String[] line = new String[6];
         line[0] = inst.getDBID() + "";
         line[1] = inst.getDisplayName();
         line[2] = issue;
