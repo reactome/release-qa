@@ -25,6 +25,8 @@ import org.reactome.release.qa.common.QACheckProperties;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import static org.reactome.util.general.CollectionUtils.safeList;
+
 /**
  * Check for diagram Compartment nodes whose label is significantly
  * occluded by another node. Only non-reaction database entity nodes
@@ -108,7 +110,7 @@ public class DiagramCompartmentLabelOccludedCheck extends AbstractDiagramQACheck
         BufferedImage img = helper.paintOnImage(pathwayEditor);
         Graphics g = img.createGraphics();
         @SuppressWarnings("unchecked")
-        List<Renderable> componentNodes = pathway.getComponents();
+        List<Renderable> componentNodes = safeList(pathway.getComponents());
         GKInstance pathwayInst =
                 (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         // Check for a non-empty, non-occluded label.

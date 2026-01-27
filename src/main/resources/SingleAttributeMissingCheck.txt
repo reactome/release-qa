@@ -5,3 +5,5 @@
 # is checked separately.
 BlackBoxEvent	output	input
 FailedReaction disease
+CatalystActivity activity
+LiteratureReference  pubMedIdentifier

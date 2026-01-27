@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.log4j.Logger;
 import org.gk.model.GKInstance;
 import org.gk.model.ReactomeJavaConstants;
 import org.gk.persistence.DiagramGKBReader;
@@ -17,6 +18,8 @@ import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import static org.reactome.util.general.CollectionUtils.safeList;
+
 /**
  * This is the slice QA adaptation of the diagram-converter T104 duplicate
  * participants diagram check.
@@ -25,7 +28,8 @@ import org.reactome.release.qa.common.QAReport;
  */
 @DiagramQACheck
 public class DiagramDuplicateReactionParticipantsCheck extends AbstractDiagramQACheck {
-    
+    private final static Logger logger = Logger.getLogger(DiagramDuplicateReactionParticipantsCheck.class);
+
     @Override
     public QAReport executeQACheck() throws Exception {
         QAReport report = new QAReport();
@@ -50,7 +54,10 @@ public class DiagramDuplicateReactionParticipantsCheck extends AbstractDiagramQA
             QAReport report) throws Exception {
         RenderablePathway pathway = reader.openDiagram(diagram);
         @SuppressWarnings("unchecked")
-        List<Renderable> components = (List<Renderable>) pathway.getComponents();
+        List<Renderable> components = safeList((List<Renderable>) pathway.getComponents());
+        if (components.isEmpty()) {
+            logger.info(diagram + " has no components");
+        }
         for (Renderable component: components) {
             if (component instanceof RenderableReaction) {
                 RenderableReaction reaction = (RenderableReaction) component;

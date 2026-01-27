@@ -16,14 +16,14 @@ A collection of tools to perform QA checks during the Release process.
 ### QA checks to run against the release database
 
 * CompareSpeciesbyclasses: This check will compare the current release database to the previous release database (for example: `test_reactome_65` and `test_reactome_64`) and compare the number of instances of each class type. When the percent difference is > 10% (where the actual difference is > 1000), the difference will be highlighted as `*** Difference is N% ***` in the output report.
-This QA check requires additional config settings in `auth.properties` to connect tot he previous release database. These properties are: `altDbHost`, `altDbName`, `altDbUser`, `altDbPwd`.
+This QA check requires additional config settings in `auth.properties` to connect to the previous release database. These properties are: `altDbHost`, `altDbName`, `altDbUser`, `altDbPwd`.
 * FindMismatchedStableIdentifierVersions: This check will find Stable Identifiers that are present in two databases, but have mismatched version numbers.
-This QA check requires additional config settings in `auth.properties` to connect tot he previous release database. These properties are: `altDbHost`, `altDbName`, `altDbUser`, `altDbPwd`. 
+This QA check requires additional config settings in `auth.properties` to connect to the previous release database. These properties are: `altDbHost`, `altDbName`, `altDbUser`, `altDbPwd`. 
 
 ### Running the code
 You can run the checks like this:
 ```
-java -Xmx8G -jar release-qa-0.1.0-jar-with-dependencies.jar
+java -Xmx8G -jar release-qa-0.1.0-exec
 ```
 This will run a set of QAs for release. Before running the above, make sure you have edited
 `resources/auth.properties` to provide required database connection information. All outputs
@@ -31,7 +31,7 @@ will be generated in the output folder.
 
 You can run a specific check like this:
 ```
-java -Xmx8G -jar release-qa-0.1.0-jar-with-dependencies.jar [CHECK]
+java -Xmx8G -jar release-qa-0.1.0-exec [CHECK]
 ```
 where `CHECK` is the QA check simple class name without file extension.
 
