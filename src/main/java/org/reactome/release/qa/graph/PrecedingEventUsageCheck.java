@@ -48,12 +48,12 @@ public class PrecedingEventUsageCheck extends AbstractQACheck {
         PreparedStatement ps = conn.prepareStatement(SQL);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            Long dbId = new Long(rs.getLong(1));
+            Long dbId = rs.getLong(1);
             GKInstance following = dba.fetchInstance(dbId);
             if (isEscaped(following)) {
                 continue;
             }
-            Long precedingDbId = new Long(rs.getLong(2));
+            Long precedingDbId = rs.getLong(2);
             GKInstance preceding = dba.fetchInstance(precedingDbId);
             if (preceding == null) {
                 logger.error(precedingDbId + " for " + following + " doesn't exist in the DB!");

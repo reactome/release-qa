@@ -13,6 +13,8 @@ import org.reactome.release.qa.annotations.DiagramQACheck;
 import org.reactome.release.qa.common.QACheckerHelper;
 import org.reactome.release.qa.common.QAReport;
 
+import static org.reactome.util.general.CollectionUtils.safeList;
+
 /**
  * This is the implementation of the diagram-converter DT112 check for
  * diagram Compartment nodes whose displayName is missing.
@@ -53,7 +55,7 @@ public class DiagramCompartmentLabelMissingCheck extends AbstractDiagramQACheck 
             throws Exception {
         RenderablePathway pathway = reader.openDiagram(diagram);
         @SuppressWarnings("unchecked")
-        List<Renderable> cmpnts = pathway.getComponents();
+        List<Renderable> cmpnts = safeList(pathway.getComponents());
         GKInstance pathwayInst =
                 (GKInstance) diagram.getAttributeValue(ReactomeJavaConstants.representedPathway);
         // Check for a non-empty, non-occluded label.

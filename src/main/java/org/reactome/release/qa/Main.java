@@ -115,7 +115,7 @@ public class Main {
         for (Class<? extends QACheck> cls : selected) {
             QACheck check;
             try {
-                check = cls.newInstance();
+                check = cls.getDeclaredConstructor().newInstance();
             } catch (InstantiationException e) {
                 // Instantiation errors are remarkably uninformative.
                 logger.error("Could not instantiate " + cls.getName());

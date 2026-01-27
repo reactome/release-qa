@@ -13,6 +13,5 @@ Pathway	hasEvent
 Event	summation
 PhysicalEntity	summation
 CandidateSet	hasCandidate
-Regulation	summation
 ReplacedResidue	psiMod
 
