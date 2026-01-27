@@ -52,8 +52,12 @@ public class StableIdentifierCheck extends AbstractQACheck {
 			Collection<GKInstance> deletedInstanceReferrers =
 				stableId.getReferers("deletedStableIdentifier");
 			Collection<GKInstance> referrers = new ArrayList<>();
-			referrers.addAll(instanceReferrers);
-			referrers.addAll(deletedInstanceReferrers);
+			if (instanceReferrers != null) {
+				referrers.addAll(instanceReferrers);
+			}
+			if (deletedInstanceReferrers != null) {
+				referrers.addAll(deletedInstanceReferrers);
+			}
 
 			if (referrers.size() == 0) {
 				report.addLine(stableId.getDBID().toString(),
