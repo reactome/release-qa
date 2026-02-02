@@ -59,7 +59,7 @@ public class StableIdentifierCheck extends AbstractQACheck {
 				referrers.addAll(deletedInstanceReferrers);
 			}
 
-			if (referrers.size() == 0) {
+			if (referrers.isEmpty()) {
 				report.addLine(stableId.getDBID().toString(),
 						stableId.getDisplayName(),
 						"Not used",
