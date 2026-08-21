@@ -100,7 +100,7 @@ public class ReferenceDatabaseAccessURLCheck extends AbstractQACheck
 	public QAReport executeQACheck() throws Exception
 	{
 		QAReport report = new QAReport();
-		report.setColumnHeaders("DB_ID", "diplayName", "oldAccessURL", "newAccessURL");
+		report.setColumnHeaders("DB_ID", "DisplayName", "Current AccessURL", "Proposed AccessURL");
 
 		@SuppressWarnings("unchecked")
 		Collection<GKInstance> refDatabases = dba.fetchInstancesByClass(ReactomeJavaConstants.ReferenceDatabase);
