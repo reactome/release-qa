@@ -127,8 +127,14 @@ public abstract class DiagramOverlapCheck extends AbstractDiagramQACheck {
         logger.debug("isOverlapping: " + renderable.getDisplayName() + " (" + renderable.getID() + ") and " +
                                          other.getDisplayName() + " (" + other.getID() + ").");
         Rectangle bounds = getBounds(renderable);
+
+        if (bounds == null) {
+            logger.error(renderable + " has no bounds");
+            return false;
+        }
+
         Rectangle otherBounds = getBounds(other);
-    
+
         if (bounds.intersects(otherBounds)) {
             if (tolerance == null) {
                 return true;
