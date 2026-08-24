@@ -65,7 +65,7 @@ import org.reactome.release.qa.common.QAReport;
  */
 public class Notify {
 
-    private static final String INSTANCE_BROWSER_URL = "cgi-bin/instancebrowser?DB=gk_central&ID=";
+    private static final String INSTANCE_BROWSER_URL = "curatorgraph/dataSchema/DatabaseObject/instance/";
 
     private static final String NL = System.getProperty("line.separator");
 
