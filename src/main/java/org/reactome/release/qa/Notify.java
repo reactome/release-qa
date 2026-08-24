@@ -332,7 +332,9 @@ public class Notify {
            String prefix = fileName.split("\\.")[0];
            // Make the custom curator file name.
            String rptHdg = prefix.replace('_', ' ');
-           String suffix = curator.replace(",", "").toLowerCase();
+           // Strip the comma and any character, such as an apostrophe, which
+           // is not URL-friendly
+           String suffix = curator.replaceAll("[^A-Za-z0-9]", "").toLowerCase();
            String base = prefix + "_" + suffix;
            String curatorFileName = base + ".html";
            File curatorFile = new File(dir, curatorFileName);
@@ -396,6 +398,25 @@ public class Notify {
         return sb.toString();
     }
 
+    /**
+     * Escapes the characters which would otherwise terminate or corrupt an
+     * HTML attribute value
+     *
+     * @param value the raw attribute value
+     * @return the escaped attribute value
+     */
+    private static String escapeHTMLAttribute(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("\"", "&quot;")
+                    .replace("'", "&#39;");
+    }
+
     private static String createHTMLTableRow(List<String> line, Set<Integer> dbIdNdxs, String instUrlPrefix) {
         StringBuffer sb = new StringBuffer();
         sb.append("<tr>");
@@ -403,10 +424,9 @@ public class Notify {
             String col = line.get(i);
             sb.append("<td>");
             if (dbIdNdxs.contains(i)) {
-                sb.append("<a href=");
-                sb.append(instUrlPrefix);
-                sb.append(col);
-                sb.append(">");
+                sb.append("<a href=\"");
+                sb.append(escapeHTMLAttribute(instUrlPrefix + col));
+                sb.append("\">");
                 sb.append(col);
                 sb.append("</a>");
             } else {
@@ -465,12 +485,12 @@ public class Notify {
                 String htmlUrl = prefix + htmlFile.getName();
                 String rptUrl = prefix + rptFile.getName();
                 sb.append("<li>");
-                sb.append("<a href='" + htmlUrl + "'>");
+                sb.append("<a href=\"" + escapeHTMLAttribute(htmlUrl) + "\">");
                 sb.append(rptName);
                 sb.append("</a>");
                 // Coordinators get a link to the raw CSV file as well.
                 if (COORDINATOR_EMAILS.contains(recipient)) {
-                    sb.append(" (<a href='" + rptUrl + "'>");
+                    sb.append(" (<a href=\"" + escapeHTMLAttribute(rptUrl) + "\">");
                     sb.append("tsv</a>)");
                 }
                 sb.append("</li>");
